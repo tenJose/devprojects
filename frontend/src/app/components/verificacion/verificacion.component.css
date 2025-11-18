@@ -1,0 +1,141 @@
+/* Estilos del componente Verificación */
+
+.verificacion-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f5f5 0%, #e0e7ff 100%);
+  padding: 20px;
+}
+
+.btn-atras {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: white;
+  border: 1px solid var(--color-border);
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-atras:hover {
+  background-color: #f5f5f5;
+}
+
+.verificacion-contenedor {
+  background: white;
+  border-radius: 16px;
+  padding: 60px 40px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.icono-verificacion {
+  font-size: 3.5rem;
+  margin-bottom: 20px;
+  display: inline-block;
+  background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+}
+
+.verificacion-contenedor h1 {
+  font-size: 1.75rem;
+  margin-bottom: 10px;
+  color: var(--color-text);
+}
+
+.subtitulo {
+  color: var(--color-text-light);
+  margin-bottom: 40px;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Inputs de código */
+.codigo-inputs {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin: 40px 0;
+}
+
+.input-digito {
+  width: 50px;
+  height: 50px;
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  transition: all 0.3s ease;
+  font-family: 'Courier New', monospace;
+}
+
+.input-digito:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+}
+
+/* Botones */
+.btn-bloque {
+  width: 100%;
+  margin: 30px 0 20px;
+  justify-content: center;
+}
+
+.texto-reenvio {
+  color: var(--color-text-light);
+  font-size: 0.95rem;
+  margin-top: 30px;
+}
+
+.btn-reenvio {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 5px;
+  transition: color 0.2s ease;
+  text-decoration: underline;
+}
+
+.btn-reenvio:hover {
+  color: var(--color-primary-dark);
+}
+
+@media (max-width: 768px) {
+  .verificacion-contenedor {
+    padding: 40px 20px;
+  }
+
+  .codigo-inputs {
+    gap: 8px;
+  }
+
+  .input-digito {
+    width: 45px;
+    height: 45px;
+    font-size: 1.25rem;
+  }
+
+  .btn-atras {
+    top: 10px;
+    left: 10px;
+    padding: 8px 16px;
+  }
+}

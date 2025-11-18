@@ -1,0 +1,87 @@
+// Esquema de base de datos con Prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelo de Usuario
+model User {
+  id                Int       @id @default(autoincrement())
+  email             String    @unique
+  nombre            String
+  fechaNacimiento   DateTime?
+  password          String
+  fotoPerfil        String?
+  descripcion       String?   @db.Text
+  tecnologias       String?   @db.Text // JSON array como string
+  lenguajes         String?   @db.Text // JSON array como string
+  informacionExtra  String?   @db.Text
+  codigoVerificacion String?
+  verificado        Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relaciones
+  proyectos         Proyecto[]
+  postulaciones     Postulacion[]
+  mensajesEnviados   Mensaje[] @relation(name: "mensajesEnviados")
+  mensajesRecibidos  Mensaje[] @relation(name: "mensajesRecibidos")
+
+  @@map("usuarios")
+}
+
+// Modelo de Proyecto
+model Proyecto {
+  id                Int       @id @default(autoincrement())
+  nombre            String
+  descripcion       String    @db.Text
+  tecnologias       String    @db.Text // JSON array
+  lenguajes         String?   @db.Text // JSON array
+  datosAdicionales  String?   @db.Text
+  estado            String    @default("activo") // activo, completado, cancelado
+  usuarioCreadorId  Int
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relaciones
+  usuarioCreador    User      @relation(fields: [usuarioCreadorId], references: [id], onDelete: Cascade)
+  postulaciones     Postulacion[]
+
+  @@map("proyectos")
+}
+
+// Modelo de Postulación
+model Postulacion {
+  id                Int       @id @default(autoincrement())
+  usuarioId         Int
+  proyectoId        Int
+  estado            String    @default("pendiente") // pendiente, aceptado, rechazado
+  fechaPostulacion  DateTime  @default(now())
+
+  // Relaciones
+  usuario           User      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  proyecto          Proyecto  @relation(fields: [proyectoId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, proyectoId])
+  @@map("postulaciones")
+}
+
+// Modelo de Mensaje
+model Mensaje {
+  id                Int       @id @default(autoincrement())
+  remitente         Int
+  destinatario      Int
+  contenido         String    @db.Text
+  leido             Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+
+  // Relaciones
+  usuarioRemitente  User      @relation(fields: [remitente], references: [id], onDelete: Cascade, name: "mensajesEnviados")
+  usuarioDestinatario User    @relation(fields: [destinatario], references: [id], onDelete: Cascade, name: "mensajesRecibidos")
+
+  @@map("mensajes")
+}

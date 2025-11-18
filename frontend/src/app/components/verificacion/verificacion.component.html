@@ -1,0 +1,51 @@
+<div class="verificacion-container">
+  <button class="btn-atras" onclick="window.history.back()">&larr; Atrás</button>
+
+  <div class="verificacion-contenedor">
+    <div class="icono-verificacion">&#9993;&#65039;</div>
+
+    <h1>Verifica tu correo electrónico</h1>
+
+    <p class="subtitulo">
+      Ingresa el código de 6 dígitos que enviamos a <strong>{{ email }}</strong>
+    </p>
+
+    <!-- Error -->
+    <div *ngIf="error" class="alert alert-error">
+      {{ error }}
+    </div>
+
+    <!-- Éxito -->
+    <div *ngIf="exito" class="alert alert-success">
+      {{ exito }}
+    </div>
+
+    <!-- Inputs del código -->
+    <div class="codigo-inputs">
+      <input
+        *ngFor="let digit of codigo; let i = index"
+        [id]="'digit-' + i"
+        type="text"
+        class="input-digito"
+        maxlength="1"
+        [(ngModel)]="codigo[i]"
+        (input)="onInputChange(i)"
+        (keydown)="onKeyDown($event, i)"
+      />
+    </div>
+
+    <!-- Botón de verificar -->
+    <button
+      class="btn btn-primary btn-bloque"
+      (click)="verificar()"
+      [disabled]="cargando"
+    >
+      {{ cargando ? 'Verificando...' : 'Verificar y continuar' }}
+    </button>
+
+    <p class="texto-reenvio">
+      ¿No recibiste el código?
+      <button class="btn-reenvio" (click)="reenviar()">Reenviar</button>
+    </p>
+  </div>
+</div>

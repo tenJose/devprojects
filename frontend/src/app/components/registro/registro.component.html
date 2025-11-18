@@ -1,0 +1,130 @@
+<!-- Template HTML de Registro -->
+
+<div class="registro-container">
+  <!-- Lado izquierdo - Decoración -->
+  <div class="registro-decoracion">
+    <div class="decoracion-contenido">
+      <h1>DevProjects</h1>
+      <p>&Uacute;nete a la comunidad de ingenieros de software</p>
+    </div>
+  </div>
+
+  <!-- Lado derecho - Formulario -->
+  <div class="registro-formulario">
+    <div class="formulario-contenedor">
+      <h2>Crea una cuenta</h2>
+      <p>Reg&iacute;strate para comenzar a buscar proyectos</p>
+
+      <!-- Mensaje de error -->
+      <div *ngIf="error" class="alert alert-error">
+        {{ error }}
+      </div>
+
+      <!-- Mensaje de éxito -->
+      <!-- Cambiado éxito a exito -->
+      <div *ngIf="exito" class="alert alert-success">
+        {{ exito }}
+      </div>
+
+      <!-- Formulario -->
+      <form (ngSubmit)="enviar()" class="formulario">
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email" class="form-label">Correo electr&oacute;nico</label>
+          <input
+            type="email"
+            id="email"
+            class="form-input"
+            [(ngModel)]="email"
+            name="email"
+            placeholder="ejemplo@email.com"
+          />
+        </div>
+
+        <!-- Nombre -->
+        <div class="form-group">
+          <label for="nombre" class="form-label">Nombre completo</label>
+          <input
+            type="text"
+            id="nombre"
+            class="form-input"
+            [(ngModel)]="nombre"
+            name="nombre"
+            placeholder="Tu nombre"
+          />
+        </div>
+
+        <!-- Fecha de nacimiento -->
+        <div class="form-group">
+          <label for="fecha" class="form-label">Fecha de nacimiento</label>
+          <input
+            type="date"
+            id="fecha"
+            class="form-input"
+            [(ngModel)]="fechaNacimiento"
+            name="fechaNacimiento"
+          />
+        </div>
+
+        <!-- Contraseña -->
+        <div class="form-group">
+          <label for="password" class="form-label">Contrase&ntilde;a</label>
+          <div class="input-con-icono">
+            <input
+              [type]="mostrarContrasena ? 'text' : 'password'"
+              id="password"
+              class="form-input"
+              [(ngModel)]="password"
+              name="password"
+              placeholder="M&iacute;nimo 8 caracteres"
+            />
+            <button
+              type="button"
+              class="btn-icono"
+              (click)="cambiarVisibilidad('password')"
+            >
+              {{ mostrarContrasena ? '&#128065;&#65039;' : '&#128065;&#65039;&#8205;&#128488;&#65039;' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Confirmar contraseña -->
+        <div class="form-group">
+          <label for="passwordConfirm" class="form-label">Confirmar contrase&ntilde;a</label>
+          <div class="input-con-icono">
+            <input
+              [type]="mostrarConfirmar ? 'text' : 'password'"
+              id="passwordConfirm"
+              class="form-input"
+              [(ngModel)]="passwordConfirm"
+              name="passwordConfirm"
+              placeholder="Repite tu contrase&ntilde;a"
+            />
+            <button
+              type="button"
+              class="btn-icono"
+              (click)="cambiarVisibilidad('confirm')"
+            >
+              {{ mostrarConfirmar ? '&#128065;&#65039;' : '&#128065;&#65039;&#8205;&#128488;&#65039;' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Botón -->
+        <button
+          type="submit"
+          class="btn btn-primary btn-bloque"
+          [disabled]="cargando"
+        >
+          {{ cargando ? 'Registrando...' : 'Crear Cuenta' }}
+        </button>
+      </form>
+
+      <!-- Link a login -->
+      <p class="texto-login">
+        &iquest;Ya tienes cuenta?
+        <a routerLink="/login" class="link-login">Inicia sesi&oacute;n aqu&iacute;</a>
+      </p>
+    </div>
+  </div>
+</div>

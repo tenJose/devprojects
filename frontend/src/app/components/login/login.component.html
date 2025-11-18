@@ -1,0 +1,83 @@
+<!-- Template HTML de Login -->
+
+<div class="login-container">
+  <!-- Lado izquierdo - Decoración -->
+  <div class="login-decoracion">
+    <div class="decoracion-contenido">
+      <h1>DevProjects</h1>
+      <p>La plataforma donde ingenieros de software encuentran sus pr&oacute;ximos grandes proyectos</p>
+    </div>
+  </div>
+
+  <!-- Lado derecho - Formulario -->
+  <div class="login-formulario">
+    <div class="formulario-contenedor">
+      <h2>Accede a tu cuenta</h2>
+      <p>Encuentra y gestiona tus pr&oacute;ximos proyectos de software</p>
+
+      <!-- Mensaje de error -->
+      <div *ngIf="error" class="alert alert-error">
+        {{ error }}
+      </div>
+
+      <!-- Mensaje de éxito -->
+      <!-- Cambiado éxito a exito -->
+      <div *ngIf="exito" class="alert alert-success">
+        {{ exito }}
+      </div>
+
+      <!-- Formulario -->
+      <form (ngSubmit)="enviar()" class="formulario">
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email" class="form-label">Correo electr&oacute;nico</label>
+          <input
+            type="email"
+            id="email"
+            class="form-input"
+            [(ngModel)]="email"
+            name="email"
+            placeholder="ejemplo@email.com"
+          />
+        </div>
+
+        <!-- Contraseña -->
+        <div class="form-group">
+          <label for="password" class="form-label">Contrase&ntilde;a</label>
+          <div class="input-con-icono">
+            <input
+              [type]="mostrarContrasena ? 'text' : 'password'"
+              id="password"
+              class="form-input"
+              [(ngModel)]="password"
+              name="password"
+              placeholder="Introduce tu contrase&ntilde;a"
+            />
+            <button
+              type="button"
+              class="btn-icono"
+              (click)="cambiarVisibilidadContrasena()"
+            >
+              {{ mostrarContrasena ? '&#128065;&#65039;' : '&#128065;&#65039;&#8205;&#128488;&#65039;' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Botón -->
+        <button
+          type="submit"
+          class="btn btn-primary btn-bloque"
+          [disabled]="cargando"
+        >
+          {{ cargando ? 'Iniciando sesi&oacute;n...' : 'Iniciar Sesi&oacute;n' }}
+        </button>
+      </form>
+
+      <!-- Link a registro -->
+      <p class="texto-registro">
+        &iquest;Nuevo en la plataforma?
+        <a routerLink="/registro" class="link-registro">Crea una cuenta</a>
+      </p>
+    </div>
+  </div>
+</div>

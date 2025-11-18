@@ -1,0 +1,144 @@
+/* Estilos del componente Registro - Igual que Login pero con otros colores */
+
+.registro-container {
+  display: flex;
+  height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.registro-decoracion {
+  flex: 1;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.decoracion-contenido {
+  text-align: center;
+  padding: 40px;
+}
+
+.decoracion-contenido h1 {
+  font-size: 3.5rem;
+  margin-bottom: 20px;
+  font-weight: 800;
+}
+
+.decoracion-contenido p {
+  font-size: 1.25rem;
+  max-width: 400px;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.registro-formulario {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background-color: #ffffff;
+  overflow-y: auto;
+}
+
+.formulario-contenedor {
+  width: 100%;
+  max-width: 400px;
+}
+
+.formulario-contenedor h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: var(--color-text);
+}
+
+.formulario-contenedor > p {
+  color: var(--color-text-light);
+  margin-bottom: 30px;
+  font-size: 0.95rem;
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.input-con-icono {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-con-icono .form-input {
+  width: 100%;
+  padding-right: 45px;
+}
+
+.btn-icono {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0;
+}
+
+.btn-bloque {
+  width: 100%;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.texto-login {
+  text-align: center;
+  margin-top: 20px;
+  color: var(--color-text-light);
+  font-size: 0.95rem;
+}
+
+.link-login {
+  color: #10b981;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.link-login:hover {
+  color: #059669;
+}
+
+@media (max-width: 1024px) {
+  .registro-container {
+    flex-direction: column;
+  }
+
+  .registro-decoracion {
+    padding: 40px;
+    min-height: 300px;
+  }
+
+  .decoracion-contenido h1 {
+    font-size: 2.5rem;
+  }
+
+  .registro-formulario {
+    flex: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .registro-decoracion {
+    display: none;
+  }
+
+  .registro-formulario {
+    padding: 20px;
+  }
+
+  .formulario-contenedor {
+    max-width: 100%;
+  }
+}

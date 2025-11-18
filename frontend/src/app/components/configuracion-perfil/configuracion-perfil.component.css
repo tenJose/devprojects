@@ -1,0 +1,193 @@
+/* Estilos del componente Configuración de Perfil */
+
+.configuracion-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 40px 20px;
+}
+
+.configuracion-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.configuracion-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  color: var(--color-text);
+}
+
+.configuracion-header p {
+  color: var(--color-text-light);
+  font-size: 1.1rem;
+}
+
+.configuracion-contenedor {
+  max-width: 600px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Sección de foto */
+.seccion-foto {
+  text-align: center;
+  margin-bottom: 40px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.seccion-foto h3 {
+  margin-bottom: 20px;
+}
+
+.foto-preview,
+.foto-default {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-border);
+  overflow: hidden;
+  font-size: 3rem;
+}
+
+.foto-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.foto-default {
+  background-color: #e5e7eb;
+  color: var(--color-text-light);
+}
+
+.input-archivo-oculto {
+  display: none;
+}
+
+.seccion-foto .form-group {
+  margin: 0;
+}
+
+.seccion-foto .btn {
+  cursor: pointer;
+}
+
+.texto-ayuda {
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+  margin-top: 10px;
+}
+
+/* Formulario */
+.formulario-configuracion {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.form-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 1rem;
+  resize: vertical;
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+}
+
+/* Contador de caracteres */
+.contador {
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+  margin-top: 5px;
+}
+
+/* Sugerencias de tags */
+.sugerencias {
+  margin-top: 15px;
+  text-align: left;
+}
+
+.sugerencias p {
+  font-size: 0.9rem;
+  color: var(--color-text-light);
+  margin-bottom: 10px;
+}
+
+.btn-tag {
+  display: inline-block;
+  background-color: #f3f4f6;
+  border: 1px solid var(--color-border);
+  padding: 6px 12px;
+  border-radius: 20px;
+  margin-right: 8px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.btn-tag:hover {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+/* Botones de acción */
+.botones-accion {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.btn-bloque {
+  width: 100%;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .configuracion-container {
+    padding: 20px 0;
+  }
+
+  .configuracion-contenedor {
+    padding: 20px;
+    border-radius: 0;
+  }
+
+  .configuracion-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .seccion-foto {
+    margin-bottom: 30px;
+    padding-bottom: 30px;
+  }
+
+  .foto-preview,
+  .foto-default {
+    width: 100px;
+    height: 100px;
+    font-size: 2.5rem;
+  }
+}

@@ -1,0 +1,143 @@
+<!-- Template HTML de Configuración de Perfil -->
+
+<div class="configuracion-container">
+  <div class="configuracion-header">
+    <h1>Completa tu perfil</h1>
+    <p>Agrega informaci&oacute;n sobre ti para que otros ingenieros te conozcan</p>
+  </div>
+
+  <div class="configuracion-contenedor">
+    <!-- Mensaje de error -->
+    <div *ngIf="error" class="alert alert-error">
+      {{ error }}
+    </div>
+
+    <!-- Mensaje de éxito -->
+    <div *ngIf="exito" class="alert alert-success">
+      {{ exito }}
+    </div>
+
+    <!-- Formulario -->
+    <form (ngSubmit)="guardar()" class="formulario-configuracion">
+      <!-- Foto de perfil -->
+      <div class="seccion-foto">
+        <h3>Foto de perfil</h3>
+        
+        <div class="foto-preview" *ngIf="previewFoto">
+          <img [src]="previewFoto" alt="Preview de foto" />
+        </div>
+
+        <div class="foto-default" *ngIf="!previewFoto">
+          👤
+        </div>
+
+        <div class="form-group">
+          <label for="foto" class="btn btn-secondary">
+            Seleccionar foto
+          </label>
+          <input
+            type="file"
+            id="foto"
+            class="input-archivo-oculto"
+            accept="image/*"
+            (change)="onFotoSeleccionada($event)"
+          />
+        </div>
+        <p class="texto-ayuda">Máximo 5MB. Formatos: JPG, PNG</p>
+      </div>
+
+      <!-- Sección de descripción -->
+      <div class="form-group">
+        <label for="descripcion" class="form-label">
+          Descripción profesional *
+        </label>
+        <textarea
+          id="descripcion"
+          class="form-textarea"
+          [(ngModel)]="descripcion"
+          name="descripcion"
+          placeholder="Cuéntanos sobre tu experiencia, formación académica y lo que te hace especial como ingeniero..."
+          minlength="20"
+        ></textarea>
+        <p class="contador">{{ descripcion.length }}/500 caracteres</p>
+      </div>
+
+      <!-- Sección de tecnologías -->
+      <div class="form-group">
+        <label for="tecnologias" class="form-label">
+          Tecnologías que dominas *
+        </label>
+        <textarea
+          id="tecnologias"
+          class="form-textarea"
+          [(ngModel)]="tecnologias"
+          name="tecnologias"
+          placeholder="React, Angular, Node.js (separadas por comas)"
+        ></textarea>
+
+        <div class="sugerencias">
+          <p>Sugeridas:</p>
+          <button
+            type="button"
+            *ngFor="let tech of tecnologiasSugeridas"
+            class="btn-tag"
+            (click)="agregarTecnologia(tech)"
+          >
+            + {{ tech }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Sección de lenguajes -->
+      <div class="form-group">
+        <label for="lenguajes" class="form-label">
+          Lenguajes de programación (opcional)
+        </label>
+        <textarea
+          id="lenguajes"
+          class="form-textarea"
+          [(ngModel)]="lenguajes"
+          name="lenguajes"
+          placeholder="JavaScript, Python, Java (separadas por comas)"
+        ></textarea>
+
+        <div class="sugerencias">
+          <p>Sugeridos:</p>
+          <button
+            type="button"
+            *ngFor="let lang of lenguajesSugeridos"
+            class="btn-tag"
+            (click)="agregarLenguaje(lang)"
+          >
+            + {{ lang }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Sección de información extra -->
+      <div class="form-group">
+        <label for="extra" class="form-label">
+          Información adicional (opcional)
+        </label>
+        <textarea
+          id="extra"
+          class="form-textarea"
+          [(ngModel)]="informacionExtra"
+          name="informacionExtra"
+          placeholder="Portfolio, Github, certificaciones, premios, etc..."
+        ></textarea>
+      </div>
+
+      <!-- Botones -->
+      <div class="botones-accion">
+        <button
+          type="submit"
+          class="btn btn-primary btn-bloque"
+          [disabled]="cargando"
+        >
+          {{ cargando ? 'Guardando...' : 'Guardar y continuar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
