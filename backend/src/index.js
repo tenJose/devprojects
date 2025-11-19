@@ -23,5 +23,5 @@ app.get('/api/health', function (req, res) {
 });
 // Iniciar servidor
 app.listen(PORT, function () {
-    console.log("Servidor ejecut\u00E1ndose en puerto ".concat(PORT));
+    console.log("Servidor ejecutandose en puerto ".concat(PORT));
 });
