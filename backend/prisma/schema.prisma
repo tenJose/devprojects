@@ -13,6 +13,7 @@ model User {
   id                Int       @id @default(autoincrement())
   email             String    @unique
   nombre            String
+  apellido          String?   // ✅ NUEVO: Agregado apellido para mostrar nombre completo
   fechaNacimiento   DateTime?
   password          String
   fotoPerfil        String?
@@ -22,6 +23,8 @@ model User {
   informacionExtra  String?   @db.Text
   codigoVerificacion String?
   verificado        Boolean   @default(false)
+  rol               String    @default("usuario") // ✅ NUEVO: usuario, admin
+  activo            Boolean   @default(true) // ✅ NUEVO: Para desactivar cuentas
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
@@ -39,10 +42,17 @@ model Proyecto {
   id                Int       @id @default(autoincrement())
   nombre            String
   descripcion       String    @db.Text
-  tecnologias       String    @db.Text // JSON array
+  tecnologias       String    @db.Text // JSON array o comma-separated
   lenguajes         String?   @db.Text // JSON array
+  // ✅ NUEVOS: Campos adicionales para la vista de proyectos
+  tipoProyecto      String?   @db.VarChar(50) // Desarrollo, Diseño, DevOps, etc.
+  presupuesto       Decimal?  @db.Decimal(10, 2)
+  presupuestoTipo   String?   @db.VarChar(50) // Fixed Price, Hourly, Por proyecto
+  duracionEstimada  String?   @db.VarChar(50) // "3 Months", "6 Weeks", etc.
+  ubicacion         String?   @db.VarChar(100) // Remote, On-site, Hybrid
   datosAdicionales  String?   @db.Text
-  estado            String    @default("activo") // activo, completado, cancelado
+  estado            String    @default("activo") // activo, completado, cancelado, pausado
+  destacado         Boolean   @default(false) // ✅ NUEVO: Para proyectos destacados
   usuarioCreadorId  Int
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
@@ -52,6 +62,8 @@ model Proyecto {
   postulaciones     Postulacion[]
 
   @@map("proyectos")
+  @@index([estado, destacado]) // ✅ NUEVO: Índice para búsquedas optimizadas
+  @@index([usuarioCreadorId])
 }
 
 // Modelo de Postulación
@@ -59,8 +71,12 @@ model Postulacion {
   id                Int       @id @default(autoincrement())
   usuarioId         Int
   proyectoId        Int
+  mensaje           String?   @db.Text // ✅ NUEVO: Mensaje de la postulación
+  propuesta         String?   @db.Text // ✅ NUEVO: Propuesta detallada
+  presupuestoPropuesto Decimal? @db.Decimal(10, 2) // ✅ NUEVO: Presupuesto propuesto
   estado            String    @default("pendiente") // pendiente, aceptado, rechazado
   fechaPostulacion  DateTime  @default(now())
+  fechaRespuesta    DateTime? // ✅ NUEVO: Fecha de aceptación/rechazo
 
   // Relaciones
   usuario           User      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
@@ -68,6 +84,7 @@ model Postulacion {
 
   @@unique([usuarioId, proyectoId])
   @@map("postulaciones")
+  @@index([estado]) // ✅ NUEVO: Índice para filtrar por estado
 }
 
 // Modelo de Mensaje
@@ -84,4 +101,5 @@ model Mensaje {
   usuarioDestinatario User    @relation(fields: [destinatario], references: [id], onDelete: Cascade, name: "mensajesRecibidos")
 
   @@map("mensajes")
+  @@index([destinatario, leido]) // ✅ NUEVO: Índice para mensajes no leídos
 }

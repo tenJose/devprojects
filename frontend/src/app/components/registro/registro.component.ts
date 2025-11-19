@@ -66,7 +66,7 @@ export class RegistroComponent {
     this.error = '';
 
     this.authService
-      .registro({
+      .register({
         email: this.email,
         nombre: this.nombre,
         fechaNacimiento: this.fechaNacimiento,
@@ -74,7 +74,7 @@ export class RegistroComponent {
         passwordConfirm: this.passwordConfirm,
       })
       .subscribe({
-        next: (response) => {
+        next: (response: any) => {
           if (response.success) {
             // Guardar email para verificación
             sessionStorage.setItem('emailVerificacion', this.email);
@@ -89,7 +89,7 @@ export class RegistroComponent {
           }
           this.cargando = false;
         },
-        error: (err) => {
+        error: (err: any) => {
           this.error = err.error?.message || 'Error al registrarse';
           this.cargando = false;
         },

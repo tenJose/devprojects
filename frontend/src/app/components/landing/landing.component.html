@@ -1,0 +1,135 @@
+<div class="landing-page">
+  <!-- Header / Navbar -->
+  <header class="header">
+    <div class="container">
+      <nav class="navbar">
+        <div class="logo">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <rect width="32" height="32" rx="8" fill="#2563eb"/>
+            <path d="M8 12L16 8L24 12V20L16 24L8 20V12Z" stroke="white" stroke-width="2" fill="none"/>
+          </svg>
+          <span>DevProject</span>
+        </div>
+        <div class="nav-links">
+          <a href="/login">Explorar Proyectos</a>
+          <a href="#como-funciona">Cómo funciona</a>
+          <a routerLink="/login" class="btn-secondary">Iniciar Sesión</a>
+          <a routerLink="/registro" class="btn-primary">Registrarse</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-text">
+          <h1>Tu Próximo Gran Proyecto de Software Comienza Aquí</h1>
+          <p class="hero-description">
+            La plataforma central para que los ingenieros encuentren, creen y colaboren en proyectos innovadores.
+          </p>
+          <div class="hero-buttons">
+            <a routerLink="/login" class="btn-large btn-primary">Comenzar Ahora</a>
+            <a href="#como-funciona" class="btn-large btn-outline">Ver cómo funciona</a>
+          </div>
+        </div>
+        <div class="hero-image">
+          <div class="code-window">
+            <div class="window-header">
+              <div class="window-dots">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+              </div>
+              <span class="window-title">proyecto.ts</span>
+            </div>
+            <div class="code-content">
+              <pre><code>{{ '{\n  "proyecto": "Innovador",\n  "tecnologias": ["Angular", "TypeScript"],\n  "estado": "activo",\n  "colaboradores": 5\n}' }}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features" id="como-funciona">
+    <div class="container">
+      <h2 class="section-title">Descubre todo lo que puedes lograr</h2>
+      <p class="section-description">
+        Te proporcionamos las herramientas necesarias para llevar tus ideas al siguiente nivel y conectar con otros profesionales.
+      </p>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon blue">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+          </div>
+          <h3>Busca y Descubre</h3>
+          <p>Encuentra proyectos innovadores que coinciden perfectamente con tus habilidades y pasiones.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon green">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <h3>Crea tu Equipo</h3>
+          <p>Publica tu propia idea de proyecto y encuentra los colaboradores perfectos para hacerlo realidad.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon purple">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <h3>Postula con Facilidad</h3>
+          <p>Nuestro proceso de aplicación simplificado te permite postularte a proyectos de manera rápida y eficiente.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta">
+    <div class="container">
+      <div class="cta-content">
+        <h2>Comienza a Construir el Futuro Hoy</h2>
+        <p>Únete a miles de desarrolladores que ya están creando proyectos increíbles</p>
+        <a routerLink="/login" class="btn-large btn-primary">Explorar Proyectos</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>Sobre Nosotros</h4>
+          <a href="/maintenance">Contacto</a>
+          <a href="/maintenance">Términos de Servicio</a>
+        </div>
+        <div class="footer-section">
+          <h4>Redes Sociales</h4>
+          <div class="social-links">
+            <a href="https://github.com/tenJose" aria-label="GitHub">GitHub</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 DevProject. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+</div>

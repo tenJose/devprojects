@@ -70,7 +70,7 @@ export class VerificacionComponent implements OnInit {
     this.error = '';
 
     this.authService.verificar(this.email, codigoCompleto).subscribe({
-      next: (response) => {
+      next: (response: any) => {
         if (response.success) {
           this.exito = response.message;
 
@@ -83,7 +83,7 @@ export class VerificacionComponent implements OnInit {
         }
         this.cargando = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         this.error = err.error?.message || 'Error al verificar el código';
         this.cargando = false;
       }

@@ -1,31 +1,36 @@
-// Archivo principal del servidor Express
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
-
-// Cargar variables de entorno
-dotenv.config();
+import projectRoutes from './routes/project.routes';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middlewares
+// Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// Log para debug
+app.use((req, res, next) => {
+  console.log(`[v0] ${req.method} ${req.path}`);
+  next();
+});
 
 // Rutas
 app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/projects', projectRoutes);
 
 // Ruta de prueba
-app.get('/api/health', (req, res) => {
-  res.json({ message: 'Servidor funcionando correctamente' });
+app.get('/', (req, res) => {
+  res.json({ message: 'DevProject API funcionando correctamente' });
 });
 
 // Iniciar servidor
 app.listen(PORT, () => {
-  console.log(`Servidor ejecutándose en puerto ${PORT}`);
+  console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`📡 API lista en http://localhost:${PORT}/api`);
 });
+
+export default app;
