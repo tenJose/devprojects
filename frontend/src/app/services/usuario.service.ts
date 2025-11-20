@@ -46,17 +46,17 @@ export class UsuarioService {
   }
 
   // Configurar perfil
-  configurarPerfil(datos: {
-    fotoPerfil?: string;
-    descripcion: string;
-    tecnologias: string[];
-    lenguajes: string[];
-    informacionExtra: string;
-  }): Observable<ApiResponse<PerfilUsuario>> {
-    return this.http.put<ApiResponse<PerfilUsuario>>(
-      `${this.API_URL}/configurar`,
-      datos,
-      { headers: this.obtenerHeaders() }
-    );
-  }
+configurarPerfil(datos: FormData | {
+  fotoPerfil?: string;
+  descripcion: string;
+  tecnologias: string[];
+  lenguajes: string[];
+  informacionExtra: string;
+}): Observable<ApiResponse<PerfilUsuario>> {
+  return this.http.put<ApiResponse<PerfilUsuario>>(
+    `${this.API_URL}/configurar`,
+    datos,
+    { headers: this.obtenerHeaders() } // NO agregar 'Content-Type': 'application/json', FormData lo define
+  );
+}
 }

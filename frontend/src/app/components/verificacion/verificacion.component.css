@@ -139,3 +139,52 @@
     padding: 8px 16px;
   }
 }
+
+.verificacion-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.verificacion-contenedor {
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.codigo-container {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+}
+
+.input-digito {
+  width: 45px;
+  height: 55px;
+  font-size: 24px;
+  text-align: center;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+}
+
+.input-digito:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.alert-error {
+  color: white;
+  background: #e63946;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.alert-success {
+  color: white;
+  background: #2a9d8f;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+

@@ -33,35 +33,55 @@ export class VerificacionComponent implements OnInit {
     this.email = emailGuardado;
   }
 
-  // Cuando el usuario escribe un número
-  onInputChange(index: number, event: Event): void {
-  const input = event.target as HTMLInputElement;
-  const valor = input.value;
+  // 🔥 SIN DUPLICACIÓN — solo usamos keyup
+  onKeyUp(event: KeyboardEvent, index: number): void {
+    const key = event.key;
 
-  // Solo permitir dígitos
-  if (!/^\d$/.test(valor)) {
-    input.value = '';
-    this.codigo[index] = '';
-    return;
+    // Solo dígitos del 0 al 9
+    if (!/^[0-9]$/.test(key)) {
+      const input = event.target as HTMLInputElement;
+      input.value = ''; // limpiar si mete letra
+      return;
+    }
+
+    this.codigo[index] = key;
+
+    // Enfocar siguiente input
+    if (index < 5) {
+      const next = document.getElementById(`digit-${index + 1}`) as HTMLInputElement;
+      next?.focus();
+    }
   }
 
-  this.codigo[index] = valor;
+  // Manejo de Backspace
+  onKeyDown(event: KeyboardEvent, index: number): void {
+    if (event.key === 'Backspace') {
+      this.codigo[index] = '';
 
-  // Enfocar siguiente input
-  if (index < 5) {
-    const next = document.getElementById(`digit-${index + 1}`) as HTMLInputElement;
-    next?.focus();
+      if (index > 0) {
+        const prev = document.getElementById(`digit-${index - 1}`) as HTMLInputElement;
+        prev?.focus();
+      }
+    }
   }
 
-  
-}
+  // Pegar código completo
+  onPaste(event: ClipboardEvent): void {
+    event.preventDefault();
 
-onKeyDown(event: KeyboardEvent, index: number): void {
-  if (event.key === 'Backspace' && this.codigo[index] === '' && index > 0) {
-    const prev = document.getElementById(`digit-${index - 1}`) as HTMLInputElement;
-    prev?.focus();
+    const text = event.clipboardData?.getData('text') || '';
+    const digits = text.replace(/\D/g, '').slice(0, 6).split('');
+
+    for (let i = 0; i < digits.length; i++) {
+      this.codigo[i] = digits[i];
+      const input = document.getElementById(`digit-${i}`) as HTMLInputElement;
+      if (input) input.value = digits[i];
+    }
+
+    if (digits.length === 6) {
+      this.verificar();
+    }
   }
-}
 
   verificar(): void {
     const codigoCompleto = this.codigo.join('');
