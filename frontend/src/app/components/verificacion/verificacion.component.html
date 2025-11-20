@@ -15,26 +15,25 @@
       {{ error }}
     </div>
 
-    <!-- Éxito -->
+    <!-- exito -->
     <div *ngIf="exito" class="alert alert-success">
       {{ exito }}
     </div>
 
-    <!-- Inputs del código -->
-    <div class="codigo-inputs">
-      <input
-        *ngFor="let digit of codigo; let i = index"
-        [id]="'digit-' + i"
-        type="text"
-        class="input-digito"
-        maxlength="1"
-        [(ngModel)]="codigo[i]"
-        (input)="onInputChange(i)"
-        (keydown)="onKeyDown($event, i)"
-      />
-    </div>
+    <!-- Inputs del codigo -->
+<input
+  *ngFor="let digit of codigo; let i = index"
+  [id]="'digit-' + i"
+  type="text"
+  class="input-digito"
+  maxlength="1"
+  [(ngModel)]="codigo[i]"
+  (input)="onInputChange(i, $event)"
+  (keydown)="onKeyDown($event, i)"
+/>
 
-    <!-- Botón de verificar -->
+
+    <!-- Boton de verificar -->
     <button
       class="btn btn-primary btn-bloque"
       (click)="verificar()"

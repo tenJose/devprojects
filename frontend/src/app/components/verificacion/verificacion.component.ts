@@ -34,29 +34,34 @@ export class VerificacionComponent implements OnInit {
   }
 
   // Cuando el usuario escribe un número
-  onInputChange(index: number): void {
-    const valor = this.codigo[index];
+  onInputChange(index: number, event: Event): void {
+  const input = event.target as HTMLInputElement;
+  const valor = input.value;
 
-    // Solo permitir dígitos
-    if (!/^\d$/.test(valor)) {
-      this.codigo[index] = '';
-      return;
-    }
-
-    // Enfocar siguiente input
-    if (index < 5) {
-      const next = document.getElementById(`digit-${index + 1}`) as HTMLInputElement;
-      next?.focus();
-    }
+  // Solo permitir dígitos
+  if (!/^\d$/.test(valor)) {
+    input.value = '';
+    this.codigo[index] = '';
+    return;
   }
 
-  // Manejo de retroceso
-  onKeyDown(event: KeyboardEvent, index: number): void {
-    if (event.key === 'Backspace' && this.codigo[index] === '' && index > 0) {
-      const prev = document.getElementById(`digit-${index - 1}`) as HTMLInputElement;
-      prev?.focus();
-    }
+  this.codigo[index] = valor;
+
+  // Enfocar siguiente input
+  if (index < 5) {
+    const next = document.getElementById(`digit-${index + 1}`) as HTMLInputElement;
+    next?.focus();
   }
+
+  
+}
+
+onKeyDown(event: KeyboardEvent, index: number): void {
+  if (event.key === 'Backspace' && this.codigo[index] === '' && index > 0) {
+    const prev = document.getElementById(`digit-${index - 1}`) as HTMLInputElement;
+    prev?.focus();
+  }
+}
 
   verificar(): void {
     const codigoCompleto = this.codigo.join('');
