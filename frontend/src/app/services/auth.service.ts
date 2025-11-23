@@ -33,29 +33,34 @@ export class AuthService {
     }
   }
 
-  // Método para obtener el token (nombre en inglés)
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
   }
 
-  // Método para obtener el token (nombre en español - para compatibilidad)
   obtenerToken(): string | null {
     return this.getToken();
   }
 
-  // Método para guardar el token
   guardarToken(token: string): void {
     localStorage.setItem(this.tokenKey, token);
     this.loadUserFromToken();
+
+    // ❗ Guardar también userId para usarlo en requests a /perfil
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    if (payload.id) {
+      localStorage.setItem('userId', payload.id);
+    }
   }
 
-  // Método para obtener el usuario actual
   getCurrentUser(): any {
     return this.userSubject.value;
   }
 
-  // Login
   login(email: string, password: string): Observable<any> {
+    // ❗ Limpiar token y userId previos antes de iniciar sesión
+    localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem('userId');
+
     return this.http.post(`${this.apiUrl}/login`, { email, password }).pipe(
       tap((response: any) => {
         if (response.token) {
@@ -66,17 +71,14 @@ export class AuthService {
     );
   }
 
-  // Registro (nombre en inglés)
   register(userData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/registro`, userData);
   }
 
-  // Registro (nombre en español - para compatibilidad)
   registro(userData: any): Observable<any> {
     return this.register(userData);
   }
 
-  // Verificación de código
   verificar(email: string, codigo: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/verificar`, { email, codigo }).pipe(
       tap((response: any) => {
@@ -87,19 +89,17 @@ export class AuthService {
     );
   }
 
-  // Reenviar código de verificación
   reenviarCodigo(email: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/reenviar-codigo`, { email });
   }
 
-  // Logout
   logout(): void {
     localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem('userId'); // ❗ limpiar userId también
     this.userSubject.next(null);
     this.router.navigate(['/']);
   }
 
-  // Cargar usuario desde token
   private loadUserFromToken(): void {
     const token = this.getToken();
     if (token) {

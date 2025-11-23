@@ -33,6 +33,11 @@ export class LoginComponent {
 
   // Enviar formulario de login
   enviar(): void {
+
+    // ❗ LIMPIAR TOKEN ANTES DE INICIAR SESIÓN (evita cargar datos de otro usuario)
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+
     // Validar campos
     if (!this.email || !this.password) {
       this.error = 'Por favor completa todos los campos';
@@ -47,7 +52,10 @@ export class LoginComponent {
         if (response.success) {
           // Guardar token
           this.authService.guardarToken(response.data!.token);
-          
+
+          // ❗ Guardar userId para usarlo en otros requests
+          localStorage.setItem("userId", response.data!.usuario.id);
+
           // Redirigir según si perfil está completo
           if (response.data!.usuario.perfilCompleto) {
             this.router.navigate(['/home']);
