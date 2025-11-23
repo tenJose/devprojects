@@ -13,20 +13,37 @@
         <a routerLink="/home" class="nav-link active">Proyectos</a>
         <a routerLink="/create-project" class="nav-link">Crear Proyecto</a>
         <a routerLink="/my-applications" class="nav-link">Mis Aplicaciones</a>
-        <div class="user-menu">
-          <button class="notification-btn">
+        <div class="user-menu" *ngIf="currentUser">
+          <button class="notification-btn" routerLink="/messages">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
               <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
             </svg>
           </button>
-          <div class="user-avatar" (click)="logout()">
-            <img src="/api/placeholder/32/32" alt="User" />
+          <div class="user-profile-trigger">
+            <img [src]="currentUser.fotoPerfil || '/api/placeholder/32/32'" [alt]="currentUser.nombre" class="user-avatar" />
+            <span class="user-name">{{ currentUser.nombre }}</span>
+            <div class="dropdown-menu">
+              <a routerLink="/configuracion-perfil" class="dropdown-item">Mi Perfil</a>
+              <button (click)="confirmLogout()" class="dropdown-item text-red">Cerrar Sesión</button>
+            </div>
           </div>
         </div>
       </nav>
     </div>
   </header>
+
+  <!-- Logout Modal -->
+  <div class="modal-overlay" *ngIf="showLogoutModal">
+    <div class="modal-content">
+      <h3>Cerrar Sesión</h3>
+      <p>¿Estás seguro que deseas cerrar sesión?</p>
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="cancelLogout()">Cancelar</button>
+        <button class="btn-confirm" (click)="logout()">Confirmar</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Main Content -->
   <main class="main-content">
@@ -34,7 +51,7 @@
       <!-- Hero Section -->
       <section class="hero-section">
         <h1 class="page-title">Descubre Tu Próximo Proyecto</h1>
-        <p class="page-subtitle">Bienvenido, Alex! Aquí están las últimas oportunidades.</p>
+        <p class="page-subtitle" *ngIf="currentUser">Bienvenido, {{ currentUser.nombre }}! Aquí están las últimas oportunidades.</p>
 
         <!-- Search Bar -->
         <div class="search-container">

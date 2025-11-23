@@ -44,12 +44,14 @@ model Proyecto {
   descripcion       String    @db.Text
   tecnologias       String    @db.Text // JSON array o comma-separated
   lenguajes         String?   @db.Text // JSON array
-  // ✅ NUEVOS: Campos adicionales para la vista de proyectos
   tipoProyecto      String?   @db.VarChar(50) // Desarrollo, Diseño, DevOps, etc.
   presupuesto       Decimal?  @db.Decimal(10, 2)
   presupuestoTipo   String?   @db.VarChar(50) // Fixed Price, Hourly, Por proyecto
   duracionEstimada  String?   @db.VarChar(50) // "3 Months", "6 Weeks", etc.
   ubicacion         String?   @db.VarChar(100) // Remote, On-site, Hybrid
+  fechaLimite       DateTime? // Application deadline
+  tamanoEquipo      String?   @db.VarChar(100) // e.g., "3-5 engineers"
+  adjuntos          String?   @db.Text // JSON array of file URLs
   datosAdicionales  String?   @db.Text
   estado            String    @default("activo") // activo, completado, cancelado, pausado
   destacado         Boolean   @default(false) // ✅ NUEVO: Para proyectos destacados
@@ -60,6 +62,7 @@ model Proyecto {
   // Relaciones
   usuarioCreador    User      @relation(fields: [usuarioCreadorId], references: [id], onDelete: Cascade)
   postulaciones     Postulacion[]
+  mensajes          Mensaje[]
 
   @@map("proyectos")
   @@index([estado, destacado]) // ✅ NUEVO: Índice para búsquedas optimizadas
@@ -94,12 +97,17 @@ model Mensaje {
   destinatario      Int
   contenido         String    @db.Text
   leido             Boolean   @default(false)
+  proyectoId        Int?
+  conversacionId    String?   @db.VarChar(100) // Format: "userId1-userId2" (sorted)
   createdAt         DateTime  @default(now())
 
   // Relaciones
   usuarioRemitente  User      @relation(fields: [remitente], references: [id], onDelete: Cascade, name: "mensajesEnviados")
   usuarioDestinatario User    @relation(fields: [destinatario], references: [id], onDelete: Cascade, name: "mensajesRecibidos")
+  proyecto          Proyecto? @relation(fields: [proyectoId], references: [id], onDelete: SetNull)
 
   @@map("mensajes")
-  @@index([destinatario, leido]) // ✅ NUEVO: Índice para mensajes no leídos
+  @@index([destinatario, leido])
+  @@index([conversacionId])
+  @@index([proyectoId])
 }

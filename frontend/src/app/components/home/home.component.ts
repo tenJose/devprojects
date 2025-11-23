@@ -1,145 +1,174 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { ProjectService, Project } from '../../services/project.service';
-import { AuthService } from '../../services/auth.service';
+import { Component, type OnInit } from "@angular/core"
+import { CommonModule } from "@angular/common"
+import { FormsModule } from "@angular/forms"
+import { Router } from "@angular/router"
+import { ProjectService } from "../../services/project.service"
+import type { Project } from "../../services/project.service"
+import { AuthService } from "../../services/auth.service"
+import { UsuarioService } from "../../services/usuario.service"
 
 @Component({
-  selector: 'app-home',
+  selector: "app-home",
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
+  templateUrl: "./home.component.html",
+  styleUrls: ["./home.component.css"],
 })
 export class HomeComponent implements OnInit {
-  projects: Project[] = [];
-  filteredProjects: Project[] = [];
-  loading = true;
-  error = '';
-  
+  projects: Project[] = []
+  filteredProjects: Project[] = []
+  loading = true
+  error = ""
+
   // Filter states
-  searchQuery = '';
-  selectedStack = '';
-  selectedType = '';
-  selectedCompensation = '';
-  sortBy = 'recent';
-  
+  searchQuery = ""
+  selectedStack = ""
+  selectedType = ""
+  selectedCompensation = ""
+  sortBy = "recent"
+
   // Pagination
-  currentPage = 1;
-  totalPages = 1;
-  itemsPerPage = 6;
-  
+  currentPage = 1
+  totalPages = 1
+  itemsPerPage = 6
+
   // Available filters
-  techStacks = ['React', 'Angular', 'Vue', 'Next.js', 'Python', 'FastAPI', 'Docker', 'AWS', 'Node.js', 'Express'];
-  projectTypes = ['Frontend', 'Backend', 'Full Stack', 'Mobile', 'DevOps', 'UI/UX', 'Data Science'];
-  compensationTypes = ['Fixed Price', 'Hourly Rate', 'Budget Range'];
+  techStacks = ["React", "Angular", "Vue", "Next.js", "Python", "FastAPI", "Docker", "AWS", "Node.js", "Express"]
+  projectTypes = ["Frontend", "Backend", "Full Stack", "Mobile", "DevOps", "UI/UX", "Data Science"]
+  compensationTypes = ["Fixed Price", "Hourly Rate", "Budget Range"]
+
+  // User data
+  currentUser: any = null
+  showLogoutModal = false
 
   constructor(
     private projectService: ProjectService,
     private authService: AuthService,
-    private router: Router
+    private usuarioService: UsuarioService,
+    private router: Router,
   ) {}
 
   ngOnInit() {
-    this.loadProjects();
+    this.loadProjects()
+    this.loadUserProfile()
   }
 
   loadProjects() {
-    this.loading = true;
+    this.loading = true
     this.projectService.getProjects().subscribe({
       next: (data) => {
-        this.projects = data;
-        this.applyFilters();
-        this.loading = false;
+        this.projects = data
+        this.applyFilters()
+        this.loading = false
       },
       error: (err) => {
-        this.error = 'Error al cargar los proyectos';
-        this.loading = false;
-        console.error(err);
-      }
-    });
+        this.error = "Error al cargar los proyectos"
+        this.loading = false
+        console.error(err)
+      },
+    })
+  }
+
+  loadUserProfile() {
+    this.usuarioService.obtenerPerfil().subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.currentUser = response.data
+        }
+      },
+      error: (err) => {
+        console.error("Error loading profile:", err)
+      },
+    })
   }
 
   applyFilters() {
-    let filtered = [...this.projects];
+    let filtered = [...this.projects]
 
     // Search filter
     if (this.searchQuery) {
-      const query = this.searchQuery.toLowerCase();
-      filtered = filtered.filter(p => 
-        p.title.toLowerCase().includes(query) ||
-        p.description.toLowerCase().includes(query) ||
-        p.techStack.some(tech => tech.toLowerCase().includes(query))
-      );
+      const query = this.searchQuery.toLowerCase()
+      filtered = filtered.filter(
+        (p) =>
+          p.title.toLowerCase().includes(query) ||
+          p.description.toLowerCase().includes(query) ||
+          p.techStack.some((tech) => tech.toLowerCase().includes(query)),
+      )
     }
 
     // Tech stack filter
     if (this.selectedStack) {
-      filtered = filtered.filter(p => 
-        p.techStack.includes(this.selectedStack)
-      );
+      filtered = filtered.filter((p) => p.techStack.includes(this.selectedStack))
     }
 
     // Project type filter
     if (this.selectedType) {
-      filtered = filtered.filter(p => p.type === this.selectedType);
+      filtered = filtered.filter((p) => p.type === this.selectedType)
     }
 
     // Compensation filter
     if (this.selectedCompensation) {
-      filtered = filtered.filter(p => p.compensationType === this.selectedCompensation);
+      filtered = filtered.filter((p) => p.compensationType === this.selectedCompensation)
     }
 
     // Sort
-    if (this.sortBy === 'recent') {
-      filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    } else if (this.sortBy === 'budget-high') {
-      filtered.sort((a, b) => b.budget - a.budget);
-    } else if (this.sortBy === 'budget-low') {
-      filtered.sort((a, b) => a.budget - b.budget);
+    if (this.sortBy === "recent") {
+      filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    } else if (this.sortBy === "budget-high") {
+      filtered.sort((a, b) => b.budget - a.budget)
+    } else if (this.sortBy === "budget-low") {
+      filtered.sort((a, b) => a.budget - b.budget)
     }
 
-    this.filteredProjects = filtered;
-    this.totalPages = Math.ceil(filtered.length / this.itemsPerPage);
-    this.currentPage = 1;
+    this.filteredProjects = filtered
+    this.totalPages = Math.ceil(filtered.length / this.itemsPerPage)
+    this.currentPage = 1
   }
 
   get paginatedProjects() {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    const end = start + this.itemsPerPage;
-    return this.filteredProjects.slice(start, end);
+    const start = (this.currentPage - 1) * this.itemsPerPage
+    const end = start + this.itemsPerPage
+    return this.filteredProjects.slice(start, end)
   }
 
   onSearchChange() {
-    this.applyFilters();
+    this.applyFilters()
   }
 
   onFilterChange() {
-    this.applyFilters();
+    this.applyFilters()
   }
 
   clearFilters() {
-    this.searchQuery = '';
-    this.selectedStack = '';
-    this.selectedType = '';
-    this.selectedCompensation = '';
-    this.sortBy = 'recent';
-    this.applyFilters();
+    this.searchQuery = ""
+    this.selectedStack = ""
+    this.selectedType = ""
+    this.selectedCompensation = ""
+    this.sortBy = "recent"
+    this.applyFilters()
   }
 
   viewDetails(projectId: number) {
-    this.router.navigate(['/project', projectId]);
+    this.router.navigate(["/project", projectId])
   }
 
   goToPage(page: number) {
     if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
+      this.currentPage = page
     }
   }
 
+  confirmLogout() {
+    this.showLogoutModal = true
+  }
+
+  cancelLogout() {
+    this.showLogoutModal = false
+  }
+
   logout() {
-    this.authService.logout();
-    this.router.navigate(['/']);
+    this.authService.logout()
+    this.router.navigate(["/"])
+    this.showLogoutModal = false
   }
 }

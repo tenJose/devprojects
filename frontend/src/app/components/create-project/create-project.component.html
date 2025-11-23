@@ -1,0 +1,216 @@
+<div class="create-project-container">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="user-info">
+      <img src="/api/placeholder/48/48" alt="Profile" class="avatar">
+      <div class="user-details">
+        <h3>Sofia Reyes</h3>
+        <span>Senior Engineer</span>
+      </div>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <a routerLink="/home" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        Dashboard
+      </a>
+      <a routerLink="/search" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        Find Projects
+      </a>
+      <a routerLink="/my-projects" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+        </svg>
+        My Projects
+      </a>
+      <a routerLink="/messages" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        Messages
+      </a>
+      <a routerLink="/configuracion-perfil" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        Profile
+      </a>
+    </nav>
+    
+    <div class="sidebar-footer">
+      <a routerLink="/settings" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        Settings
+      </a>
+      <button class="nav-item logout-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+        Log out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="page-header">
+      <h1>Create a new project</h1>
+      <p>Fill in the details below to post your project and find the right talent.</p>
+    </header>
+
+    <div class="form-container">
+      <!-- Project Overview -->
+      <section class="form-section">
+        <h2>Project Overview</h2>
+        
+        <div class="form-group">
+          <label>Project Title</label>
+          <input 
+            type="text" 
+            [(ngModel)]="project.title" 
+            placeholder="e.g., E-commerce Platform Revamp"
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Detailed Project Description</label>
+          <textarea 
+            [(ngModel)]="project.description" 
+            placeholder="Describe the project goals, scope, deliverables, and any other relevant details..."
+            class="form-textarea"
+            rows="6"
+          ></textarea>
+        </div>
+      </section>
+
+      <!-- Technical Specifications -->
+      <section class="form-section">
+        <h2>Technical Specifications</h2>
+
+        <div class="form-group">
+          <label>Programming Languages & Tech Stack</label>
+          <div class="tags-input-container">
+            <div class="tags-list">
+              <span *ngFor="let tech of project.techStack" class="tag">
+                {{ tech }}
+                <button (click)="removeTech(tech)" class="remove-tag">×</button>
+              </span>
+            </div>
+            <input 
+              type="text" 
+              [(ngModel)]="techInput" 
+              (keydown)="onTechInputKeydown($event)"
+              placeholder="Add a language or framework..."
+              class="tag-input"
+            />
+          </div>
+          <div class="suggested-tags">
+            <button *ngFor="let tech of availableTechs" (click)="addTech(tech)" class="suggestion-chip">
+              + {{ tech }}
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Project Type</label>
+          <select [(ngModel)]="project.type" class="form-select">
+            <option *ngFor="let type of projectTypes" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Project Scope & Logistics -->
+      <section class="form-section">
+        <h2>Project Scope & Logistics</h2>
+
+        <div class="grid-2-col">
+          <div class="form-group">
+            <label>Estimated Duration</label>
+            <input 
+              type="text" 
+              [(ngModel)]="project.duration"
+              placeholder="e.g. 3-6 months"
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Application Deadline</label>
+            <input 
+              type="date" 
+              [(ngModel)]="project.deadline"
+              class="form-input"
+            />
+          </div>
+        </div>
+
+        <div class="grid-2-col">
+          <div class="form-group">
+            <label>Estimated Budget (USD)</label>
+            <input 
+              type="number" 
+              [(ngModel)]="project.budget"
+              placeholder="e.g. 5000"
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Team Size Required</label>
+            <input 
+              type="text" 
+              [(ngModel)]="project.teamSize"
+              placeholder="e.g. 3-5 engineers"
+              class="form-input"
+            />
+          </div>
+        </div>
+      </section>
+
+      <!-- Attachments -->
+      <section class="form-section">
+        <h2>Attachments</h2>
+        <p class="section-subtitle">Optional: Upload mockups, specifications, or other relevant documents.</p>
+        
+        <div class="upload-area">
+          <div class="upload-content">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <h3>cloud_upload</h3>
+            <p><strong>Click to upload</strong> or drag and drop</p>
+            <span class="file-hint">PDF, DOCX, PNG, JPG (MAX. 10MB)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button class="btn-secondary" (click)="saveAsDraft()">Save as Draft</button>
+        <button class="btn-primary" (click)="createProject()" [disabled]="loading">
+          {{ loading ? 'Publishing...' : 'Publish Project' }}
+        </button>
+      </div>
+      
+      <p *ngIf="error" class="error-message">{{ error }}</p>
+    </div>
+  </main>
+</div>
