@@ -1,193 +1,179 @@
-<div class="home-container">
-  <!-- Header -->
-  <header class="header">
-    <div class="header-content">
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
       <div class="logo">
-        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-          <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
-        </svg>
-        <span class="logo-text">DevProject</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        <span>DevProjects</span>
       </div>
-      <nav class="nav">
-        <a routerLink="/home" class="nav-link active">Proyectos</a>
-        <a routerLink="/create-project" class="nav-link">Crear Proyecto</a>
-        <a routerLink="/my-applications" class="nav-link">Mis Aplicaciones</a>
-        <div class="user-menu" *ngIf="currentUser">
-          <button class="notification-btn" routerLink="/messages">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-            </svg>
-          </button>
-          <div class="user-profile-trigger">
-            <img [src]="currentUser.fotoPerfil || '/api/placeholder/32/32'" [alt]="currentUser.nombre" class="user-avatar" />
-            <span class="user-name">{{ currentUser.nombre }}</span>
-            <div class="dropdown-menu">
-              <a routerLink="/configuracion-perfil" class="dropdown-item">Mi Perfil</a>
-              <button (click)="confirmLogout()" class="dropdown-item text-red">Cerrar Sesión</button>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <a href="javascript:void(0)" class="nav-item active">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        Home
+      </a>
+      <a href="javascript:void(0)" class="nav-item" (click)="switchTab('projects')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+        Projectos
+      </a>
+      <a href="javascript:void(0)" class="nav-item" (click)="switchTab('people')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        Personas
+      </a>
+      <a href="javascript:void(0)" class="nav-item" (click)="navigateToMessages()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        Mensajes
+      </a>
+      <a href="javascript:void(0)" class="nav-item" (click)="navigateToProfile()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        Mi Perfil
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="create-project-btn" (click)="navigateToCreateProject()">
+        Crear Projecto
+      </button>
+      
+      <div class="user-profile-mini" *ngIf="currentUser">
+          <img [src]="getFullPhotoUrl(currentUser.fotoPerfil)" alt="User" class="avatar-mini">
+        <div class="user-info">
+          <span class="user-name">{{currentUser.nombre}}</span>
+          <span class="user-role">Developer</span>
+        </div>
+        <button class="settings-btn" (click)="confirmLogout()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="top-header">
+      <div class="tabs">
+        <button class="tab-btn" [class.active]="activeTab === 'projects'" (click)="switchTab('projects')">Proyectos</button>
+        <button class="tab-btn" [class.active]="activeTab === 'people'" (click)="switchTab('people')">Personas</button>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="content-grid">
+      <!-- Filters Column -->
+      <aside class="filters-column">
+        <div class="filter-card">
+          <div class="search-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" placeholder="Buscar..." [(ngModel)]="searchQuery" (input)="performSearch()">
+          </div>
+
+          <div class="filter-group">
+            <h3>Tecnologías</h3>
+            <div class="checkbox-list">
+              <label class="checkbox-item" *ngFor="let tech of techStacks">
+                <input type="checkbox" [checked]="selectedStack[tech]" (change)="toggleTech(tech); performSearch()">
+                <span>{{tech}}</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <h3>Tarifa por hora</h3>
+            <div class="range-slider">
+              <div class="range-labels">
+                <span>${{minBudget}}</span>
+                <span>${{maxBudget}}</span>
+              </div>
+              <input type="range" min="0" max="200" [(ngModel)]="maxBudget" (change)="performSearch()">
+            </div>
+          </div>
+
+          <div class="filter-actions">
+            <button class="btn-clear" (click)="selectedStack={}; searchQuery=''; performSearch()">Limpiar</button>
+            <button class="btn-apply" (click)="performSearch()">Aplicar</button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Results Column -->
+      <div class="results-column">
+        <div class="results-header">
+          <span>Mostrando {{activeTab === 'projects' ? paginatedProjects.length : paginatedUsers.length}} de {{activeTab === 'projects' ? projects.length : users.length}} resultados</span>
+        </div>
+
+        <div class="loading-spinner" *ngIf="loading">
+          <div class="spinner"></div>
+        </div>
+
+        <!-- Project List -->
+        <div class="results-list" *ngIf="!loading && activeTab === 'projects'">
+          <div class="result-card project-card" *ngFor="let project of paginatedProjects">
+            <div class="card-header">
+              <h2 class="card-title">{{project.title}}</h2>
+              <span class="budget-badge" *ngIf="project.budget">${{project.budget}}</span>
+            </div>
+            <div class="company-info" *ngIf="project.creator">
+              <span class="company-name">{{project.creator.name}}</span>
+            </div>
+            <p class="card-description">{{project.description}}</p>
+            <div class="tech-tags">
+              <span class="tag" *ngFor="let tech of project.techStack">{{tech}}</span>
+            </div>
+            <div class="card-footer">
+              <button class="btn-primary" (click)="viewDetails(project.id)">Aplicar ahora</button>
             </div>
           </div>
         </div>
-      </nav>
+
+        <!-- People List -->
+        <div class="results-list" *ngIf="!loading && activeTab === 'people'">
+            <div class="result-card person-card" *ngFor="let user of paginatedUsers">
+              <div class="person-header">
+              <img [src]="getFullPhotoUrl(user.fotoPerfil)" alt="Avatar" class="avatar-large">
+              <div class="person-info">
+                <h2 class="card-title">{{user.nombre}} {{user.apellido}}</h2>
+                <span class="person-role">{{user.rol}}</span>
+                <div class="location">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  <span>Remote</span>
+                </div>
+              </div>
+              <button class="btn-primary" (click)="viewDetails(user.id)">Ver Perfil</button>
+            </div>
+            <div class="tech-tags">
+              <span class="tag" *ngFor="let tech of user.tecnologias">{{tech}}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" *ngIf="totalPages > 1">
+          <button class="page-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">&lt;</button>
+          <span class="page-number" *ngFor="let page of [].constructor(totalPages); let i = index" 
+                [class.active]="currentPage === i + 1"
+                (click)="goToPage(i + 1)">
+            {{i + 1}}
+          </span>
+          <button class="page-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">&gt;</button>
+        </div>
+      </div>
     </div>
-  </header>
+  </main>
 
   <!-- Logout Modal -->
   <div class="modal-overlay" *ngIf="showLogoutModal">
     <div class="modal-content">
       <h3>Cerrar Sesión</h3>
-      <p>¿Estás seguro que deseas cerrar sesión?</p>
+      <p>¿Estás seguro de que deseas cerrar sesión?</p>
       <div class="modal-actions">
         <button class="btn-cancel" (click)="cancelLogout()">Cancelar</button>
-        <button class="btn-confirm" (click)="logout()">Confirmar</button>
+        <button class="btn-confirm" (click)="logout()">Cerrar Sesión</button>
       </div>
     </div>
   </div>
-
-  <!-- Main Content -->
-  <main class="main-content">
-    <div class="content-wrapper">
-      <!-- Hero Section -->
-      <section class="hero-section">
-        <h1 class="page-title">Descubre Tu Próximo Proyecto</h1>
-        <p class="page-subtitle" *ngIf="currentUser">Bienvenido, {{ currentUser.nombre }}! Aquí están las últimas oportunidades.</p>
-
-        <!-- Search Bar -->
-        <div class="search-container">
-          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="m21 21-4.35-4.35"></path>
-          </svg>
-          <input 
-            type="text" 
-            class="search-input" 
-            placeholder="Buscar proyectos, habilidades o empresas"
-            [(ngModel)]="searchQuery"
-            (input)="onSearchChange()"
-          />
-        </div>
-      </section>
-
-      <!-- Filters -->
-      <section class="filters-section">
-        <div class="filters-container">
-          <select class="filter-select" [(ngModel)]="selectedStack" (change)="onFilterChange()">
-            <option value="">Technology Stack</option>
-            <option *ngFor="let tech of techStacks" [value]="tech">{{ tech }}</option>
-          </select>
-
-          <select class="filter-select" [(ngModel)]="selectedType" (change)="onFilterChange()">
-            <option value="">Tipo de Proyecto</option>
-            <option *ngFor="let type of projectTypes" [value]="type">{{ type }}</option>
-          </select>
-
-          <select class="filter-select" [(ngModel)]="selectedCompensation" (change)="onFilterChange()">
-            <option value="">Compensación</option>
-            <option *ngFor="let comp of compensationTypes" [value]="comp">{{ comp }}</option>
-          </select>
-
-          <button class="clear-filters" (click)="clearFilters()">Limpiar filtros</button>
-        </div>
-
-        <div class="sort-container">
-          <label class="sort-label">Ordenar:</label>
-          <select class="sort-select" [(ngModel)]="sortBy" (change)="onFilterChange()">
-            <option value="recent">Más reciente</option>
-            <option value="budget-high">Mayor presupuesto</option>
-            <option value="budget-low">Menor presupuesto</option>
-          </select>
-        </div>
-      </section>
-
-      <!-- Projects Grid -->
-      <section class="projects-section">
-        <h2 class="section-title">Proyectos Recientes</h2>
-
-        <div *ngIf="loading" class="loading-state">
-          <div class="spinner"></div>
-          <p>Cargando proyectos...</p>
-        </div>
-
-        <div *ngIf="error" class="error-state">
-          <p>{{ error }}</p>
-        </div>
-
-        <div *ngIf="!loading && !error" class="projects-grid">
-          <div *ngFor="let project of paginatedProjects" class="project-card">
-            <div class="card-header">
-              <h3 class="project-title">{{ project.title }}</h3>
-              <span class="project-type-badge">{{ project.type }}</span>
-            </div>
-
-            <p class="project-description">{{ project.description }}</p>
-
-            <div class="tech-stack">
-              <span *ngFor="let tech of project.techStack" class="tech-badge">{{ tech }}</span>
-            </div>
-
-            <div class="project-details">
-              <div class="detail-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                  <line x1="16" y1="2" x2="16" y2="6"></line>
-                  <line x1="8" y1="2" x2="8" y2="6"></line>
-                  <line x1="3" y1="10" x2="21" y2="10"></line>
-                </svg>
-                <span>{{ project.duration }}</span>
-              </div>
-
-              <div class="detail-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <line x1="12" y1="1" x2="12" y2="23"></line>
-                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                </svg>
-                <span>{{ project.compensation }}</span>
-              </div>
-
-              <div class="detail-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
-                <span>{{ project.location }}</span>
-              </div>
-            </div>
-
-            <button class="view-details-btn" (click)="viewDetails(project.id)">
-              Ver Detalles
-            </button>
-          </div>
-        </div>
-
-        <!-- Pagination -->
-        <div *ngIf="!loading && filteredProjects.length > 0" class="pagination">
-          <button 
-            class="page-btn" 
-            [disabled]="currentPage === 1"
-            (click)="goToPage(currentPage - 1)"
-          >
-            ‹
-          </button>
-
-          <button 
-            *ngFor="let page of [].constructor(totalPages); let i = index"
-            class="page-number"
-            [class.active]="currentPage === i + 1"
-            (click)="goToPage(i + 1)"
-          >
-            {{ i + 1 }}
-          </button>
-
-          <button 
-            class="page-btn"
-            [disabled]="currentPage === totalPages"
-            (click)="goToPage(currentPage + 1)"
-          >
-            ›
-          </button>
-        </div>
-      </section>
-    </div>
-  </main>
 </div>

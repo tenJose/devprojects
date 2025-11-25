@@ -2,10 +2,9 @@ import { Component, type OnInit } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 import { Router } from "@angular/router"
-import { ProjectService } from "../../services/project.service"
-import type { Project } from "../../services/project.service"
+import { ProjectService, Project } from "../../services/project.service"
 import { AuthService } from "../../services/auth.service"
-import { UsuarioService } from "../../services/usuario.service"
+import { UsuarioService, UserSearchResult } from "../../services/usuario.service" // Added UserSearchResult
 
 @Component({
   selector: "app-home",
@@ -15,17 +14,28 @@ import { UsuarioService } from "../../services/usuario.service"
   styleUrls: ["./home.component.css"],
 })
 export class HomeComponent implements OnInit {
+  activeTab: "projects" | "people" = "projects"
+
   projects: Project[] = []
-  filteredProjects: Project[] = []
+  users: UserSearchResult[] = [] // Added users array
+
   loading = true
   error = ""
-
+  
+  
+  
+  private readonly API_BASE_URL = 'http://localhost:3000'; // Ajusta según tu .env
+  
+  
   // Filter states
   searchQuery = ""
-  selectedStack = ""
+  selectedStack: { [key: string]: boolean } = {} // Changed to object for multiple selection
   selectedType = ""
-  selectedCompensation = ""
-  sortBy = "recent"
+  selectedCompensation = "" // Range slider logic will be separate
+
+  // Range slider values
+  minBudget = 20
+  maxBudget = 100
 
   // Pagination
   currentPage = 1
@@ -33,9 +43,24 @@ export class HomeComponent implements OnInit {
   itemsPerPage = 6
 
   // Available filters
-  techStacks = ["React", "Angular", "Vue", "Next.js", "Python", "FastAPI", "Docker", "AWS", "Node.js", "Express"]
-  projectTypes = ["Frontend", "Backend", "Full Stack", "Mobile", "DevOps", "UI/UX", "Data Science"]
-  compensationTypes = ["Fixed Price", "Hourly Rate", "Budget Range"]
+  techStacks = [
+    "React",
+    "Angular",
+    "Vue",
+    "Next.js",
+    "Node.js",
+    "Python",
+    "Java",
+    "Spring Boot",
+    "Docker",
+    "AWS",
+    "TypeScript",
+    "PostgreSQL",
+    "MongoDB",
+  ]
+
+  contractTypes = ["Full Time", "Part Time", "Contract", "Freelance"]
+  experienceLevels = ["Junior", "Mid-Level", "Senior", "Lead"]
 
   // User data
   currentUser: any = null
@@ -49,24 +74,82 @@ export class HomeComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadProjects()
     this.loadUserProfile()
+    this.performSearch() // Initial search
   }
 
-  loadProjects() {
+  performSearch() {
     this.loading = true
-    this.projectService.getProjects().subscribe({
-      next: (data) => {
-        this.projects = data
-        this.applyFilters()
-        this.loading = false
-      },
-      error: (err) => {
-        this.error = "Error al cargar los proyectos"
-        this.loading = false
-        console.error(err)
-      },
-    })
+    const filters = {
+      search: this.searchQuery,
+      tecnologias: Object.keys(this.selectedStack)
+        .filter((k) => this.selectedStack[k])
+        .join(","),
+      // Add other filters if needed by backend
+      minBudget: this.minBudget,
+      maxBudget: this.maxBudget,
+    }
+
+    if (this.activeTab === "projects") {
+      this.projectService.getProjects(filters).subscribe({
+        next: (data) => {
+          this.projects = data
+          this.loading = false
+          // Client-side pagination for now or backend pagination later
+          this.calculatePagination(this.projects.length)
+        },
+        error: (err) => {
+          this.error = "Error al cargar proyectos"
+          this.loading = false
+          console.error(err)
+        },
+      })
+    } else {
+      this.usuarioService.searchUsers(filters).subscribe({
+        next: (data) => {
+          this.users = data
+          this.loading = false
+          this.calculatePagination(this.users.length)
+        },
+        error: (err) => {
+          this.error = "Error al cargar usuarios"
+          this.loading = false
+          console.error(err)
+        },
+      })
+    }
+  }
+
+  calculatePagination(totalItems: number) {
+    this.totalPages = Math.ceil(totalItems / this.itemsPerPage)
+    if (this.currentPage > this.totalPages) this.currentPage = 1
+  }
+
+  get paginatedProjects(): Project[] {
+  const start = (this.currentPage - 1) * this.itemsPerPage
+  const end = start + this.itemsPerPage
+  return this.projects.slice(start, end)
+}
+
+get paginatedUsers(): UserSearchResult[] {
+  const start = (this.currentPage - 1) * this.itemsPerPage
+  const end = start + this.itemsPerPage
+  return this.users.slice(start, end)
+}
+
+
+  switchTab(tab: "projects" | "people") {
+    this.activeTab = tab
+    this.currentPage = 1
+    this.performSearch()
+  }
+
+  toggleTech(tech: string) {
+    if (this.selectedStack[tech]) {
+      delete this.selectedStack[tech]
+    } else {
+      this.selectedStack[tech] = true
+    }
   }
 
   loadUserProfile() {
@@ -82,80 +165,34 @@ export class HomeComponent implements OnInit {
     })
   }
 
-  applyFilters() {
-    let filtered = [...this.projects]
-
-    // Search filter
-    if (this.searchQuery) {
-      const query = this.searchQuery.toLowerCase()
-      filtered = filtered.filter(
-        (p) =>
-          p.title.toLowerCase().includes(query) ||
-          p.description.toLowerCase().includes(query) ||
-          p.techStack.some((tech) => tech.toLowerCase().includes(query)),
-      )
+ // 3. FUNCIÓN VER DETALLES CORREGIDA
+  viewDetails(id: number) {
+    if (this.activeTab === "projects") {
+      // Navegar a detalle de proyecto (si tienes el componente)
+      this.router.navigate(["/project", id]); 
+    } else {
+      //  AHORA NAVEGA AL PERFIL PÚBLICO
+      this.router.navigate(["/user", id]); 
     }
-
-    // Tech stack filter
-    if (this.selectedStack) {
-      filtered = filtered.filter((p) => p.techStack.includes(this.selectedStack))
-    }
-
-    // Project type filter
-    if (this.selectedType) {
-      filtered = filtered.filter((p) => p.type === this.selectedType)
-    }
-
-    // Compensation filter
-    if (this.selectedCompensation) {
-      filtered = filtered.filter((p) => p.compensationType === this.selectedCompensation)
-    }
-
-    // Sort
-    if (this.sortBy === "recent") {
-      filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    } else if (this.sortBy === "budget-high") {
-      filtered.sort((a, b) => b.budget - a.budget)
-    } else if (this.sortBy === "budget-low") {
-      filtered.sort((a, b) => a.budget - b.budget)
-    }
-
-    this.filteredProjects = filtered
-    this.totalPages = Math.ceil(filtered.length / this.itemsPerPage)
-    this.currentPage = 1
-  }
-
-  get paginatedProjects() {
-    const start = (this.currentPage - 1) * this.itemsPerPage
-    const end = start + this.itemsPerPage
-    return this.filteredProjects.slice(start, end)
-  }
-
-  onSearchChange() {
-    this.applyFilters()
-  }
-
-  onFilterChange() {
-    this.applyFilters()
-  }
-
-  clearFilters() {
-    this.searchQuery = ""
-    this.selectedStack = ""
-    this.selectedType = ""
-    this.selectedCompensation = ""
-    this.sortBy = "recent"
-    this.applyFilters()
-  }
-
-  viewDetails(projectId: number) {
-    this.router.navigate(["/project", projectId])
   }
 
   goToPage(page: number) {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page
     }
+  }
+
+  // Navigation Methods
+  navigateToCreateProject() {
+    this.router.navigate(["/create-project"])
+  }
+
+  navigateToMessages() {
+    this.router.navigate(["/messages"])
+  }
+
+  navigateToProfile() {
+    this.router.navigate(["/configurar-perfil"]) // Or wherever the edit profile is
   }
 
   confirmLogout() {
@@ -171,4 +208,13 @@ export class HomeComponent implements OnInit {
     this.router.navigate(["/"])
     this.showLogoutModal = false
   }
+
+  // ✅ NUEVO: Método para construir la URL completa de la foto
+  getFullPhotoUrl(fileName: string | null | undefined): string {
+    if (!fileName) return 'assets/default-avatar.png';
+    if (fileName.startsWith('http')) return fileName;
+    // Aseguramos que la ruta apunte a /uploads en el backend
+    return `${this.API_BASE_URL}/uploads/${fileName}`;
+  }
+
 }

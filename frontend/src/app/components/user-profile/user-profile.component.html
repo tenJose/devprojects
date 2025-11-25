@@ -1,0 +1,42 @@
+<div class="profile-container" *ngIf="user">
+  <button (click)="goBack()" class="btn-back">← Volver</button>
+  
+  <div class="profile-header">
+    <img [src]="getFullPhotoUrl(user.fotoPerfil)" alt="Profile" class="profile-avatar">
+    <div class="profile-info">
+      <h1>{{user.nombre}} {{user.apellido}}</h1>
+      <span class="role-badge">{{user.rol || 'Developer'}}</span>
+      <p class="joined-date">Miembro desde {{user.createdAt | date}}</p>
+    </div>
+  </div>
+
+  <div class="profile-section">
+    <h3>Sobre mí</h3>
+    <p>{{user.descripcion || 'Sin descripción disponible.'}}</p>
+  </div>
+
+  <div class="profile-grid">
+    <div class="profile-card">
+      <h3>Tecnologías</h3>
+      <div class="tags">
+        <span *ngFor="let tech of user.tecnologias" class="tag tech">{{tech}}</span>
+        <span *ngIf="!user.tecnologias?.length" class="empty-msg">No especificadas</span>
+      </div>
+    </div>
+
+    <div class="profile-card">
+      <h3>Lenguajes</h3>
+      <div class="tags">
+        <span *ngFor="let lang of user.lenguajes" class="tag lang">{{lang}}</span>
+        <span *ngIf="!user.lenguajes?.length" class="empty-msg">No especificados</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-section" *ngIf="user.informacionExtra">
+    <h3>Información Adicional</h3>
+    <p>{{user.informacionExtra}}</p>
+  </div>
+</div>
+
+<div *ngIf="loading" class="loading">Cargando perfil...</div>

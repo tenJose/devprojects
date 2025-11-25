@@ -1,9 +1,9 @@
-import { Component, type OnInit, ViewChild, type ElementRef, type AfterViewChecked } from "@angular/core"
+import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 import { RouterLink } from "@angular/router"
-import type { MessageService, Conversation, Message } from "../../services/message.service"
-import type { AuthService } from "../../services/auth.service"
+import { MessageService, Conversation, Message } from "../../services/message.service"
+import { AuthService } from "../../services/auth.service"
 
 @Component({
   selector: "app-messages",

@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core"
-import { type HttpClient, HttpHeaders } from "@angular/common/http"
-import type { Observable } from "rxjs"
-import type { AuthService } from "./auth.service"
+import { HttpClient, HttpHeaders } from "@angular/common/http"
+import { Observable } from "rxjs"
+import { AuthService } from "./auth.service"
 
 export interface Message {
   id: number

@@ -1,8 +1,8 @@
 import { Component } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { FormsModule } from "@angular/forms"
-import { type Router, RouterLink } from "@angular/router"
-import type { ProjectService } from "../../services/project.service"
+import { Router, RouterLink } from "@angular/router"
+import { ProjectService } from "../../services/project.service"
 
 @Component({
   selector: "app-create-project",
