@@ -122,10 +122,55 @@ export const getProjectById = async (req: Request, res: Response) => {
   }
 }
 
+
 export const createProject = async (req: Request, res: Response) => {
   try {
     const {
-      titulo,
+      nombre,
+      descripcion,
+      tecnologias,
+      tipoProyecto,
+      presupuesto,
+      presupuestoTipo,
+      duracionEstimada,
+      ubicacion,
+      usuarioCreadorId,
+    } = req.body
+
+    const userId = Number(usuarioCreadorId)
+
+    if (!userId || isNaN(userId)) {
+      return res.status(400).json({
+        error: "usuarioCreadorId es inválido o no fue enviado",
+      })
+    }
+
+    const nuevoProyecto = await prisma.proyecto.create({
+      data: {
+        nombre,
+        descripcion,
+        tecnologias: Array.isArray(tecnologias) ? tecnologias.join(", ") : tecnologias,
+        tipoProyecto: tipoProyecto || "Desarrollo",
+        presupuesto: presupuesto ? Number.parseFloat(presupuesto) : null,
+        presupuestoTipo: presupuestoTipo || "Fixed Price",
+        duracionEstimada: duracionEstimada || null,
+        ubicacion: ubicacion || "Remote",
+        estado: "activo",
+        usuarioCreadorId: userId,
+      },
+    })
+
+    res.status(201).json(nuevoProyecto)
+  } catch (error) {
+    console.error("Error al crear proyecto:", error)
+    res.status(500).json({ error: "Error al crear proyecto" })
+  }
+}
+
+/*export const createProject = async (req: Request, res: Response) => {
+  try {
+    const {
+      nombre,
       descripcion,
       tecnologias,
       tipoProyecto,
@@ -138,7 +183,7 @@ export const createProject = async (req: Request, res: Response) => {
 
     const nuevoProyecto = await prisma.proyecto.create({
       data: {
-        nombre: titulo,
+        nombre: nombre,
         descripcion,
         tecnologias: Array.isArray(tecnologias) ? tecnologias.join(", ") : tecnologias,
         tipoProyecto: tipoProyecto || "Desarrollo",
@@ -156,7 +201,7 @@ export const createProject = async (req: Request, res: Response) => {
     console.error("Error al crear proyecto:", error)
     res.status(500).json({ error: "Error al crear proyecto" })
   }
-}
+}*/
 
 export const updateProject = async (req: Request, res: Response) => {
   try {

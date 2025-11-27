@@ -1,1 +1,4 @@
 devprojects/
+/backend/node_modules
+/frontend/.angular
+/frontend/node_modules

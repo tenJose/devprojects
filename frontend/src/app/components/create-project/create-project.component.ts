@@ -77,6 +77,7 @@ export class CreateProjectComponent {
       ubicacion: this.project.location,
       tamañoEquipo: this.project.teamSize,
       fechaLimite: this.project.deadline ? new Date(this.project.deadline) : null,
+      //usuarioCreadorId: userId
     }
 
     this.projectService.createProject(projectData as any).subscribe({
