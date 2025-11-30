@@ -10,7 +10,8 @@ export interface Project {
   type: string
   techStack: string[]
   budget: number
-  compensation: string
+  usuarioCreadorId: number
+  compensation: number
   compensationType: string
   duration: string
   location: string
@@ -21,6 +22,26 @@ export interface Project {
     avatar?: string
   }
 }
+
+export interface BackendProject {
+  id: number;
+  titulo: string;
+  descripcion: string;
+  tipo_proyecto: string;
+  tecnologias: string[];
+  presupuesto: number;
+  usuarioCreadorId: number;
+  tipo_pago?: string;
+  duracion: string;
+  ubicacion: string;
+  createdAt: string;
+  usuarioCreador?: {
+    id: number;
+    nombre: string;
+    avatar?: string;
+  };
+}
+
 
 @Injectable({
   providedIn: "root",
@@ -41,7 +62,7 @@ export class ProjectService {
     })
   }
 
-  getProjects(filters?: any): Observable<Project[]> {
+  getProjects(filters?: any): Observable<BackendProject[]> {
     let params = new HttpParams()
 
     if (filters) {
@@ -52,7 +73,7 @@ export class ProjectService {
       if (filters.maxBudget) params = params.set("presupuestoMax", filters.maxBudget)
     }
 
-    return this.http.get<Project[]>(this.apiUrl, {
+  return this.http.get<BackendProject[]>(this.apiUrl, {
       headers: this.getHeaders(),
       params,
     })

@@ -12,7 +12,10 @@ export const getAllProjects = async (req: Request, res: Response) => {
     }
 
     if (search) {
-      where.OR = [{ nombre: { contains: String(search) } }, { descripcion: { contains: String(search) } }]
+      where.OR = [
+        { nombre: { contains: String(search) } }, 
+        { descripcion: { contains: String(search) } }
+      ]
     }
 
     if (tecnologias) {
@@ -30,7 +33,7 @@ export const getAllProjects = async (req: Request, res: Response) => {
     }
 
     const proyectos = await prisma.proyecto.findMany({
-      where,
+      where, 
       orderBy: { createdAt: "desc" },
       include: {
         usuarioCreador: {
@@ -44,12 +47,23 @@ export const getAllProjects = async (req: Request, res: Response) => {
       },
     })
 
+
+    const projects = await prisma.proyecto.findMany({
+  where: { estado: 'activo' },
+  include: {
+    usuarioCreador: {
+      select: { id: true, nombre: true, apellido: true, fotoPerfil: true }
+    }
+  }
+});
+
+
     const proyectosFormateados = proyectos.map((proyecto) => ({
       id: proyecto.id,
       titulo: proyecto.nombre,
       descripcion: proyecto.descripcion,
       tipo_proyecto: proyecto.tipoProyecto || "Desarrollo",
-      tecnologias: proyecto.tecnologias.split(",").map((t) => t.trim()),
+      tecnologias: JSON.parse(proyecto.tecnologias),
       presupuesto: proyecto.presupuesto ? proyecto.presupuesto.toString() : null,
       presupuesto_tipo: proyecto.presupuestoTipo || "Fixed Price",
       duracion_estimada: proyecto.duracionEstimada || null,
@@ -256,3 +270,5 @@ export const deleteProject = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Error al eliminar proyecto" })
   }
 }
+
+

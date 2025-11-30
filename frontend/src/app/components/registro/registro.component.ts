@@ -14,14 +14,12 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./registro.component.css'],
 })
 export class RegistroComponent {
-  // Formulario
   email: string = '';
   nombre: string = '';
   fechaNacimiento: string = '';
   password: string = '';
   passwordConfirm: string = '';
 
-  // Estados
   mostrarContrasena: boolean = false;
   mostrarConfirmar: boolean = false;
   cargando: boolean = false;
@@ -33,66 +31,89 @@ export class RegistroComponent {
     private router: Router
   ) {}
 
-  // Cambiar visibilidad de contraseña
   cambiarVisibilidad(campo: 'password' | 'confirm'): void {
+    console.log(`➡️ Cambiando visibilidad del campo: ${campo}`);
+    
     if (campo === 'password') {
       this.mostrarContrasena = !this.mostrarContrasena;
+      console.log('🔍 mostrarContrasena:', this.mostrarContrasena);
     } else {
       this.mostrarConfirmar = !this.mostrarConfirmar;
+      console.log('🔍 mostrarConfirmar:', this.mostrarConfirmar);
     }
   }
 
-  // Enviar formulario de registro
   enviar(): void {
+    console.log('📤 Enviando formulario de registro...');
+    console.log('📄 Datos ingresados:', {
+      email: this.email,
+      nombre: this.nombre,
+      fechaNacimiento: this.fechaNacimiento,
+      password: this.password,
+      passwordConfirm: this.passwordConfirm,
+    });
+
     // Validar campos
-    if (
-      !this.email ||
-      !this.nombre ||
-      !this.fechaNacimiento ||
-      !this.password ||
-      !this.passwordConfirm
-    ) {
+    if (!this.email || !this.nombre || !this.fechaNacimiento || !this.password || !this.passwordConfirm) {
       this.error = 'Por favor completa todos los campos';
+      console.log('❌ Error: faltan campos');
       return;
     }
 
     // Validar que contraseñas coincidan
     if (this.password !== this.passwordConfirm) {
       this.error = 'Las contraseñas no coinciden';
+      console.log('❌ Error: contraseñas no coinciden');
       return;
     }
 
     this.cargando = true;
     this.error = '';
+    console.log('⏳ Cargando = true');
 
-    this.authService
-      .register({
-        email: this.email,
-        nombre: this.nombre,
-        fechaNacimiento: this.fechaNacimiento,
-        password: this.password,
-        passwordConfirm: this.passwordConfirm,
-      })
-      .subscribe({
-        next: (response: any) => {
-          if (response.success) {
-            // Guardar email para verificación
-            sessionStorage.setItem('emailVerificacion', this.email);
-            this.exito = response.message;
-            
-            // Redirigir a verificación después de 2 segundos
-            setTimeout(() => {
-              this.router.navigate(['/verificacion']);
-            }, 2000);
-          } else {
-            this.error = response.message;
-          }
-          this.cargando = false;
-        },
-        error: (err: any) => {
-          this.error = err.error?.message || 'Error al registrarse';
-          this.cargando = false;
-        },
-      });
+    const payload = {
+      email: this.email,
+      nombre: this.nombre,
+      fechaNacimiento: this.fechaNacimiento,
+      password: this.password,
+      passwordConfirm: this.passwordConfirm,
+    };
+
+    console.log('📨 Enviando payload al backend:', payload);
+
+    this.authService.register(payload).subscribe({
+      next: (response: any) => {
+        console.log('✅ Respuesta del backend:', response);
+
+        if (response.success) {
+          console.log('🎉 Registro exitoso, guardando email...');
+          sessionStorage.setItem('emailVerificacion', this.email);
+
+          this.exito = response.message;
+          
+          console.log('⏳ Redirigiendo a /verificacion en 2 segundos...');
+          setTimeout(() => {
+            console.log('➡️ Navegando a /verificacion...');
+            this.router.navigate(['/verificacion']);
+          }, 2000);
+        } else {
+          console.log('❌ El backend respondió success = false');
+          this.error = response.message;
+        }
+
+        this.cargando = false;
+        console.log('⏳ Cargando = false');
+      },
+
+      error: (err: any) => {
+        console.log('🚨 Error recibido del backend:', err);
+        console.log('📌 err.error:', err?.error);
+
+        this.error = err.error?.message || 'Error al registrarse';
+        this.cargando = false;
+
+        console.log('⏳ Cargando = false');
+      },
+    });
   }
 }

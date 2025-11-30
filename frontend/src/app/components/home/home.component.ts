@@ -2,9 +2,11 @@ import { Component, type OnInit } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 import { Router } from "@angular/router"
-import { ProjectService, Project } from "../../services/project.service"
+import { ProjectService, Project, BackendProject } from "../../services/project.service"
 import { AuthService } from "../../services/auth.service"
-import { UsuarioService, UserSearchResult } from "../../services/usuario.service" // Added UserSearchResult
+import { UsuarioService, UserSearchResult } from "../../services/usuario.service" 
+import { PostulacionService } from '../../services/postulacion.service'; // Asegúrate de crear este servicio
+
 
 @Component({
   selector: "app-home",
@@ -70,6 +72,7 @@ export class HomeComponent implements OnInit {
     private projectService: ProjectService,
     private authService: AuthService,
     private usuarioService: UsuarioService,
+    private postulacionService: PostulacionService,
     private router: Router,
   ) {}
 
@@ -77,6 +80,8 @@ export class HomeComponent implements OnInit {
     this.loadUserProfile()
     this.performSearch() // Initial search
   }
+
+  
 
   performSearch() {
     this.loading = true
@@ -91,19 +96,40 @@ export class HomeComponent implements OnInit {
     }
 
     if (this.activeTab === "projects") {
-      this.projectService.getProjects(filters).subscribe({
-        next: (data) => {
-          this.projects = data
-          this.loading = false
-          // Client-side pagination for now or backend pagination later
-          this.calculatePagination(this.projects.length)
-        },
-        error: (err) => {
-          this.error = "Error al cargar proyectos"
-          this.loading = false
-          console.error(err)
-        },
-      })
+      this.projectService.getProjects().subscribe({
+  next: (projects: BackendProject[]) => {
+  this.projects = projects.map(p => ({
+    id: p.id,
+    title: p.titulo,
+    description: p.descripcion,
+    type: p.tipo_proyecto,
+    techStack: p.tecnologias,
+    budget: p.presupuesto,
+    usuarioCreadorId: p.usuarioCreadorId,
+    compensation: p.presupuesto,
+    compensationType: p.tipo_pago ?? "Fixed",
+    duration: p.duracion,
+    location: p.ubicacion,
+    createdAt: p.createdAt,
+    creator: p.usuarioCreador
+      ? {
+          id: p.usuarioCreador.id,
+          name: p.usuarioCreador.nombre,
+          avatar: p.usuarioCreador.avatar
+        }
+      : undefined
+  }));
+
+  this.loading = false;
+}
+,
+  error: (err) => {
+    console.error(err);
+    this.error = "Error al cargar los proyectos";
+    this.loading = false;  // También debe actualizarse en caso de error
+  }
+})
+
     } else {
       this.usuarioService.searchUsers(filters).subscribe({
         next: (data) => {
@@ -210,11 +236,45 @@ get paginatedUsers(): UserSearchResult[] {
   }
 
   // ✅ NUEVO: Método para construir la URL completa de la foto
-  getFullPhotoUrl(fileName: string | null | undefined): string {
-    if (!fileName) return 'assets/default-avatar.png';
-    if (fileName.startsWith('http')) return fileName;
-    // Aseguramos que la ruta apunte a /uploads en el backend
-    return `${this.API_BASE_URL}/uploads/${fileName}`;
+ getFullPhotoUrl(fileName: string | null | undefined): string {
+  if (!fileName) return 'assets/default-avatar.png';
+  if (fileName.startsWith('/uploads')) {
+    return `${this.API_BASE_URL}${fileName}`;
   }
+  return `${this.API_BASE_URL}/uploads/${fileName}`;
+}
+
+applyToProject(projectId: number) {
+  if (!this.currentUser) {
+    alert("Debes iniciar sesión para postularte a un proyecto.");
+    return;
+  }
+
+  const payload = {
+    usuarioId: this.currentUser.id,
+    proyectoId: projectId,
+    mensaje: "¡Hola! Me interesa postularme a este proyecto.", // Opcional, puedes abrir modal para personalizar
+    propuesta: "", // Aquí el usuario podría agregar su propuesta
+    presupuestoPropuesto: null, // opcional
+  };
+
+  this.postulacionService.createPostulacion(payload).subscribe({
+    next: (res) => {
+      alert("Te has postulado correctamente a este proyecto.");
+    },
+    error: (err) => {
+      console.error(err);
+      alert("Hubo un error al postularte.");
+    },
+  });
+}
+
+editProject(projectId: number) {
+  // Navegar al componente de edición de proyecto
+  this.router.navigate(['/edit-project', projectId]);
+}
+
+
+
 
 }

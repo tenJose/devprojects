@@ -3,6 +3,8 @@ import { CommonModule } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 import { Router, RouterLink } from "@angular/router"
 import { ProjectService } from "../../services/project.service"
+import { AuthService } from "../../services/auth.service";
+import { UsuarioService } from "../../services/usuario.service";
 
 @Component({
   selector: "app-create-project",
@@ -12,6 +14,9 @@ import { ProjectService } from "../../services/project.service"
   styleUrls: ["./create-project.component.css"],
 })
 export class CreateProjectComponent {
+
+  currentUser: any = null;
+
   project = {
     title: "",
     description: "",
@@ -36,7 +41,11 @@ export class CreateProjectComponent {
   constructor(
     private projectService: ProjectService,
     private router: Router,
-  ) {}
+    private authService: AuthService,      
+    private usuarioService: UsuarioService
+  ) {
+    this.loadUserProfile();
+  }
 
   addTech(tech: string) {
     if (tech && !this.project.techStack.includes(tech)) {
@@ -62,23 +71,28 @@ export class CreateProjectComponent {
       return
     }
 
+    if (!this.currentUser?.id) {
+    this.error = "No se pudo identificar al usuario";
+    return;
+    }
+
     this.loading = true
     this.error = ""
 
     // Transform data to match backend schema if necessary
     const projectData = {
-      nombre: this.project.title,
-      descripcion: this.project.description,
-      tecnologias: JSON.stringify(this.project.techStack),
-      tipoProyecto: this.project.type,
-      presupuesto: this.project.budget,
-      presupuestoTipo: this.project.compensationType,
-      duracionEstimada: this.project.duration,
-      ubicacion: this.project.location,
-      tamañoEquipo: this.project.teamSize,
-      fechaLimite: this.project.deadline ? new Date(this.project.deadline) : null,
-      //usuarioCreadorId: userId
-    }
+    nombre: this.project.title,
+    descripcion: this.project.description,
+    tecnologias: JSON.stringify(this.project.techStack),
+    tipoProyecto: this.project.type,
+    presupuesto: this.project.budget,
+    presupuestoTipo: this.project.compensationType,
+    duracionEstimada: this.project.duration,
+    ubicacion: this.project.location,
+    tamanoEquipo: this.project.teamSize,
+    fechaLimite: this.project.deadline ? new Date(this.project.deadline) : null,
+    usuarioCreadorId: this.currentUser.id // ✅ IMPORTANTE
+  };
 
     this.projectService.createProject(projectData as any).subscribe({
       next: (res) => {
@@ -95,6 +109,24 @@ export class CreateProjectComponent {
 
   saveAsDraft() {
     // Logic for saving as draft
-    console.log("Saving as draft...", this.project)
+    console.log("Guardando como borrador...", this.project)
   }
+
+loadUserProfile() {
+    this.usuarioService.obtenerPerfil().subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.currentUser = res.data;
+        }
+      },
+      error: (err) => console.error("Error loading profile:", err)
+    });
+  }
+
+    getFullPhotoUrl(fileName: string | null | undefined): string {
+    if (!fileName) return 'assets/default-avatar.png';
+    if (fileName.startsWith('/uploads')) return `http://localhost:3000${fileName}`;
+    return `http://localhost:3000/uploads/${fileName}`;
+  }
+
 }
