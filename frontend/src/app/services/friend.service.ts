@@ -1,27 +1,53 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { AuthService } from './auth.service'; // ✅ Importar AuthService
 
 @Injectable({
   providedIn: 'root'
 })
 export class FriendService {
-  private apiUrl = 'http://localhost:3000/api/friends'; // Asegúrate de crear esta ruta en tu backend
+  private apiUrl = 'http://localhost:3000/api/friends';
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService // ✅ Inyectar AuthService
+  ) {}
+
+  // ✅ Método privado para generar las cabeceras con el Token
+  private getHeaders(): HttpHeaders {
+    const token = this.authService.getToken();
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}` // Aquí va el token
+    });
+  }
 
   // Enviar solicitud de amistad
   sendRequest(friendId: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/request`, { friendId });
+    // ✅ Agregamos { headers: this.getHeaders() }
+    return this.http.post(
+      `${this.apiUrl}/request`, 
+      { friendId }, 
+      { headers: this.getHeaders() } 
+    );
   }
 
-  // Verificar estado de amistad (si ya son amigos o hay solicitud pendiente)
+  // Verificar estado de amistad
   checkStatus(friendId: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/status/${friendId}`);
+    // ✅ Agregamos headers
+    return this.http.get(
+      `${this.apiUrl}/status/${friendId}`, 
+      { headers: this.getHeaders() }
+    );
   }
 
-  // Aceptar solicitud
+  // Aceptar solicitud (para el futuro)
   acceptRequest(requestId: number): Observable<any> {
-    return this.http.put(`${this.apiUrl}/accept/${requestId}`, {});
+    return this.http.put(
+      `${this.apiUrl}/accept/${requestId}`, 
+      {}, 
+      { headers: this.getHeaders() }
+    );
   }
 }

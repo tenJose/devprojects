@@ -1,56 +1,89 @@
-<div class="profile-container" *ngIf="user">
-  <button (click)="goBack()" class="btn-back">← Volver</button>
-  
-  <div class="profile-header">
-    <img [src]="getFullPhotoUrl(user.fotoPerfil)" alt="Profile" class="profile-avatar">
-    <div class="profile-info">
-      <div class="profile-actions">
-  <button *ngIf="user.id !== currentUserId && !areFriends" 
-          class="btn-friend-request" 
-          (click)="enviarSolicitudAmistad(user.id)"
-          [disabled]="solicitudEnviada">
+@if (loading) {
+  <div class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando perfil...</p>
+  </div>
+} @else if (user) {
+  <div class="profile-container">
     
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-      <circle cx="8.5" cy="7" r="4"></circle>
-      <line x1="20" y1="8" x2="20" y2="14"></line>
-      <line x1="23" y1="11" x2="17" y2="11"></line>
-    </svg>
-    {{ solicitudEnviada ? 'Solicitud Enviada' : 'Añadir a Amigos' }}
-  </button>
+    <div class="profile-header-card">
+      <button (click)="goBack()" class="btn-back">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Volver
+      </button>
 
-  <button *ngIf="areFriends" class="btn-message" (click)="enviarMensaje(user.id)">
-    Enviar Mensaje
-  </button>
-</div>
+      <div class="profile-main-info">
+        <div class="avatar-wrapper">
+          <img [src]="getFullPhotoUrl(user.fotoPerfil)" alt="Foto de {{user.nombre}}" class="profile-avatar">
+          <div class="status-indicator online"></div>
+        </div>
+        
+        <div class="info-text">
+          <h1 class="user-name">{{user.nombre}} {{user.apellido}}</h1>
+          <p class="user-role">{{user.rol || 'Desarrollador'}}</p>
+          <p class="user-location" *ngIf="user.ubicacion">📍 {{user.ubicacion}}</p>
+          <p class="joined-date">Miembro desde {{user.createdAt | date:'mediumDate'}}</p>
+        </div>
 
-  <div class="profile-section">
-    <h3>Sobre mí</h3>
-    <p>{{user.descripcion || 'Sin descripción disponible.'}}</p>
-  </div>
+        <div class="action-buttons">
+          @if (currentUserId && user.id !== currentUserId && !areFriends) {
+            <button class="btn-add-friend" 
+                    (click)="enviarSolicitudAmistad(user.id)"
+                    [disabled]="solicitudEnviada"
+                    [class.sent]="solicitudEnviada">
+              @if (solicitudEnviada) {
+                <span>Solicitud Enviada</span>
+              } @else {
+                <span>Conectar</span>
+              }
+            </button>
+          }
 
-  <div class="profile-grid">
-    <div class="profile-card">
-      <h3>Tecnologías</h3>
-      <div class="tags">
-        <span *ngFor="let tech of user.tecnologias" class="tag tech">{{tech}}</span>
-        <span *ngIf="!user.tecnologias?.length" class="empty-msg">No especificadas</span>
+          @if (areFriends) {
+            <button class="btn-message" (click)="enviarMensaje(user.id)">
+              Enviar Mensaje
+            </button>
+          }
+        </div>
       </div>
     </div>
 
-    <div class="profile-card">
-      <h3>Lenguajes</h3>
-      <div class="tags">
-        <span *ngFor="let lang of user.lenguajes" class="tag lang">{{lang}}</span>
-        <span *ngIf="!user.lenguajes?.length" class="empty-msg">No especificados</span>
+    <div class="profile-grid">
+      <div class="left-col">
+        <div class="info-section">
+          <h3>Sobre mí</h3>
+          <p class="bio-text">{{user.descripcion || 'Sin descripción disponible.'}}</p>
+        </div>
+
+        <div class="info-section">
+          <h3>Habilidades Técnicas</h3>
+          <div class="tags-container">
+            @for (tech of user.tecnologias; track tech) {
+              <span class="tech-badge">{{tech}}</span>
+            }
+            @if (!user.tecnologias?.length) { <span class="empty-msg">No especificadas</span> }
+          </div>
+        </div>
+
+        <div class="info-section">
+          <h3>Lenguajes</h3>
+          <div class="tags-container">
+            @for (lang of user.lenguajes; track lang) {
+              <span class="tech-badge lang">{{lang}}</span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="right-col">
+        @if (user.informacionExtra) {
+          <div class="info-section">
+            <h3>Información Adicional</h3>
+            <p>{{user.informacionExtra}}</p>
+          </div>
+        }
       </div>
     </div>
-  </div>
 
-  <div class="profile-section" *ngIf="user.informacionExtra">
-    <h3>Información Adicional</h3>
-    <p>{{user.informacionExtra}}</p>
   </div>
-</div>
-
-<div *ngIf="loading" class="loading">Cargando perfil...</div>
+}

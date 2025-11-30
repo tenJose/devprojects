@@ -20,7 +20,7 @@ export const routes: Routes = [
   { path: 'configuracion-perfil', component: ConfiguracionPerfilComponent },
   { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
   { path: 'create-project', component: CreateProjectComponent, canActivate: [AuthGuard] }, // ✅ NUEVA RUTA
-  { path: 'user/:id', component: ConfiguracionPerfilComponent, canActivate: [AuthGuard] }, // ✅ RUTA para ver otros perfiles
+  //{ path: 'user/:id', component: ConfiguracionPerfilComponent, canActivate: [AuthGuard] }, // ✅ RUTA para ver otros perfiles
   { path: 'maintenance', component: MaintenanceComponent },
   { path: 'user/:id', component: UserProfileComponent, canActivate: [AuthGuard] },
   { path: 'messages', component: MessagesComponent, canActivate: [AuthGuard] },

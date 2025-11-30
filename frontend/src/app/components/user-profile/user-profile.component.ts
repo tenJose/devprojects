@@ -113,7 +113,7 @@ export class UserProfileComponent implements OnInit {
   getFullPhotoUrl(fileName: string): string {
     if (!fileName) return 'assets/default-avatar.png';
     if (fileName.startsWith('http')) return fileName;
-    return `${this.API_URL}/uploads/${fileName}`;
+    return `${this.API_URL}${fileName}`;
   }
   
   goBack() {
