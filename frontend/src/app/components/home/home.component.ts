@@ -7,6 +7,8 @@ import { ProjectService, Project } from "../../services/project.service"
 import { AuthService } from "../../services/auth.service"
 import { UsuarioService, UserSearchResult } from "../../services/usuario.service"
 import { PostulacionService } from '../../services/postulacion.service'
+import { NotificationService } from '../../services/notification.service';
+import { FriendService } from '../../services/friend.service'; // Usaremos este para aceptar
 
 @Component({
   selector: "app-home",
@@ -44,18 +46,29 @@ export class HomeComponent implements OnInit {
   currentUser: any = null
   showLogoutModal = false
 
+  // Variables para notificaciones
+  showNotificationsModal = false;
+  notificationTab: 'amistades' | 'postulaciones' = 'amistades';
+  notificaciones: { amistades: any[], postulaciones: any[] } = { amistades: [], postulaciones: [] };
+  hasNewNotifications = false;
+
   constructor(
     private projectService: ProjectService,
     private authService: AuthService,
     private usuarioService: UsuarioService,
     private postulacionService: PostulacionService,
     private router: Router,
+    private notificationService: NotificationService,
+    private friendService: FriendService
   ) {}
 
   ngOnInit() {
     this.loadUserProfile()
     this.performSearch()
+    this.loadNotifications()
   }
+
+  
 
   performSearch() {
     this.loading = true
@@ -218,4 +231,55 @@ applyToProject(projectId: number) {
 editProject(projectId: number) {
   this.router.navigate(['/edit-project', projectId]);
 }
+
+
+loadNotifications() {
+    this.notificationService.getNotifications().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.notificaciones = res.data;
+          this.hasNewNotifications = 
+            this.notificaciones.amistades.length > 0 || 
+            this.notificaciones.postulaciones.length > 0;
+        }
+      }
+    });
+  }
+
+  toggleNotifications() {
+    console.log("Abriendo notificaciones..."); // 👈 Agrega esto para depurar
+    this.showNotificationsModal = !this.showNotificationsModal;
+    
+    if (this.showNotificationsModal) {
+      this.loadNotifications();
+    }
+  
+  }
+
+  responderAmistad(solicitud: any, aceptar: boolean) {
+    if (aceptar) {
+      this.friendService.acceptRequest(solicitud.id).subscribe({
+        next: () => {
+           this.loadNotifications(); // Recargar lista
+           alert("Solicitud aceptada");
+        },
+        error: (err) => {
+          console.error(err);
+          alert("Error al aceptar solicitud");
+        }
+      });
+    } else {
+      // Si implementaste rejectRequest
+      this.friendService.rejectRequest(solicitud.id).subscribe({
+        next: () => {
+           this.loadNotifications();
+           alert("Solicitud rechazada");
+        },
+        error: (err) => {
+          console.error(err);
+          alert("Error al rechazar solicitud");
+        }
+      });
+    }
+  }
 }

@@ -51,6 +51,55 @@ export const enviarSolicitud = async (req: UsuarioRequest, res: Response): Promi
   }
 };
 
+// Responder a una solicitud (Aceptar o Rechazar)
+export const responderSolicitud = async (req: UsuarioRequest, res: Response): Promise<void> => {
+  try {
+    const usuarioId = req.usuarioId; // ID del usuario autenticado (tú)
+    const { friendshipId, estado } = req.body; // ID de la solicitud y nuevo estado ('aceptado' o 'rechazado')
+
+    if (!usuarioId || !friendshipId || !estado) {
+      res.status(400).json({ error: "Faltan datos" });
+      return;
+    }
+
+    // Validar que el estado sea válido
+    if (estado !== 'aceptado' && estado !== 'rechazado') {
+      res.status(400).json({ error: "Estado inválido" });
+      return;
+    }
+
+    // 1. Buscar la solicitud
+    const amistad = await prisma.amistad.findUnique({
+      where: { id: Number(friendshipId) }
+    });
+
+    if (!amistad) {
+      res.status(404).json({ error: "Solicitud no encontrada" });
+      return;
+    }
+
+    // 2. SEGURIDAD: Verificar que quien responde es el RECEPTOR de la solicitud
+    if (amistad.receptorId !== usuarioId) {
+      res.status(403).json({ error: "No tienes permiso para responder a esta solicitud" });
+      return;
+    }
+
+    // 3. Actualizar el estado
+    // Si se rechaza, podríamos optar por borrarla (delete) o solo marcarla como rechazado.
+    // Aquí actualizamos el estado:
+    const amistadActualizada = await prisma.amistad.update({
+      where: { id: Number(friendshipId) },
+      data: { estado: estado }
+    });
+
+    res.json({ success: true, amistad: amistadActualizada });
+
+  } catch (error) {
+    console.error("Error al responder solicitud:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
 // Verificar estado de amistad
 export const verificarEstado = async (req: UsuarioRequest, res: Response): Promise<void> => {
   try {
@@ -85,4 +134,6 @@ export const verificarEstado = async (req: UsuarioRequest, res: Response): Promi
     console.error(error);
     res.status(500).json({ error: "Error verificando estado" });
   }
+
+  
 };
