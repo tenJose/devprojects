@@ -2,11 +2,11 @@ import { Component, type OnInit } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 import { Router } from "@angular/router"
-import { ProjectService, Project, BackendProject } from "../../services/project.service"
+// ✅ Importamos solo Project (BackendProject ya no es necesario)
+import { ProjectService, Project } from "../../services/project.service"
 import { AuthService } from "../../services/auth.service"
-import { UsuarioService, UserSearchResult } from "../../services/usuario.service" 
-import { PostulacionService } from '../../services/postulacion.service'; // Asegúrate de crear este servicio
-
+import { UsuarioService, UserSearchResult } from "../../services/usuario.service"
+import { PostulacionService } from '../../services/postulacion.service'
 
 @Component({
   selector: "app-home",
@@ -17,54 +17,30 @@ import { PostulacionService } from '../../services/postulacion.service'; // Aseg
 })
 export class HomeComponent implements OnInit {
   activeTab: "projects" | "people" = "projects"
-
   projects: Project[] = []
-  users: UserSearchResult[] = [] // Added users array
-
+  users: UserSearchResult[] = [] 
   loading = true
   error = ""
   
-  
-  
-  private readonly API_BASE_URL = 'http://localhost:3000'; // Ajusta según tu .env
-  
+  private readonly API_BASE_URL = 'http://localhost:3000';
   
   // Filter states
   searchQuery = ""
-  selectedStack: { [key: string]: boolean } = {} // Changed to object for multiple selection
+  selectedStack: { [key: string]: boolean } = {}
   selectedType = ""
-  selectedCompensation = "" // Range slider logic will be separate
-
-  // Range slider values
+  
   minBudget = 20
   maxBudget = 100
 
-  // Pagination
   currentPage = 1
   totalPages = 1
   itemsPerPage = 6
 
-  // Available filters
   techStacks = [
-    "React",
-    "Angular",
-    "Vue",
-    "Next.js",
-    "Node.js",
-    "Python",
-    "Java",
-    "Spring Boot",
-    "Docker",
-    "AWS",
-    "TypeScript",
-    "PostgreSQL",
-    "MongoDB",
+    "React", "Angular", "Vue", "Next.js", "Node.js", "Python",
+    "Java", "Spring Boot", "Docker", "AWS", "TypeScript", "PostgreSQL", "MongoDB",
   ]
 
-  contractTypes = ["Full Time", "Part Time", "Contract", "Freelance"]
-  experienceLevels = ["Junior", "Mid-Level", "Senior", "Lead"]
-
-  // User data
   currentUser: any = null
   showLogoutModal = false
 
@@ -78,10 +54,8 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() {
     this.loadUserProfile()
-    this.performSearch() // Initial search
+    this.performSearch()
   }
-
-  
 
   performSearch() {
     this.loading = true
@@ -90,46 +64,24 @@ export class HomeComponent implements OnInit {
       tecnologias: Object.keys(this.selectedStack)
         .filter((k) => this.selectedStack[k])
         .join(","),
-      // Add other filters if needed by backend
       minBudget: this.minBudget,
       maxBudget: this.maxBudget,
     }
 
     if (this.activeTab === "projects") {
-      this.projectService.getProjects().subscribe({
-  next: (projects: BackendProject[]) => {
-  this.projects = projects.map(p => ({
-    id: p.id,
-    title: p.titulo,
-    description: p.descripcion,
-    type: p.tipo_proyecto,
-    techStack: p.tecnologias,
-    budget: p.presupuesto,
-    usuarioCreadorId: p.usuarioCreadorId,
-    compensation: p.presupuesto,
-    compensationType: p.tipo_pago ?? "Fixed",
-    duration: p.duracion,
-    location: p.ubicacion,
-    createdAt: p.createdAt,
-    creator: p.usuarioCreador
-      ? {
-          id: p.usuarioCreador.id,
-          name: p.usuarioCreador.nombre,
-          avatar: p.usuarioCreador.avatar
+      this.projectService.getProjects(filters).subscribe({
+        next: (projects: Project[]) => {
+          // ✅ Asignación directa sin mapeo manual
+          this.projects = projects;
+          this.loading = false;
+          this.calculatePagination(this.projects.length);
+        },
+        error: (err) => {
+          console.error(err);
+          this.error = "Error al cargar los proyectos";
+          this.loading = false;
         }
-      : undefined
-  }));
-
-  this.loading = false;
-}
-,
-  error: (err) => {
-    console.error(err);
-    this.error = "Error al cargar los proyectos";
-    this.loading = false;  // También debe actualizarse en caso de error
-  }
-})
-
+      })
     } else {
       this.usuarioService.searchUsers(filters).subscribe({
         next: (data) => {
@@ -152,17 +104,16 @@ export class HomeComponent implements OnInit {
   }
 
   get paginatedProjects(): Project[] {
-  const start = (this.currentPage - 1) * this.itemsPerPage
-  const end = start + this.itemsPerPage
-  return this.projects.slice(start, end)
-}
+    const start = (this.currentPage - 1) * this.itemsPerPage
+    const end = start + this.itemsPerPage
+    return this.projects.slice(start, end)
+  }
 
-get paginatedUsers(): UserSearchResult[] {
-  const start = (this.currentPage - 1) * this.itemsPerPage
-  const end = start + this.itemsPerPage
-  return this.users.slice(start, end)
-}
-
+  get paginatedUsers(): UserSearchResult[] {
+    const start = (this.currentPage - 1) * this.itemsPerPage
+    const end = start + this.itemsPerPage
+    return this.users.slice(start, end)
+  }
 
   switchTab(tab: "projects" | "people") {
     this.activeTab = tab
@@ -191,13 +142,10 @@ get paginatedUsers(): UserSearchResult[] {
     })
   }
 
- // 3. FUNCIÓN VER DETALLES CORREGIDA
   viewDetails(id: number) {
     if (this.activeTab === "projects") {
-      // Navegar a detalle de proyecto (si tienes el componente)
       this.router.navigate(["/project", id]); 
     } else {
-      //  AHORA NAVEGA AL PERFIL PÚBLICO
       this.router.navigate(["/user", id]); 
     }
   }
@@ -208,7 +156,6 @@ get paginatedUsers(): UserSearchResult[] {
     }
   }
 
-  // Navigation Methods
   navigateToCreateProject() {
     this.router.navigate(["/create-project"])
   }
@@ -218,7 +165,7 @@ get paginatedUsers(): UserSearchResult[] {
   }
 
   navigateToProfile() {
-    this.router.navigate(["/configurar-perfil"]) // Or wherever the edit profile is
+    this.router.navigate(["/configurar-perfil"])
   }
 
   confirmLogout() {
@@ -235,7 +182,6 @@ get paginatedUsers(): UserSearchResult[] {
     this.showLogoutModal = false
   }
 
-  // ✅ NUEVO: Método para construir la URL completa de la foto
  getFullPhotoUrl(fileName: string | null | undefined): string {
   if (!fileName) return 'assets/default-avatar.png';
   if (fileName.startsWith('/uploads')) {
@@ -253,9 +199,9 @@ applyToProject(projectId: number) {
   const payload = {
     usuarioId: this.currentUser.id,
     proyectoId: projectId,
-    mensaje: "¡Hola! Me interesa postularme a este proyecto.", // Opcional, puedes abrir modal para personalizar
-    propuesta: "", // Aquí el usuario podría agregar su propuesta
-    presupuestoPropuesto: null, // opcional
+    mensaje: "¡Hola! Me interesa postularme a este proyecto.",
+    propuesta: "",
+    presupuestoPropuesto: null,
   };
 
   this.postulacionService.createPostulacion(payload).subscribe({
@@ -270,11 +216,6 @@ applyToProject(projectId: number) {
 }
 
 editProject(projectId: number) {
-  // Navegar al componente de edición de proyecto
   this.router.navigate(['/edit-project', projectId]);
 }
-
-
-
-
 }

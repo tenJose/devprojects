@@ -112,18 +112,18 @@
         <div class="results-list" *ngIf="!loading && activeTab === 'projects'">
           <ng-container *ngFor="let project of paginatedProjects">
             <div class="card-header">
-              <h2 class="card-title">{{ project.title }}</h2>
-              <span class="budget-badge" *ngIf="project.budget">${{ project.budget }}</span>
+              <h2 class="card-title">{{ project.titulo }}</h2>
+              <span class="budget-badge" *ngIf="project.presupuesto">${{ project.presupuesto }}</span>
             </div>
 
-            <div class="company-info" *ngIf="project.creator">
-              <span class="company-name">{{ project.creator.name }}</span>
+            <div class="company-info" *ngIf="project.usuarioCreador">
+              <span class="company-name">{{ project.usuarioCreador.nombre }}</span>
             </div>
 
-            <p class="card-description">{{ project.description }}</p>
+            <p class="card-description">{{ project.descripcion }}</p>
 
             <div class="tech-tags">
-              <span class="tag" *ngFor="let tech of project.techStack">{{ tech }}</span>
+              <span class="tag" *ngFor="let tech of project.tecnologias">{{ tech }}</span>
             </div>
 
             <div class="card-footer">
@@ -171,4 +171,15 @@
       </div>
     </div>
   </main>
+
+  <div class="modal-overlay" *ngIf="showLogoutModal">
+  <div class="modal-content">
+    <h3>Cerrar Sesión</h3>
+    <p>¿Estás seguro que deseas salir?</p>
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="cancelLogout()">Cancelar</button>
+      <button class="btn-confirm" (click)="logout()">Salir</button>
+    </div>
+  </div>
+</div>
 </div>

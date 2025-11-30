@@ -34,6 +34,12 @@ model User {
   mensajesEnviados   Mensaje[] @relation(name: "mensajesEnviados")
   mensajesRecibidos  Mensaje[] @relation(name: "mensajesRecibidos")
 
+  // Nuevas Relaciones
+  notificaciones Notificacion[]
+  amistadesIniciadas Amistad[] @relation("solicitante")
+  amistadesRecibidas Amistad[] @relation("receptor")
+
+
   @@map("usuarios")
 }
 
@@ -110,4 +116,36 @@ model Mensaje {
   @@index([destinatario, leido])
   @@index([conversacionId])
   @@index([proyectoId])
+}
+
+
+// ✅ NUEVO: Modelo para manejar Amigos
+model Amistad {
+  id            Int      @id @default(autoincrement())
+  solicitanteId Int
+  receptorId    Int
+  estado        String   @default("pendiente") // pendiente, aceptado, rechazado
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  solicitante   User     @relation("solicitante", fields: [solicitanteId], references: [id])
+  receptor      User     @relation("receptor", fields: [receptorId], references: [id])
+
+  @@unique([solicitanteId, receptorId])
+  @@map("amistades")
+}
+
+// ✅ NUEVO: Modelo centralizado de Notificaciones
+model Notificacion {
+  id          Int      @id @default(autoincrement())
+  usuarioId   Int      // Quién recibe la notificación
+  tipo        String   // 'postulacion', 'amistad', 'mensaje', 'sistema'
+  mensaje     String
+  leido       Boolean  @default(false)
+  referenciaId Int?    // ID del proyecto, usuario o mensaje relacionado
+  createdAt   DateTime @default(now())
+
+  usuario     User     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@map("notificaciones")
 }

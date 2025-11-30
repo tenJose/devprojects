@@ -3,27 +3,8 @@ import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http"
 import { Observable } from "rxjs"
 import { AuthService } from "./auth.service"
 
+// ✅ Interfaz unificada en Español (Coincide con Backend)
 export interface Project {
-  id: number
-  title: string
-  description: string
-  type: string
-  techStack: string[]
-  budget: number
-  usuarioCreadorId: number
-  compensation: number
-  compensationType: string
-  duration: string
-  location: string
-  createdAt: string
-  creator?: {
-    id: number
-    name: string
-    avatar?: string
-  }
-}
-
-export interface BackendProject {
   id: number;
   titulo: string;
   descripcion: string;
@@ -38,10 +19,9 @@ export interface BackendProject {
   usuarioCreador?: {
     id: number;
     nombre: string;
-    avatar?: string;
+    avatar?: string; // O fotoPerfil, según tu backend
   };
 }
-
 
 @Injectable({
   providedIn: "root",
@@ -62,7 +42,7 @@ export class ProjectService {
     })
   }
 
-  getProjects(filters?: any): Observable<BackendProject[]> {
+  getProjects(filters?: any): Observable<Project[]> {
     let params = new HttpParams()
 
     if (filters) {
@@ -73,7 +53,8 @@ export class ProjectService {
       if (filters.maxBudget) params = params.set("presupuestoMax", filters.maxBudget)
     }
 
-  return this.http.get<BackendProject[]>(this.apiUrl, {
+    // ✅ Retorna directamente Project[]
+    return this.http.get<Project[]>(this.apiUrl, {
       headers: this.getHeaders(),
       params,
     })
