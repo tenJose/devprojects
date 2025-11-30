@@ -210,11 +210,16 @@ get paginatedUsers(): UserSearchResult[] {
   }
 
   // ✅ NUEVO: Método para construir la URL completa de la foto
-  getFullPhotoUrl(fileName: string | null | undefined): string {
-    if (!fileName) return 'assets/default-avatar.png';
-    if (fileName.startsWith('http')) return fileName;
-    // Aseguramos que la ruta apunte a /uploads en el backend
-    return `${this.API_BASE_URL}/uploads/${fileName}`;
+ getFullPhotoUrl(fileName: string | null | undefined): string {
+  if (!fileName) return 'assets/default-avatar.png';
+
+  // Si ya contiene "/uploads/" simplemente prepende el dominio
+  if (fileName.startsWith('/uploads/')) {
+    return `${this.API_BASE_URL}${fileName}`;
   }
+
+  // Para casos donde solo venga el nombre del archivo
+  return `${this.API_BASE_URL}/uploads/${fileName}`;
+}
 
 }
