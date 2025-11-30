@@ -1,18 +1,19 @@
 import type { Request, Response } from "express"
 import { PrismaClient } from "@prisma/client"
+import { UsuarioRequest } from "../middleware/auth.middleware"; // ajusta la ruta
 
-const prisma = new PrismaClient()
+
+const prisma = new PrismaClient();
 
 // Get all conversations for the logged-in user
-export const getConversations = async (req: Request, res: Response) => {
+export const getConversations = async (req: UsuarioRequest, res: Response) => {
   try {
-    const userId = req.user?.id
+    const userId = req.usuarioId;
 
     if (!userId) {
-      return res.status(401).json({ mensaje: "No autorizado" })
+      return res.status(401).json({ mensaje: "No autorizado" });
     }
 
-    // Get all unique conversation IDs for this user
     const messages = await prisma.mensaje.findMany({
       where: {
         OR: [{ remitente: userId }, { destinatario: userId }],
@@ -42,17 +43,20 @@ export const getConversations = async (req: Request, res: Response) => {
           },
         },
       },
-    })
+    });
 
-    // Group messages by conversation
-    const conversationsMap = new Map()
+    const conversationsMap = new Map();
 
     messages.forEach((msg) => {
-      const otherUserId = msg.remitente === userId ? msg.destinatario : msg.remitente
-      const conversationId = [userId, otherUserId].sort().join("-")
+      const otherUserId =
+        msg.remitente === userId ? msg.destinatario : msg.remitente;
+      const conversationId = [userId, otherUserId].sort().join("-");
 
       if (!conversationsMap.has(conversationId)) {
-        const otherUser = msg.remitente === userId ? msg.usuarioDestinatario : msg.usuarioRemitente
+        const otherUser =
+          msg.remitente === userId
+            ? msg.usuarioDestinatario
+            : msg.usuarioRemitente;
 
         conversationsMap.set(conversationId, {
           conversacionId: conversationId,
@@ -67,42 +71,38 @@ export const getConversations = async (req: Request, res: Response) => {
           fecha: msg.createdAt,
           leido: msg.destinatario === userId ? msg.leido : true,
           mensajesNoLeidos: 0,
-        })
+        });
       }
 
-      // Count unread messages
       if (msg.destinatario === userId && !msg.leido) {
-        const conv = conversationsMap.get(conversationId)
-        conv.mensajesNoLeidos++
+        const conv = conversationsMap.get(conversationId);
+        conv.mensajesNoLeidos++;
       }
-    })
+    });
 
-    const conversations = Array.from(conversationsMap.values())
-
-    res.json(conversations)
+    const conversations = Array.from(conversationsMap.values());
+    res.json(conversations);
   } catch (error) {
-    console.error("Error al obtener conversaciones:", error)
-    res.status(500).json({ mensaje: "Error al obtener conversaciones" })
+    console.error("Error al obtener conversaciones:", error);
+    res.status(500).json({ mensaje: "Error al obtener conversaciones" });
   }
-}
+};
 
 // Get messages for a specific conversation
-export const getMessages = async (req: Request, res: Response) => {
+export const getMessages = async (req: UsuarioRequest, res: Response) => {
   try {
-    const userId = req.user?.id
-    const { otherUserId } = req.params
+    const userId = req.usuarioId;
+    const { otherUserId } = req.params;
 
     if (!userId) {
-      return res.status(401).json({ mensaje: "No autorizado" })
+      return res.status(401).json({ mensaje: "No autorizado" });
     }
-
-    const conversationId = [userId, Number.parseInt(otherUserId)].sort().join("-")
 
     const messages = await prisma.mensaje.findMany({
       where: {
         OR: [
-          { remitente: userId, destinatario: Number.parseInt(otherUserId) },
-          { remitente: Number.parseInt(otherUserId), destinatario: userId },
+          { remitente: userId, destinatario: Number(otherUserId) },
+          { remitente: Number(otherUserId), destinatario: userId },
         ],
       },
       orderBy: { createdAt: "asc" },
@@ -116,40 +116,41 @@ export const getMessages = async (req: Request, res: Response) => {
           },
         },
       },
-    })
+    });
 
-    // Mark messages as read
     await prisma.mensaje.updateMany({
       where: {
-        remitente: Number.parseInt(otherUserId),
+        remitente: Number(otherUserId),
         destinatario: userId,
         leido: false,
       },
       data: { leido: true },
-    })
+    });
 
-    res.json(messages)
+    res.json(messages);
   } catch (error) {
-    console.error("Error al obtener mensajes:", error)
-    res.status(500).json({ mensaje: "Error al obtener mensajes" })
+    console.error("Error al obtener mensajes:", error);
+    res.status(500).json({ mensaje: "Error al obtener mensajes" });
   }
-}
+};
 
 // Send a new message
-export const sendMessage = async (req: Request, res: Response) => {
+export const sendMessage = async (req: UsuarioRequest, res: Response) => {
   try {
-    const userId = req.user?.id
-    const { destinatario, contenido, proyectoId } = req.body
+    const userId = req.usuarioId;
+    const { destinatario, contenido, proyectoId } = req.body;
 
     if (!userId) {
-      return res.status(401).json({ mensaje: "No autorizado" })
+      return res.status(401).json({ mensaje: "No autorizado" });
     }
 
     if (!destinatario || !contenido) {
-      return res.status(400).json({ mensaje: "Destinatario y contenido son requeridos" })
+      return res
+        .status(400)
+        .json({ mensaje: "Destinatario y contenido son requeridos" });
     }
 
-    const conversacionId = [userId, destinatario].sort().join("-")
+    const conversacionId = [userId, destinatario].sort().join("-");
 
     const nuevoMensaje = await prisma.mensaje.create({
       data: {
@@ -170,37 +171,37 @@ export const sendMessage = async (req: Request, res: Response) => {
           },
         },
       },
-    })
+    });
 
-    res.status(201).json(nuevoMensaje)
+    res.status(201).json(nuevoMensaje);
   } catch (error) {
-    console.error("Error al enviar mensaje:", error)
-    res.status(500).json({ mensaje: "Error al enviar mensaje" })
+    console.error("Error al enviar mensaje:", error);
+    res.status(500).json({ mensaje: "Error al enviar mensaje" });
   }
-}
+};
 
 // Mark messages as read
-export const markAsRead = async (req: Request, res: Response) => {
+export const markAsRead = async (req: UsuarioRequest, res: Response) => {
   try {
-    const userId = req.user?.id
-    const { otherUserId } = req.params
+    const userId = req.usuarioId;
+    const { otherUserId } = req.params;
 
     if (!userId) {
-      return res.status(401).json({ mensaje: "No autorizado" })
+      return res.status(401).json({ mensaje: "No autorizado" });
     }
 
     await prisma.mensaje.updateMany({
       where: {
-        remitente: Number.parseInt(otherUserId),
+        remitente: Number(otherUserId),
         destinatario: userId,
         leido: false,
       },
       data: { leido: true },
-    })
+    });
 
-    res.json({ mensaje: "Mensajes marcados como leídos" })
+    res.json({ mensaje: "Mensajes marcados como leídos" });
   } catch (error) {
-    console.error("Error al marcar mensajes como leídos:", error)
-    res.status(500).json({ mensaje: "Error al marcar mensajes como leídos" })
+    console.error("Error al marcar mensajes como leídos:", error);
+    res.status(500).json({ mensaje: "Error al marcar mensajes como leídos" });
   }
-}
+};

@@ -1,174 +1,122 @@
 <div class="messages-container">
-  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-header">
-      <div class="logo-box">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-          <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+      <div class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
         </svg>
+        <span>DevProjects</span>
       </div>
     </div>
     
     <nav class="sidebar-nav">
-      <a routerLink="/home" class="nav-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="7" height="7"></rect>
-          <rect x="14" y="3" width="7" height="7"></rect>
-          <rect x="14" y="14" width="7" height="7"></rect>
-          <rect x="3" y="14" width="7" height="7"></rect>
-        </svg>
-      </a>
-      <a routerLink="/create-project" class="nav-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path>
-          <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon>
-        </svg>
-      </a>
-      <a routerLink="/messages" class="nav-item active">
-        <div class="nav-badge" *ngIf="false"></div>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-        </svg>
-      </a>
-      <a routerLink="/configuracion-perfil" class="nav-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-          <circle cx="12" cy="7" r="4"></circle>
-        </svg>
-      </a>
-      <a class="nav-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="3"></circle>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-        </svg>
-      </a>
+      <a routerLink="/home" class="nav-item">Home</a>
+      <a routerLink="/home" class="nav-item">Proyectos</a>
+      <a routerLink="/home" class="nav-item">Personas</a>
+      <a routerLink="/messages" class="nav-item active">Mensajes</a>
+      <a routerLink="/configuracion-perfil" class="nav-item">Mi Perfil</a>
     </nav>
 
     <div class="sidebar-footer">
-      <img src="/api/placeholder/40/40" alt="Profile" class="user-avatar-mini">
+      <button class="create-project-btn" (click)="navigateToCreateProject()">Crear Proyecto</button>
+      
+      <div class="user-profile-mini" *ngIf="currentUser">
+        <img [src]="getFullPhotoUrl(currentUser.fotoPerfil)" alt="User" class="avatar-mini">
+        <div class="user-info">
+          <span class="user-name">{{currentUser.nombre}}</span>
+          <span class="user-role">Developer</span>
+        </div>
+        <button class="settings-btn" (click)="confirmLogout()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+        </button>
+      </div>
     </div>
   </aside>
 
-  <!-- Conversations List -->
-  <div class="conversations-panel">
-    <div class="panel-header">
+  <aside class="conversations-sidebar">
+    <div class="sidebar-header-chat">
       <h2>Mensajes</h2>
       <div class="search-box">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-        <input 
-          type="text" 
-          placeholder="Buscar conversaciones..."
-          [(ngModel)]="searchQuery"
-          (input)="onSearchChange()"
-        >
+        <input type="text" placeholder="Buscar conversación..." 
+               [(ngModel)]="searchQuery" (input)="onSearchChange()">
       </div>
     </div>
 
     <div class="conversations-list">
-      <div *ngIf="loading" class="loading-state">
-        <div class="spinner-small"></div>
-      </div>
-
-      <div 
-        *ngFor="let conv of filteredConversations" 
-        class="conversation-item"
-        [class.active]="currentConversation?.conversacionId === conv.conversacionId"
-        (click)="selectConversation(conv)"
-      >
-        <div class="item-avatar">
-          <img [src]="conv.otherUser.fotoPerfil || '/api/placeholder/48/48'" alt="User">
-          <div class="status-indicator online"></div>
-        </div>
-        <div class="item-content">
-          <div class="item-header">
-            <span class="user-name">{{ conv.otherUser.nombre }} {{ conv.otherUser.apellido }}</span>
-            <span class="time">{{ conv.fecha | date:'shortTime' }}</span>
-          </div>
-          <div class="project-name" *ngIf="conv.proyecto">{{ conv.proyecto.nombre }}</div>
-          <div class="last-message">
-            <p>{{ conv.ultimoMensaje }}</p>
-            <span class="unread-badge" *ngIf="conv.mensajesNoLeidos > 0">{{ conv.mensajesNoLeidos }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Chat Area -->
-  <main class="chat-area" *ngIf="currentConversation">
-    <header class="chat-header">
-      <div class="chat-user-info">
-        <img [src]="currentConversation.otherUser.fotoPerfil || '/api/placeholder/48/48'" alt="User">
-        <div class="details">
-          <h3>{{ currentConversation.otherUser.nombre }} {{ currentConversation.otherUser.apellido }}</h3>
-          <span class="role">Líder de Proyecto en {{ currentConversation.proyecto?.nombre || 'Project' }}</span>
-        </div>
-      </div>
-      <div class="chat-actions">
-        <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></button>
-        <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg></button>
-        <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></button>
-      </div>
-    </header>
-
-    <div class="messages-list" #scrollContainer>
-      <div 
-        *ngFor="let msg of messages" 
-        class="message-bubble"
-        [class.sent]="msg.remitente === currentUserId"
-        [class.received]="msg.remitente !== currentUserId"
-      >
-        <img 
-          *ngIf="msg.remitente !== currentUserId" 
-          [src]="currentConversation.otherUser.fotoPerfil || '/api/placeholder/32/32'" 
-          class="msg-avatar"
-        >
+      <div *ngIf="loading" class="loading">Cargando...</div>
+      
+      <div *ngFor="let conv of filteredConversations" 
+           class="conversation-item" 
+           [class.active]="currentConversation?.conversacionId === conv.conversacionId"
+           (click)="selectConversation(conv)">
         
-        <div class="bubble-content">
-          <p>{{ msg.contenido }}</p>
-          <span class="msg-time">{{ msg.createdAt | date:'shortTime' }}</span>
+        <img [src]="getFullPhotoUrl(conv.otherUser.fotoPerfil)" class="avatar">
+        
+        <div class="conv-info">
+          <div class="conv-top">
+            <span class="user-name">{{conv.otherUser.nombre}} {{conv.otherUser.apellido}}</span>
+            <span class="date">{{conv.fecha | date:'shortTime'}}</span>
+          </div>
+          <div class="conv-bottom">
+            <p class="last-message">{{conv.ultimoMensaje}}</p>
+            <span class="unread-badge" *ngIf="conv.mensajesNoLeidos > 0">{{conv.mensajesNoLeidos}}</span>
+          </div>
         </div>
-
-        <img 
-          *ngIf="msg.remitente === currentUserId" 
-          src="/api/placeholder/32/32" 
-          class="msg-avatar self"
-        >
+      </div>
+      
+      <div *ngIf="!loading && filteredConversations.length === 0" class="empty-state">
+        No hay conversaciones.
       </div>
     </div>
+  </aside>
 
-    <footer class="chat-input-area">
-      <button class="add-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-      </button>
-      <div class="input-wrapper">
-        <input 
-          type="text" 
-          placeholder="Escribe tu mensaje..."
-          [(ngModel)]="newMessage"
-          (keydown.enter)="sendMessage()"
-        >
-        <button class="emoji-btn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+  <main class="chat-area">
+    <div *ngIf="currentConversation; else noSelection" class="chat-wrapper">
+      <header class="chat-header">
+        <div class="user-details">
+          <img [src]="getFullPhotoUrl(currentConversation.otherUser.fotoPerfil)" class="avatar-header">
+          <h3>{{currentConversation.otherUser.nombre}} {{currentConversation.otherUser.apellido}}</h3>
+        </div>
+      </header>
+
+      <div class="messages-list" #scrollContainer>
+        <div *ngFor="let msg of messages" 
+             class="message-bubble" 
+             [class.sent]="msg.remitente === currentUserId"
+             [class.received]="msg.remitente !== currentUserId">
+          <p>{{msg.contenido}}</p>
+          <span class="time">{{msg.createdAt | date:'shortTime'}}</span>
+        </div>
+      </div>
+
+      <div class="chat-input-area">
+        <input type="text" placeholder="Escribe un mensaje..." 
+               [(ngModel)]="newMessage" (keyup.enter)="sendMessage()">
+        <button class="btn-send" (click)="sendMessage()" [disabled]="!newMessage.trim()">
+          Enviar
         </button>
       </div>
-      <button class="send-btn" (click)="sendMessage()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-      </button>
-    </footer>
+    </div>
+
+    <ng-template #noSelection>
+      <div class="no-selection-state">
+        <p>Selecciona una conversación para comenzar a chatear.</p>
+      </div>
+    </ng-template>
   </main>
-  
-  <div class="empty-state" *ngIf="!currentConversation && !loading">
-    <div class="empty-content">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-      </svg>
-      <h3>Selecciona una conversación</h3>
-      <p>Elige un chat de la izquierda para comenzar a enviar mensajes.</p>
+</div>
+
+<div class="modal-overlay" *ngIf="showLogoutModal">
+  <div class="modal-content">
+    <h3>Cerrar Sesión</h3>
+    <p>¿Estás seguro que deseas salir?</p>
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="cancelLogout()">Cancelar</button>
+      <button class="btn-confirm" (click)="logout()">Salir</button>
     </div>
   </div>
 </div>

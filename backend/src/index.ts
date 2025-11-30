@@ -3,6 +3,7 @@ import cors from 'cors';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
 import projectRoutes from './routes/project.routes';
+import messageRoutes from './routes/message.routes';
 import friendRoutes from './routes/friend.routes'; // 👈 AGREGAR ESTO
 import notificationRoutes from './routes/notification.routes'
 
@@ -35,6 +36,7 @@ app.use((req, res, next) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api/messages', messageRoutes);
 app.use('/api/friends', friendRoutes); // 👈 AGREGAR ESTO IMPORTANTE
 app.use('/api/notifications', notificationRoutes); // 👈 REGISTRAR
 
