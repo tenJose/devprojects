@@ -191,3 +191,97 @@
     font-size: 2.5rem;
   }
 }
+
+/* Estilos para la selección de rol */
+.seleccion-rol-container {
+    text-align: center;
+    padding: 2rem;
+}
+
+.subtitulo {
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+.tarjetas-rol {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.tarjeta-rol {
+    background: white;
+    border: 2px solid #eee;
+    border-radius: 12px;
+    padding: 2rem;
+    width: 280px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tarjeta-rol:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    border-color: #007bff;
+}
+
+.tarjeta-rol .icono {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.tarjeta-rol h3 {
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.tarjeta-rol p {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
+}
+
+.destacado {
+    border-color: #007bff;
+    background: #f8fbff;
+}
+
+.input-icon-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 0 10px;
+    background: white;
+}
+
+.input-icon {
+    font-size: 1.2rem;
+    margin-right: 10px;
+}
+
+.input-icon-group .form-input {
+    border: none;
+    outline: none;
+    width: 100%;
+    padding: 10px 0;
+}
+
+.seccion-titulo {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    color: #444;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    text-decoration: underline;
+}

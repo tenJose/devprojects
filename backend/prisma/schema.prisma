@@ -13,18 +13,19 @@ model User {
   id                Int       @id @default(autoincrement())
   email             String    @unique
   nombre            String
-  apellido          String?   // ✅ NUEVO: Agregado apellido para mostrar nombre completo
+  apellido          String?
   fechaNacimiento   DateTime?
   password          String
   fotoPerfil        String?
   descripcion       String?   @db.Text
   tecnologias       String?   @db.Text // JSON array como string
   lenguajes         String?   @db.Text // JSON array como string
+  redesSociales     String?   @db.Text // ✅ NUEVO: JSON { github, twitter, facebook }
   informacionExtra  String?   @db.Text
   codigoVerificacion String?
   verificado        Boolean   @default(false)
-  rol               String    @default("usuario") // ✅ NUEVO: usuario, admin
-  activo            Boolean   @default(true) // ✅ NUEVO: Para desactivar cuentas
+  rol               String    @default("usuario") // Se actualizará aquí
+  activo            Boolean   @default(true)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 

@@ -13,12 +13,20 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./configuracion-perfil.component.css'],
 })
 export class ConfiguracionPerfilComponent implements OnInit {
-  fotoPerfilFile!: File | null; // Archivo seleccionado
+  // Estado de selección de rol
+  rolSeleccionado: 'usuario' | 'ingeniero' | null = null;
+
+  fotoPerfilFile!: File | null;
   previewFoto: string = '';
   descripcion: string = '';
   tecnologias: string = '';
   lenguajes: string = '';
   informacionExtra: string = '';
+
+  // Nuevos campos para redes sociales
+  githubLink: string = '';
+  twitterLink: string = '';
+  facebookLink: string = '';
 
   cargando: boolean = false;
   error: string = '';
@@ -38,16 +46,40 @@ export class ConfiguracionPerfilComponent implements OnInit {
     if (!token) {
       this.router.navigate(['/login']);
     } else {
+      // Cargamos datos existentes por si el usuario está editando su perfil
       this.usuarioService.obtenerPerfil().subscribe((res: any) => {
         if (res.success) {
-          this.descripcion = res.data.descripcion;
-          this.tecnologias = res.data.tecnologias.join(', ');
-          this.lenguajes = res.data.lenguajes.join(', ');
-          this.informacionExtra = res.data.informacionExtra;
           this.previewFoto = res.data.fotoPerfil || '';
+          this.descripcion = res.data.descripcion || '';
+          
+          // Si ya tiene un rol definido distinto a usuario (ej. admin o ingeniero previo), lo seteamos
+          // O si ya tiene tecnologías, asumimos que es ingeniero
+          if (res.data.rol === 'ingeniero' || (res.data.tecnologias && res.data.tecnologias.length > 0)) {
+             this.rolSeleccionado = 'ingeniero';
+             this.tecnologias = res.data.tecnologias.join(', ');
+             this.lenguajes = res.data.lenguajes.join(', ');
+             this.informacionExtra = res.data.informacionExtra || '';
+             
+             // Cargar redes sociales si existen
+             if (res.data.redesSociales) {
+                const redes = typeof res.data.redesSociales === 'string' ? JSON.parse(res.data.redesSociales) : res.data.redesSociales;
+                this.githubLink = redes.github || '';
+                this.twitterLink = redes.twitter || '';
+                this.facebookLink = redes.facebook || '';
+             }
+          } else if (res.data.descripcion) {
+             // Si tiene descripción pero no tecnologías, probablemente ya configuró como usuario
+             this.rolSeleccionado = 'usuario';
+          }
+          // Si no tiene nada, rolSeleccionado se mantiene null y muestra la selección
         }
       });
     }
+  }
+
+  seleccionarRol(rol: 'usuario' | 'ingeniero') {
+    this.rolSeleccionado = rol;
+    this.error = '';
   }
 
   onFotoSeleccionada(event: any): void {
@@ -72,24 +104,50 @@ export class ConfiguracionPerfilComponent implements OnInit {
   }
 
   guardar(): void {
-    if (!this.descripcion.trim() || this.descripcion.length < 20) { this.error = 'La descripción debe tener al menos 20 caracteres'; return; }
-    if (this.obtenerTecnologiasArray().length === 0) { this.error = 'Por favor agrega al menos una tecnología'; return; }
+    this.error = '';
+
+    // Validaciones
+    if (!this.descripcion.trim()) { 
+        this.error = 'La descripción es obligatoria'; 
+        return; 
+    }
+
+    if (this.rolSeleccionado === 'ingeniero') {
+        if (this.descripcion.length < 20) { this.error = 'Como ingeniero, tu descripción debe ser más detallada (mínimo 20 caracteres)'; return; }
+        if (this.obtenerTecnologiasArray().length === 0) { this.error = 'Por favor agrega al menos una tecnología'; return; }
+    }
 
     const formData = new FormData();
+    formData.append('rol', this.rolSeleccionado!); // Enviamos el rol
     formData.append('descripcion', this.descripcion);
-    formData.append('tecnologias', JSON.stringify(this.obtenerTecnologiasArray()));
-    formData.append('lenguajes', JSON.stringify(this.obtenerLenguajesArray()));
-    formData.append('informacionExtra', this.informacionExtra);
+    
+    if (this.rolSeleccionado === 'ingeniero') {
+        formData.append('tecnologias', JSON.stringify(this.obtenerTecnologiasArray()));
+        formData.append('lenguajes', JSON.stringify(this.obtenerLenguajesArray()));
+        formData.append('informacionExtra', this.informacionExtra);
+        
+        // Empaquetar redes sociales
+        const redes = {
+            github: this.githubLink,
+            twitter: this.twitterLink,
+            facebook: this.facebookLink
+        };
+        formData.append('redesSociales', JSON.stringify(redes));
+    } else {
+        // Para usuario normal, enviamos arrays vacíos para limpiar si hubiera basura
+        formData.append('tecnologias', '[]');
+        formData.append('lenguajes', '[]');
+    }
+
     if (this.fotoPerfilFile) formData.append('fotoPerfil', this.fotoPerfilFile);
 
     this.cargando = true;
-    this.error = '';
 
     this.usuarioService.configurarPerfil(formData).subscribe({
       next: (response) => {
         if (response.success) {
-          this.exito = response.message;
-          setTimeout(() => this.router.navigate(['/home']), 2000);
+          this.exito = '¡Perfil configurado con éxito!';
+          setTimeout(() => this.router.navigate(['/home']), 1500);
         } else {
           this.error = response.message;
         }
@@ -101,7 +159,7 @@ export class ConfiguracionPerfilComponent implements OnInit {
       },
     });
   }
-
+  
   agregarTecnologia(tech: string): void {
     const tecnologiasActuales = this.obtenerTecnologiasArray();
     if (!tecnologiasActuales.includes(tech)) {

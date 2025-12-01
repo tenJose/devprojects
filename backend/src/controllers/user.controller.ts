@@ -94,7 +94,26 @@ export const configurarPerfil = async (req: UsuarioRequest, res: Response): Prom
       return
     }
 
-    const { descripcion, tecnologias, lenguajes, informacionExtra } = req.body
+    // Recibimos rol y redesSociales también
+    const { descripcion, tecnologias, lenguajes, informacionExtra, rol, redesSociales } = req.body
+
+    // Validación condicional
+    // Si es ingeniero, exigimos descripción larga y tecnologías.
+    // Si es usuario normal, somos más flexibles.
+    const esIngeniero = rol === 'ingeniero';
+
+    if (esIngeniero) {
+        if (!descripcion || descripcion.length < 10) {
+            res.status(400).json({ success: false, message: "La descripción debe tener al menos 10 caracteres" })
+            return
+        }
+    } else {
+        // Validación mínima para usuario normal
+        if (!descripcion) {
+             res.status(400).json({ success: false, message: "La descripción es requerida" })
+             return
+        }
+    }
 
     if (!descripcion || descripcion.length < 10) {
       res.status(400).json({ success: false, message: "La descripción debe tener al menos 10 caracteres" })
@@ -106,12 +125,16 @@ export const configurarPerfil = async (req: UsuarioRequest, res: Response): Prom
       fotoPerfil = `/uploads/${req.file.filename}`
     }
 
-    const usuarioActualizado = await prisma.user.update({
+const usuarioActualizado = await prisma.user.update({
       where: { id: req.usuarioId },
       data: {
         descripcion,
+        // Solo actualizamos el rol si se envía
+        rol: rol || undefined, 
         tecnologias: tecnologias ? JSON.stringify(JSON.parse(tecnologias)) : undefined,
         lenguajes: lenguajes ? JSON.stringify(JSON.parse(lenguajes)) : undefined,
+        // Guardamos las redes sociales como string JSON
+        redesSociales: redesSociales ? JSON.stringify(JSON.parse(redesSociales)) : undefined,
         informacionExtra,
         fotoPerfil: fotoPerfil || undefined,
       },
@@ -124,6 +147,8 @@ export const configurarPerfil = async (req: UsuarioRequest, res: Response): Prom
         tecnologias: true,
         lenguajes: true,
         informacionExtra: true,
+        redesSociales: true, // Retornamos esto
+        rol: true
       },
     })
 
@@ -134,6 +159,7 @@ export const configurarPerfil = async (req: UsuarioRequest, res: Response): Prom
         ...usuarioActualizado,
         tecnologias: usuarioActualizado.tecnologias ? JSON.parse(usuarioActualizado.tecnologias) : [],
         lenguajes: usuarioActualizado.lenguajes ? JSON.parse(usuarioActualizado.lenguajes) : [],
+        redesSociales: usuarioActualizado.redesSociales ? JSON.parse(usuarioActualizado.redesSociales) : {},
       },
     })
   } catch (error) {
