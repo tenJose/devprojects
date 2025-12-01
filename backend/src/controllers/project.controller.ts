@@ -3,12 +3,14 @@ import { PrismaClient } from "@prisma/client"
 
 const prisma = new PrismaClient()
 
+// backend/src/controllers/project.controller.ts
+
 export const getAllProjects = async (req: Request, res: Response) => {
   try {
     const { search, tecnologias, tipoProyecto, presupuestoMin, presupuestoMax } = req.query
 
     const where: any = {
-      estado: "activo", // Only show active projects by default
+      estado: "activo",
     }
 
     if (search) {
@@ -19,6 +21,7 @@ export const getAllProjects = async (req: Request, res: Response) => {
     }
 
     if (tecnologias) {
+      // Búsqueda simple de texto en el string JSON
       where.tecnologias = { contains: String(tecnologias) }
     }
 
@@ -32,6 +35,8 @@ export const getAllProjects = async (req: Request, res: Response) => {
       if (presupuestoMax) where.presupuesto.lte = Number.parseFloat(String(presupuestoMax))
     }
 
+    // ELIMINADA LA SEGUNDA CONSULTA REDUNDANTE
+
     const proyectos = await prisma.proyecto.findMany({
       where, 
       orderBy: { createdAt: "desc" },
@@ -41,42 +46,33 @@ export const getAllProjects = async (req: Request, res: Response) => {
             id: true,
             nombre: true,
             apellido: true,
-            fotoPerfil: true, // Added profile picture
+            fotoPerfil: true, 
           },
         },
       },
     })
-
-
-    const projects = await prisma.proyecto.findMany({
-  where: { estado: 'activo' },
-  include: {
-    usuarioCreador: {
-      select: { id: true, nombre: true, apellido: true, fotoPerfil: true }
-    }
-  }
-});
-
 
     const proyectosFormateados = proyectos.map((proyecto) => ({
       id: proyecto.id,
       titulo: proyecto.nombre,
       descripcion: proyecto.descripcion,
       tipo_proyecto: proyecto.tipoProyecto || "Desarrollo",
-      tecnologias: JSON.parse(proyecto.tecnologias),
+      tecnologias: proyecto.tecnologias ? JSON.parse(proyecto.tecnologias as string) : [],
       presupuesto: proyecto.presupuesto ? proyecto.presupuesto.toString() : null,
       presupuesto_tipo: proyecto.presupuestoTipo || "Fixed Price",
       duracion_estimada: proyecto.duracionEstimada || null,
       ubicacion: proyecto.ubicacion || "Remote",
       fecha_creacion: proyecto.createdAt,
       destacado: proyecto.destacado,
+      // Importante: Estandarizamos a 'creador'
       creador: proyecto.usuarioCreador
         ? {
             nombre: `${proyecto.usuarioCreador.nombre} ${proyecto.usuarioCreador.apellido || ""}`.trim(),
             id: proyecto.usuarioCreador.id,
-            fotoPerfil: proyecto.usuarioCreador.fotoPerfil, // Added profile picture
+            fotoPerfil: proyecto.usuarioCreador.fotoPerfil,
           }
         : null,
+      usuarioCreadorId: proyecto.usuarioCreadorId // Necesario para validar permisos de edición
     }))
 
     res.json(proyectosFormateados)

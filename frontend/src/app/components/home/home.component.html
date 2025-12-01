@@ -47,14 +47,12 @@
       </div>
       <div class="header-actions">
         <button class="icon-btn notification-btn" (click)="toggleNotifications()">
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-  </svg>
-  @if (hasNewNotifications) {
-    <span class="badge-dot"></span>
-  }
-</button>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          <span class="badge-dot" *ngIf="hasNewNotifications"></span>
+        </button>
       </div>
     </header>
 
@@ -119,8 +117,10 @@
               <span class="budget-badge" *ngIf="project.presupuesto">${{ project.presupuesto }}</span>
             </div>
 
-            <div class="company-info" *ngIf="project.usuarioCreador">
-              <span class="company-name">{{ project.usuarioCreador.nombre }}</span>
+            <!-- ✅ CORREGIDO: Uso de project.creador || project.usuarioCreador -->
+            <div class="company-info" *ngIf="project.creador || project.usuarioCreador">
+              <img [src]="getFullPhotoUrl(project.creador?.fotoPerfil || project.usuarioCreador?.avatar)" class="avatar-mini" style="margin-right: 8px;">
+              <span class="company-name">{{ project.creador?.nombre || project.usuarioCreador?.nombre }}</span>
             </div>
 
             <p class="card-description">{{ project.descripcion }}</p>
@@ -130,9 +130,15 @@
             </div>
 
             <div class="card-footer">
-              <button *ngIf="currentUser && project.usuarioCreadorId === currentUser.id" class="btn-primary" (click)="editProject(project.id)">Editar</button>
-              <button *ngIf="currentUser && project.usuarioCreadorId !== currentUser.id" class="btn-primary" (click)="viewDetails(project.id)">Ver Detalles</button>
-              <button *ngIf="currentUser && project.usuarioCreadorId !== currentUser.id" class="btn-secondary" (click)="applyToProject(project.id)">Postularme</button>
+              <ng-container *ngIf="currentUser">
+                <!-- ✅ Validar si soy el dueño -->
+                <button *ngIf="project.usuarioCreadorId === currentUser.id" class="btn-primary" (click)="editProject(project.id)">Editar</button>
+                
+                <div *ngIf="project.usuarioCreadorId !== currentUser.id">
+                   <button class="btn-primary" (click)="viewDetails(project.id)">Ver Detalles</button>
+                   <button class="btn-secondary" (click)="applyToProject(project.id)">Postularme</button>
+                </div>
+              </ng-container>
             </div>
           </ng-container>
         </div>
@@ -175,25 +181,28 @@
     </div>
   </main>
 
+  <!-- Logout Modal -->
   <div class="modal-overlay" *ngIf="showLogoutModal">
-  <div class="modal-content">
-    <h3>Cerrar Sesión</h3>
-    <p>¿Estás seguro que deseas salir?</p>
-    <div class="modal-actions">
-      <button class="btn-cancel" (click)="cancelLogout()">Cancelar</button>
-      <button class="btn-confirm" (click)="logout()">Salir</button>
+    <div class="modal-content">
+      <h3>Cerrar Sesión</h3>
+      <p>¿Estás seguro que deseas salir?</p>
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="cancelLogout()">Cancelar</button>
+        <button class="btn-confirm" (click)="logout()">Salir</button>
+      </div>
     </div>
   </div>
 
-  @if (showNotificationsModal) {
-  <div class="modal-overlay" (click)="toggleNotifications()">
-    <div class="modal-content notifications-modal" (click)="$event.stopPropagation()">
+  <!-- Notification Modal -->
+  <div class="modal-overlay" *ngIf="showNotificationsModal" (click)="toggleNotifications()">
+    <div class="notifications-modal" (click)="$event.stopPropagation()">
+      
       <div class="modal-header">
         <h3>Notificaciones</h3>
         <button class="close-btn" (click)="toggleNotifications()">×</button>
       </div>
-
-      <div class="tabs notification-tabs">
+  
+      <div class="notification-tabs">
         <button [class.active]="notificationTab === 'amistades'" 
                 (click)="notificationTab = 'amistades'">
           Solicitudes ({{notificaciones.amistades.length}})
@@ -203,110 +212,52 @@
           Postulaciones ({{notificaciones.postulaciones.length}})
         </button>
       </div>
-
+  
       <div class="modal-body">
         
-        @if (notificationTab === 'amistades') {
+        <div *ngIf="notificationTab === 'amistades'">
           <div class="notification-list">
-            @for (req of notificaciones.amistades; track req.id) {
-              <div class="notification-item">
-                <img [src]="getFullPhotoUrl(req.solicitante.fotoPerfil)" class="avatar-small">
-                <div class="notif-info">
-                  <strong>{{req.solicitante.nombre}} {{req.solicitante.apellido}}</strong>
-                  <span>quiere conectar contigo.</span>
-                </div>
-                <div class="notif-actions">
-                  <button class="btn-accept" (click)="responderAmistad(req, true)">✓</button>
-                  <button class="btn-reject" (click)="responderAmistad(req, false)">✕</button>
-                </div>
+            <div *ngFor="let req of notificaciones.amistades" class="notification-item">
+              <img [src]="getFullPhotoUrl(req.solicitante.fotoPerfil)" class="avatar-small">
+              <div class="notif-info">
+                <strong>{{req.solicitante.nombre}} {{req.solicitante.apellido}}</strong>
+                <span>quiere conectar contigo.</span>
               </div>
-            }
-            @if (notificaciones.amistades.length === 0) {
-              <p class="empty-state">No tienes solicitudes pendientes.</p>
-            }
+              <div class="notif-actions">
+                <button class="btn-accept" (click)="responderAmistad(req, true)">✓</button>
+                <button class="btn-reject" (click)="responderAmistad(req, false)">✕</button>
+              </div>
+            </div>
+            <p *ngIf="notificaciones.amistades.length === 0" class="empty-state">
+              No tienes solicitudes de amistad pendientes.
+            </p>
           </div>
-        }
-
-        @if (notificationTab === 'postulaciones') {
+        </div>
+  
+        <!-- ✅ CORREGIDO: Estructura del loop para 'post' -->
+        <div *ngIf="notificationTab === 'postulaciones'">
           <div class="notification-list">
-            @for (post of notificaciones.postulaciones; track post.id) {
-              <div class="notification-item">
-                <img [src]="getFullPhotoUrl(post.usuario.fotoPerfil)" class="avatar-small">
-                <div class="notif-info">
-                  <strong>{{post.usuario.nombre}}</strong>
-                  <span>se postuló a: <strong>{{post.proyecto.titulo}}</strong></span>
-                </div>
-                <button class="btn-view" (click)="viewDetails(post.usuario.id)">Ver Perfil</button>
+            <div *ngFor="let post of notificaciones.postulaciones" class="notification-item">
+              <img [src]="getFullPhotoUrl(post.usuario.fotoPerfil)" class="avatar-small">
+              <div class="notif-info">
+                <strong>{{post.usuario.nombre}} {{post.usuario.apellido}}</strong>
+                <span>se postuló a: <strong>{{post.proyecto.titulo}}</strong></span>
               </div>
-            }
-            @if (notificaciones.postulaciones.length === 0) {
-              <p class="empty-state">No hay nuevas postulaciones.</p>
-            }
+              <!-- ✅ AQUI ESTABA EL ERROR: Usar 'post' dentro del loop correcto -->
+              <div class="notif-actions">
+                  <button class="btn-view" (click)="viewDetails(post.usuario.id)">Ver Perfil</button>
+                  <button class="btn-accept" (click)="responderPostulacion(post, true)">✓</button>
+                  <button class="btn-reject" (click)="responderPostulacion(post, false)">✕</button>
+              </div>
+            </div>
+            <p *ngIf="notificaciones.postulaciones.length === 0" class="empty-state">
+              No hay nuevas postulaciones.
+            </p>
           </div>
-        }
-
+        </div>
+  
       </div>
     </div>
   </div>
-}
-</div>
-<div class="modal-overlay" *ngIf="showNotificationsModal" (click)="toggleNotifications()">
-  <div class="notifications-modal" (click)="$event.stopPropagation()">
-    
-    <div class="modal-header">
-      <h3>Notificaciones</h3>
-      <button class="close-btn" (click)="toggleNotifications()">×</button>
-    </div>
 
-    <div class="notification-tabs">
-      <button [class.active]="notificationTab === 'amistades'" 
-              (click)="notificationTab = 'amistades'">
-        Solicitudes ({{notificaciones.amistades.length}})
-      </button>
-      <button [class.active]="notificationTab === 'postulaciones'" 
-              (click)="notificationTab = 'postulaciones'">
-        Postulaciones ({{notificaciones.postulaciones.length}})
-      </button>
-    </div>
-
-    <div class="modal-body">
-      
-      <div *ngIf="notificationTab === 'amistades'">
-        <div class="notification-list">
-          <div *ngFor="let req of notificaciones.amistades" class="notification-item">
-            <img [src]="getFullPhotoUrl(req.solicitante.fotoPerfil)" class="avatar-small">
-            <div class="notif-info">
-              <strong>{{req.solicitante.nombre}} {{req.solicitante.apellido}}</strong>
-              <span>quiere conectar contigo.</span>
-            </div>
-            <div class="notif-actions">
-              <button class="btn-accept" (click)="responderAmistad(req, true)">✓</button>
-              <button class="btn-reject" (click)="responderAmistad(req, false)">✕</button>
-            </div>
-          </div>
-          <p *ngIf="notificaciones.amistades.length === 0" class="empty-state">
-            No tienes solicitudes de amistad pendientes.
-          </p>
-        </div>
-      </div>
-
-      <div *ngIf="notificationTab === 'postulaciones'">
-        <div class="notification-list">
-          <div *ngFor="let post of notificaciones.postulaciones" class="notification-item">
-            <img [src]="getFullPhotoUrl(post.usuario.fotoPerfil)" class="avatar-small">
-            <div class="notif-info">
-              <strong>{{post.usuario.nombre}} {{post.usuario.apellido}}</strong>
-              <span>se postuló a: <strong>{{post.proyecto.titulo}}</strong></span>
-            </div>
-            <button class="btn-view" (click)="viewDetails(post.usuario.id)">Ver Perfil</button>
-          </div>
-          <p *ngIf="notificaciones.postulaciones.length === 0" class="empty-state">
-            No hay nuevas postulaciones.
-          </p>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
 </div>

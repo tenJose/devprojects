@@ -1,27 +1,17 @@
-import * as express from "express"
+import { Router } from "express"
+import { obtenerPerfil, configurarPerfil, searchUsers, obtenerUsuarioPublico, actualizarCuenta } from "../controllers/user.controller"
 import { autenticar } from "../middleware/auth.middleware"
-import { obtenerPerfil, configurarPerfil, searchUsers, obtenerUsuarioPublico } from "../controllers/user.controller"
-import multer from "multer"
-import path from "path"
+import { upload } from "../middleware/upload.middleware"
 
-const router = express.Router()
+const router = Router()
 
-// Configuración Multer
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "../../uploads"))
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname)
-    cb(null, `${Date.now()}-${file.originalname}`)
-  },
-})
-const upload = multer({ storage })
-
+// Rutas protegidas
 router.get("/perfil", autenticar, obtenerPerfil)
 router.put("/configurar", autenticar, upload.single("fotoPerfil"), configurarPerfil)
-router.get("/search", autenticar, searchUsers) // Added search route
+router.get("/search", autenticar, searchUsers)
+router.put("/cuenta", autenticar, actualizarCuenta)
 
+// Rutas públicas (o semi-públicas)
 router.get("/:id", autenticar, obtenerUsuarioPublico)
 
 export default router

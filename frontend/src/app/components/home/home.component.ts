@@ -2,13 +2,12 @@ import { Component, type OnInit } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 import { Router } from "@angular/router"
-// ✅ Importamos solo Project (BackendProject ya no es necesario)
 import { ProjectService, Project } from "../../services/project.service"
 import { AuthService } from "../../services/auth.service"
 import { UsuarioService, UserSearchResult } from "../../services/usuario.service"
 import { PostulacionService } from '../../services/postulacion.service'
 import { NotificationService } from '../../services/notification.service';
-import { FriendService } from '../../services/friend.service'; // Usaremos este para aceptar
+import { FriendService } from '../../services/friend.service';
 
 @Component({
   selector: "app-home",
@@ -26,13 +25,12 @@ export class HomeComponent implements OnInit {
   
   private readonly API_BASE_URL = 'http://localhost:3000';
   
-  // Filter states
   searchQuery = ""
   selectedStack: { [key: string]: boolean } = {}
   selectedType = ""
   
-  minBudget = 20
-  maxBudget = 100
+  minBudget = 0
+  maxBudget = 0
 
   currentPage = 1
   totalPages = 1
@@ -46,7 +44,6 @@ export class HomeComponent implements OnInit {
   currentUser: any = null
   showLogoutModal = false
 
-  // Variables para notificaciones
   showNotificationsModal = false;
   notificationTab: 'amistades' | 'postulaciones' = 'amistades';
   notificaciones: { amistades: any[], postulaciones: any[] } = { amistades: [], postulaciones: [] };
@@ -68,8 +65,6 @@ export class HomeComponent implements OnInit {
     this.loadNotifications()
   }
 
-  
-
   performSearch() {
     this.loading = true
     const filters = {
@@ -84,7 +79,6 @@ export class HomeComponent implements OnInit {
     if (this.activeTab === "projects") {
       this.projectService.getProjects(filters).subscribe({
         next: (projects: Project[]) => {
-          // ✅ Asignación directa sin mapeo manual
           this.projects = projects;
           this.loading = false;
           this.calculatePagination(this.projects.length);
@@ -247,20 +241,18 @@ loadNotifications() {
   }
 
   toggleNotifications() {
-    console.log("Abriendo notificaciones..."); // 👈 Agrega esto para depurar
     this.showNotificationsModal = !this.showNotificationsModal;
     
     if (this.showNotificationsModal) {
       this.loadNotifications();
     }
-  
   }
 
   responderAmistad(solicitud: any, aceptar: boolean) {
     if (aceptar) {
       this.friendService.acceptRequest(solicitud.id).subscribe({
         next: () => {
-           this.loadNotifications(); // Recargar lista
+           this.loadNotifications();
            alert("Solicitud aceptada");
         },
         error: (err) => {
@@ -281,5 +273,18 @@ loadNotifications() {
         }
       });
     }
+  }
+
+  // ✅ CORREGIDO: Tipo explícito para 'postulacion'
+  responderPostulacion(postulacion: any, aceptar: boolean) {
+    const estado = aceptar ? 'aceptado' : 'rechazado';
+    this.postulacionService.responderPostulacion(postulacion.id, estado).subscribe({
+        next: () => {
+            alert(`Postulación ${estado}`);
+            this.loadNotifications(); 
+        },
+        // ✅ CORREGIDO: Tipo explícito 'any'
+        error: (err: any) => alert("Error al actualizar postulación")
+    });
   }
 }

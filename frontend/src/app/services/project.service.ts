@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http"
 import { Observable } from "rxjs"
 import { AuthService } from "./auth.service"
 
-// ✅ Interfaz unificada en Español (Coincide con Backend)
+// ✅ Interfaz Actualizada: Agregamos 'creador'
 export interface Project {
   id: number;
   titulo: string;
@@ -16,10 +16,21 @@ export interface Project {
   duracion: string;
   ubicacion: string;
   createdAt: string;
+  destacado?: boolean;
+  
+  // Propiedad antigua (por compatibilidad)
   usuarioCreador?: {
     id: number;
     nombre: string;
-    avatar?: string; // O fotoPerfil, según tu backend
+    avatar?: string;
+    fotoPerfil?: string;
+  };
+
+  // ✅ NUEVA PROPIEDAD: La que devuelve tu nuevo controlador
+  creador?: {
+    id: number;
+    nombre: string;
+    fotoPerfil?: string;
   };
 }
 
@@ -53,7 +64,6 @@ export class ProjectService {
       if (filters.maxBudget) params = params.set("presupuestoMax", filters.maxBudget)
     }
 
-    // ✅ Retorna directamente Project[]
     return this.http.get<Project[]>(this.apiUrl, {
       headers: this.getHeaders(),
       params,

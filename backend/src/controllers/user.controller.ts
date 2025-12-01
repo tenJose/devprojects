@@ -2,8 +2,46 @@ import { Response, Request } from "express"
 import { PrismaClient } from "@prisma/client"
 import { UsuarioRequest } from "../middleware/auth.middleware"
 import { ApiResponse } from "../types"
+import bcrypt from 'bcryptjs'; // Asegúrate de tener instalado bcryptjs
 
 const prisma = new PrismaClient()
+
+export const actualizarCuenta = async (req: UsuarioRequest, res: Response): Promise<void> => {
+  try {
+    if (!req.usuarioId) { res.status(401).json({ message: "No autorizado" }); return; }
+
+    const { nombre, apellido, email, currentPassword, newPassword } = req.body;
+
+    const user = await prisma.user.findUnique({ where: { id: req.usuarioId } });
+    if (!user) { res.status(404).json({ message: "Usuario no encontrado" }); return; }
+
+    const dataToUpdate: any = {};
+    if (nombre) dataToUpdate.nombre = nombre;
+    if (apellido) dataToUpdate.apellido = apellido;
+    if (email) dataToUpdate.email = email;
+
+    // Lógica de cambio de contraseña
+    if (newPassword && currentPassword) {
+        const isMatch = await bcrypt.compare(currentPassword, user.password); // Asumiendo que el campo se llama password
+        if (!isMatch) {
+             res.status(400).json({ success: false, message: "Contraseña actual incorrecta" });
+             return;
+        }
+        const salt = await bcrypt.genSalt(10);
+        dataToUpdate.password = await bcrypt.hash(newPassword, salt);
+    }
+
+    await prisma.user.update({
+        where: { id: req.usuarioId },
+        data: dataToUpdate
+    });
+
+    res.json({ success: true, message: "Cuenta actualizada correctamente" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Error al actualizar cuenta" });
+  }
+}
 
 // Obtener perfil
 export const obtenerPerfil = async (req: UsuarioRequest, res: Response): Promise<void> => {
