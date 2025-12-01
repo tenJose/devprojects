@@ -1,24 +1,33 @@
-import { Injectable } from "@angular/core"
-import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http"
-import { Observable } from "rxjs"
-import { AuthService } from "./auth.service"
+import { Injectable } from "@angular/core";
+import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
+import { Observable } from "rxjs";
+import { AuthService } from "./auth.service";
 
-// ✅ Interfaz Actualizada: Agregamos 'creador'
+// ✅ Interfaz Actualizada para coincidir con el Backend (Prisma)
 export interface Project {
   id: number;
-  titulo: string;
+  // El backend Prisma usa 'nombre', pero tu frontend usa 'titulo'. 
+  // Mantenemos ambos por compatibilidad o deberías mapearlos.
+  titulo: string; 
+  nombre?: string; // Agregado por si el backend devuelve esto
+  
   descripcion: string;
-  tipo_proyecto: string;
-  tecnologias: string[];
+  tecnologias: string[]; // O string si no está parseado, pero el componente espera array
+  
+  // Coincidencia con Backend
+  tipoProyecto?: string; // Backend: tipoProyecto
   presupuesto: number;
-  usuarioCreadorId: number;
-  tipo_pago?: string;
-  duracion: string;
+  presupuestoTipo?: string; // Backend: presupuestoTipo
+  duracionEstimada?: string; // Backend: duracionEstimada
   ubicacion: string;
-  createdAt: string;
+  estado?: string; // ✅ Faltaba: Backend 'estado'
+  datosAdicionales?: string; // ✅ Faltaba: Backend 'datosAdicionales'
+  createdAt: string; // Backend: createdAt (Tu HTML usaba fecha_creacion)
+  
+  usuarioCreadorId: number;
   destacado?: boolean;
   
-  // Propiedad antigua (por compatibilidad)
+  // Objetos relacionados
   usuarioCreador?: {
     id: number;
     nombre: string;
@@ -26,7 +35,6 @@ export interface Project {
     fotoPerfil?: string;
   };
 
-  // ✅ NUEVA PROPIEDAD: La que devuelve tu nuevo controlador
   creador?: {
     id: number;
     nombre: string;
@@ -38,7 +46,8 @@ export interface Project {
   providedIn: "root",
 })
 export class ProjectService {
-  private apiUrl = "http://localhost:3000/api/projects"
+  // Ajusta esto si tu backend está en otro puerto
+  private apiUrl = "http://localhost:3000/api/projects";
 
   constructor(
     private http: HttpClient,
@@ -46,43 +55,43 @@ export class ProjectService {
   ) {}
 
   private getHeaders(): HttpHeaders {
-    const token = this.authService.getToken()
+    const token = this.authService.getToken();
     return new HttpHeaders({
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    })
+      Authorization: `Bearer ${token || ''}`,
+    });
   }
 
   getProjects(filters?: any): Observable<Project[]> {
-    let params = new HttpParams()
+    let params = new HttpParams();
 
     if (filters) {
-      if (filters.search) params = params.set("search", filters.search)
-      if (filters.tecnologias) params = params.set("tecnologias", filters.tecnologias)
-      if (filters.tipoProyecto) params = params.set("tipoProyecto", filters.tipoProyecto)
-      if (filters.minBudget) params = params.set("presupuestoMin", filters.minBudget)
-      if (filters.maxBudget) params = params.set("presupuestoMax", filters.maxBudget)
+      if (filters.search) params = params.set("search", filters.search);
+      if (filters.tecnologias) params = params.set("tecnologias", filters.tecnologias);
+      if (filters.tipoProyecto) params = params.set("tipoProyecto", filters.tipoProyecto);
+      if (filters.minBudget) params = params.set("presupuestoMin", filters.minBudget);
+      if (filters.maxBudget) params = params.set("presupuestoMax", filters.maxBudget);
     }
 
     return this.http.get<Project[]>(this.apiUrl, {
       headers: this.getHeaders(),
       params,
-    })
+    });
   }
 
   getProjectById(id: number): Observable<Project> {
-    return this.http.get<Project>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() })
+    return this.http.get<Project>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
   createProject(project: Partial<Project>): Observable<Project> {
-    return this.http.post<Project>(this.apiUrl, project, { headers: this.getHeaders() })
+    return this.http.post<Project>(this.apiUrl, project, { headers: this.getHeaders() });
   }
 
   updateProject(id: number, project: Partial<Project>): Observable<Project> {
-    return this.http.put<Project>(`${this.apiUrl}/${id}`, project, { headers: this.getHeaders() })
+    return this.http.put<Project>(`${this.apiUrl}/${id}`, project, { headers: this.getHeaders() });
   }
 
   deleteProject(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() })
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 }

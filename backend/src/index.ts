@@ -6,6 +6,7 @@ import projectRoutes from './routes/project.routes';
 import messageRoutes from './routes/message.routes';
 import friendRoutes from './routes/friend.routes'; // 👈 AGREGAR ESTO
 import notificationRoutes from './routes/notification.routes'
+import postulacionRoutes from './routes/postulacion.routes';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -39,6 +40,7 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/friends', friendRoutes); // 👈 AGREGAR ESTO IMPORTANTE
 app.use('/api/notifications', notificationRoutes); // 👈 REGISTRAR
+app.use('/api/postulaciones', postulacionRoutes);
 
 // Ruta de prueba
 app.get('/', (req, res) => {

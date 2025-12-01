@@ -9,8 +9,10 @@ import { HomeComponent } from './components/home/home.component';
 import { MaintenanceComponent } from './components/maintenance/maintenance.component';
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
 import { MessagesComponent } from './components/messages/messages.component';
-import { CreateProjectComponent } from './components/create-project/create-project.component'; // ✅ Importar
+import { ProjectDetailsComponent } from './components/project-details/project-details.component'; // 👈 IMPORTAR
+import { CreateProjectComponent } from './components/create-project/create-project.component';
 import { AuthGuard } from './guards/auth.guard';
+
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
@@ -24,5 +26,8 @@ export const routes: Routes = [
   { path: 'maintenance', component: MaintenanceComponent },
   { path: 'user/:id', component: UserProfileComponent, canActivate: [AuthGuard] },
   { path: 'messages', component: MessagesComponent, canActivate: [AuthGuard] },
+  { path: 'create-project', component: CreateProjectComponent, canActivate: [AuthGuard] },
+  { path: 'edit-project/:id', component: CreateProjectComponent, canActivate: [AuthGuard] }, // Reutilizamos el componente para editar
+  { path: 'project/:id', component: ProjectDetailsComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];

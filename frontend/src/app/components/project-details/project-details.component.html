@@ -5,17 +5,17 @@
 
   <div class="details-content">
     <header class="project-header">
-      <h1 class="project-title">{{ project.titulo }}</h1>
+      <h1 class="project-title">{{ project.titulo || project.nombre }}</h1>
       <div class="project-meta">
         <span class="status-badge" [class.active]="project.estado === 'activo'">
           {{ project.estado | titlecase }}
         </span>
-        <span class="date">Publicado el {{ project.fecha_creacion | date:'mediumDate' }}</span>
+        <span class="date">Publicado el {{ project.createdAt | date:'mediumDate' }}</span>
       </div>
       
-      <div class="creator-info" *ngIf="project.creador">
-        <img [src]="project.creador.fotoPerfil || 'assets/default-user.png'" class="avatar-small">
-        <span>Por <strong>{{ project.creador.nombre }}</strong></span>
+      <div class="creator-info" *ngIf="project.creador || project.usuarioCreador">
+        <img [src]="(project.creador?.fotoPerfil || project.usuarioCreador?.fotoPerfil) || 'assets/default-user.png'" class="avatar-small">
+        <span>Por <strong>{{ project.creador?.nombre || project.usuarioCreador?.nombre }}</strong></span>
       </div>
     </header>
 
@@ -45,11 +45,11 @@
         <div class="info-card">
           <div class="info-item">
             <strong>Presupuesto</strong>
-            <span class="highlight">${{ project.presupuesto }} ({{ project.presupuesto_tipo }})</span>
+            <span class="highlight">${{ project.presupuesto }} ({{ project.presupuestoTipo }})</span>
           </div>
           <div class="info-item">
             <strong>Duración Estimada</strong>
-            <span>{{ project.duracion_estimada }}</span>
+            <span>{{ project.duracionEstimada }}</span>
           </div>
           <div class="info-item">
             <strong>Ubicación</strong>
