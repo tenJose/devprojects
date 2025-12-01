@@ -1,89 +1,96 @@
-@if (loading) {
-  <div class="loading-container">
-    <div class="spinner"></div>
-    <p>Cargando perfil...</p>
-  </div>
-} @else if (user) {
-  <div class="profile-container">
+<div class="perfil-container" *ngIf="user; else loading">
+  
+  <div class="perfil-header">
     
-    <div class="profile-header-card">
-      <button (click)="goBack()" class="btn-back">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        Volver
+    <button (click)="goBack()" class="btn-volver">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Volver
+    </button>
+    
+    <div class="foto-container">
+      <img [src]="getFullPhotoUrl(user.fotoPerfil)" alt="Foto de perfil" class="foto-perfil">
+    </div>
+    
+    <div class="info-basica">
+      <h1>{{ user.nombre }} {{ user.apellido || '' }}</h1>
+      <span class="badge-rol" [ngClass]="user.rol">{{ user.rol || 'Usuario' }}</span>
+      <p class="fecha-registro">Miembro desde {{ user.createdAt | date:'mediumDate' }}</p>
+      
+      <button *ngIf="esMiPerfil" routerLink="/configuracion-perfil" class="btn-editar">
+        ✏️ Editar mi perfil
       </button>
 
-      <div class="profile-main-info">
-        <div class="avatar-wrapper">
-          <img [src]="getFullPhotoUrl(user.fotoPerfil)" alt="Foto de {{user.nombre}}" class="profile-avatar">
-          <div class="status-indicator online"></div>
-        </div>
-        
-        <div class="info-text">
-          <h1 class="user-name">{{user.nombre}} {{user.apellido}}</h1>
-          <p class="user-role">{{user.rol || 'Desarrollador'}}</p>
-          <p class="user-location" *ngIf="user.ubicacion">📍 {{user.ubicacion}}</p>
-          <p class="joined-date">Miembro desde {{user.createdAt | date:'mediumDate'}}</p>
-        </div>
-
-        <div class="action-buttons">
-          @if (currentUserId && user.id !== currentUserId && !areFriends) {
-            <button class="btn-add-friend" 
-                    (click)="enviarSolicitudAmistad(user.id)"
-                    [disabled]="solicitudEnviada"
-                    [class.sent]="solicitudEnviada">
-              @if (solicitudEnviada) {
-                <span>Solicitud Enviada</span>
-              } @else {
-                <span>Conectar</span>
-              }
-            </button>
-          }
-
-          @if (areFriends) {
-            <button class="btn-message" (click)="enviarMensaje(user.id)">
-              Enviar Mensaje
-            </button>
-          }
-        </div>
+      <div *ngIf="!esMiPerfil" class="acciones-amistad">
+        <button *ngIf="!areFriends && !solicitudEnviada" (click)="enviarSolicitudAmistad(user.id)" class="btn-primary">
+          ➕ Agregar amigo
+        </button>
+        <button *ngIf="solicitudEnviada" disabled class="btn-secondary">
+          🕒 Solicitud enviada
+        </button>
+        <button *ngIf="areFriends" (click)="enviarMensaje(user.id)" class="btn-mensaje">
+          💬 Enviar mensaje
+        </button>
       </div>
     </div>
-
-    <div class="profile-grid">
-      <div class="left-col">
-        <div class="info-section">
-          <h3>Sobre mí</h3>
-          <p class="bio-text">{{user.descripcion || 'Sin descripción disponible.'}}</p>
-        </div>
-
-        <div class="info-section">
-          <h3>Habilidades Técnicas</h3>
-          <div class="tags-container">
-            @for (tech of user.tecnologias; track tech) {
-              <span class="tech-badge">{{tech}}</span>
-            }
-            @if (!user.tecnologias?.length) { <span class="empty-msg">No especificadas</span> }
-          </div>
-        </div>
-
-        <div class="info-section">
-          <h3>Lenguajes</h3>
-          <div class="tags-container">
-            @for (lang of user.lenguajes; track lang) {
-              <span class="tech-badge lang">{{lang}}</span>
-            }
-          </div>
-        </div>
-      </div>
-
-      <div class="right-col">
-        @if (user.informacionExtra) {
-          <div class="info-section">
-            <h3>Información Adicional</h3>
-            <p>{{user.informacionExtra}}</p>
-          </div>
-        }
-      </div>
-    </div>
-
   </div>
-}
+
+  <div class="perfil-body">
+    <div class="columna-info">
+      
+      <div class="seccion-card">
+        <h3>Sobre mí</h3>
+        <p class="descripcion-texto">{{ user.descripcion || 'Sin descripción disponible.' }}</p>
+      </div>
+
+      <div class="seccion-card" *ngIf="tieneRedes()">
+        <h3>Conecta conmigo</h3>
+        <div class="redes-sociales">
+          <a *ngIf="user.redesSociales?.github" [href]="user.redesSociales.github" target="_blank" class="red-link github">
+            🤖 GitHub
+          </a>
+          <a *ngIf="user.redesSociales?.twitter" [href]="user.redesSociales.twitter" target="_blank" class="red-link twitter">
+            🐦 Twitter
+          </a>
+          <a *ngIf="user.redesSociales?.facebook" [href]="user.redesSociales.facebook" target="_blank" class="red-link facebook">
+            📘 Facebook
+          </a>
+        </div>
+      </div>
+
+      <div class="seccion-card" *ngIf="user.informacionExtra">
+        <h3>Información Adicional</h3>
+        <p>{{ user.informacionExtra }}</p>
+      </div>
+
+    </div>
+
+    <div class="columna-skills" *ngIf="user.tecnologias?.length > 0 || user.lenguajes?.length > 0">
+      
+      <div class="seccion-card" *ngIf="user.tecnologias?.length > 0">
+        <h3>Tecnologías</h3>
+        <div class="tags-container">
+          <span class="tag tech" *ngFor="let tech of user.tecnologias">{{ tech }}</span>
+        </div>
+      </div>
+
+      <div class="seccion-card" *ngIf="user.lenguajes?.length > 0">
+        <h3>Lenguajes</h3>
+        <div class="tags-container">
+          <span class="tag lang" *ngFor="let lang of user.lenguajes">{{ lang }}</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<ng-template #loading>
+  <div class="loading-container">
+    <p *ngIf="!error">Cargando perfil...</p>
+    <p *ngIf="error" class="error-msg">{{ error }}</p>
+  </div>
+</ng-template>

@@ -65,9 +65,16 @@ export class UsuarioService {
     })
   }
 
-  // Obtener perfil del usuario autenticado
+ // Obtener perfil del usuario autenticado (MI perfil)
   obtenerPerfil(): Observable<ApiResponse<PerfilUsuario>> {
     return this.http.get<ApiResponse<PerfilUsuario>>(`${this.API_URL}/perfil`, { headers: this.obtenerHeaders() })
+  }
+
+  // ✅ NUEVO MÉTODO: Obtener perfil público de otro usuario
+  obtenerUsuarioPublico(id: number): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.API_URL}/${id}`, {
+      headers: this.obtenerHeaders(),
+    });
   }
 
   // Configurar perfil

@@ -1,23 +1,27 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router'; // ✅ RouterLink importante
 import { UsuarioService } from '../../services/usuario.service';
-import { AuthService } from '../../services/auth.service'; // ✅ Importar AuthService
-import { FriendService } from '../../services/friend.service'; // ✅ Importar FriendService
+import { AuthService } from '../../services/auth.service';
+import { FriendService } from '../../services/friend.service';
 
 @Component({
   selector: 'app-user-profile',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink], // ✅ Agregado RouterLink
   templateUrl: './user-profile.component.html',
   styleUrls: ['./user-profile.component.css']
 })
 export class UserProfileComponent implements OnInit {
   user: any = null;
-  loading = true;
+  loading: boolean = true;
   API_URL = 'http://localhost:3000';
+
   
-  // ✅ Propiedades faltantes agregadas
+  
+  error: string = ''; 
+  esMiPerfil: boolean = false; 
+
   currentUserId: number | null = null;
   areFriends: boolean = false;
   solicitudEnviada: boolean = false;
@@ -25,56 +29,61 @@ export class UserProfileComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private usuarioService: UsuarioService,
-    private authService: AuthService, // ✅ Inyectar
-    private friendService: FriendService, // ✅ Inyectar
+    private authService: AuthService,
+    private friendService: FriendService,
     private router: Router
   ) {}
 
   ngOnInit() {
-    // Obtener ID del usuario logueado
     const tokenPayload = this.authService.getCurrentUser();
     this.currentUserId = tokenPayload ? tokenPayload.id : null;
     
-    // Si no lo encuentras en el token, intenta buscarlo en localStorage si tu authService lo guarda ahí
     if (!this.currentUserId) {
         const storedId = localStorage.getItem('userId');
         if (storedId) this.currentUserId = parseInt(storedId);
     }
 
     this.route.params.subscribe(params => {
-      const id = +params['id']; // El '+' convierte el string a número
+      const id = +params['id'];
       if (id) {
         this.cargarUsuario(id);
-        // Si no es mi propio perfil, verificar amistad
-        if (this.currentUserId && this.currentUserId !== id) {
-           this.verificarAmistad(id);
-        }
       }
     });
   }
 
   cargarUsuario(id: number) {
-    this.usuarioService.obtenerUsuarioPorId(id).subscribe({
-      next: (res) => {
-        if (res.success) { // Asegúrate que tu backend devuelve { success: true, data: ... } o ajusta esto
-          this.user = res.data || res; // Ajuste por si devuelve el objeto directo
+    this.loading = true;
+    this.error = '';
+
+    // ✅ Ahora sí existe este método en el servicio
+    this.usuarioService.obtenerUsuarioPublico(id).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.user = res.data;
+
+          if (this.currentUserId && this.user) {
+             this.esMiPerfil = this.currentUserId == this.user.id;
+
+             if (!this.esMiPerfil) {
+                this.verificarAmistad(id);
+             }
+          }
         } else {
-           this.user = res; // Fallback
+           this.error = 'Usuario no encontrado';
         }
         this.loading = false;
       },
-      error: (err) => {
+      error: (err: any) => { // ✅ CORRECCIÓN: Tipo 'any' explícito
         console.error(err);
+        this.error = 'Error al cargar el perfil';
         this.loading = false;
       }
     });
   }
 
-  // ✅ Método faltante
   verificarAmistad(friendId: number) {
     this.friendService.checkStatus(friendId).subscribe({
       next: (res) => {
-        // Asumiendo que el backend responde: { status: 'aceptado' | 'pendiente' | null }
         this.areFriends = res.status === 'aceptado';
         this.solicitudEnviada = res.status === 'pendiente';
       },
@@ -85,7 +94,6 @@ export class UserProfileComponent implements OnInit {
     });
   }
 
-  // ✅ Método faltante
   enviarSolicitudAmistad(friendId: number) {
     if (!this.currentUserId) {
         alert("Debes iniciar sesión");
@@ -95,28 +103,40 @@ export class UserProfileComponent implements OnInit {
     this.friendService.sendRequest(friendId).subscribe({
       next: () => {
         this.solicitudEnviada = true;
-        alert('Solicitud enviada correctamente');
       },
-      error: (err) => {
+      error: (err: any) => { // ✅ CORRECCIÓN: Tipo 'any' explícito
         console.error('Error al enviar solicitud', err);
         alert('Error al enviar la solicitud');
       }
     });
   }
 
-  // ✅ Método faltante
   enviarMensaje(friendId: number) {
-    // Navegar a la página de mensajes con el chat abierto
     this.router.navigate(['/messages'], { queryParams: { userId: friendId } });
   }
 
-  getFullPhotoUrl(fileName: string): string {
-    if (!fileName) return 'assets/default-avatar.png';
+  tieneRedes(): boolean {
+    return this.user?.redesSociales && (
+        this.user.redesSociales.github || 
+        this.user.redesSociales.twitter || 
+        this.user.redesSociales.facebook
+    );
+  }
+
+getFullPhotoUrl(fileName: string): string {
+    if (!fileName) return 'assets/default-avatar.png'; // Imagen por defecto si es null
+    
+    // Si la imagen ya viene con http (ej. Google Auth), la devolvemos tal cual
     if (fileName.startsWith('http')) return fileName;
+    
+    // Concatenamos URL del backend + nombre del archivo (que suele ser /uploads/foto.jpg)
     return `${this.API_URL}${fileName}`;
   }
   
   goBack() {
     this.router.navigate(['/home']);
   }
+
+
+  
 }

@@ -2,7 +2,7 @@ import { Response, Request } from "express"
 import { PrismaClient } from "@prisma/client"
 import { UsuarioRequest } from "../middleware/auth.middleware"
 import { ApiResponse } from "../types"
-import bcrypt from 'bcryptjs'; // Asegúrate de tener instalado bcryptjs
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient()
 
@@ -22,7 +22,7 @@ export const actualizarCuenta = async (req: UsuarioRequest, res: Response): Prom
 
     // Lógica de cambio de contraseña
     if (newPassword && currentPassword) {
-        const isMatch = await bcrypt.compare(currentPassword, user.password); // Asumiendo que el campo se llama password
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
         if (!isMatch) {
              res.status(400).json({ success: false, message: "Contraseña actual incorrecta" });
              return;
@@ -43,14 +43,9 @@ export const actualizarCuenta = async (req: UsuarioRequest, res: Response): Prom
   }
 }
 
-// Obtener perfil
+// Obtener perfil (Perfil privado del usuario logueado)
 export const obtenerPerfil = async (req: UsuarioRequest, res: Response): Promise<void> => {
   try {
-    if (!req.usuarioId) {
-      res.status(401).json({ success: false, message: "Usuario no autenticado" } as ApiResponse<null>)
-      return
-    }
-
     const usuario = await prisma.user.findUnique({
       where: { id: req.usuarioId },
       select: {
@@ -63,6 +58,8 @@ export const obtenerPerfil = async (req: UsuarioRequest, res: Response): Promise
         lenguajes: true,
         informacionExtra: true,
         verificado: true,
+        redesSociales: true,
+        rol: true // Agregado rol por si acaso
       },
     })
 
@@ -78,6 +75,7 @@ export const obtenerPerfil = async (req: UsuarioRequest, res: Response): Promise
         ...usuario,
         tecnologias: usuario.tecnologias ? JSON.parse(usuario.tecnologias) : [],
         lenguajes: usuario.lenguajes ? JSON.parse(usuario.lenguajes) : [],
+        redesSociales: usuario.redesSociales ? JSON.parse(usuario.redesSociales) : {},
       },
     })
   } catch (error) {
@@ -94,12 +92,9 @@ export const configurarPerfil = async (req: UsuarioRequest, res: Response): Prom
       return
     }
 
-    // Recibimos rol y redesSociales también
     const { descripcion, tecnologias, lenguajes, informacionExtra, rol, redesSociales } = req.body
 
     // Validación condicional
-    // Si es ingeniero, exigimos descripción larga y tecnologías.
-    // Si es usuario normal, somos más flexibles.
     const esIngeniero = rol === 'ingeniero';
 
     if (esIngeniero) {
@@ -108,32 +103,25 @@ export const configurarPerfil = async (req: UsuarioRequest, res: Response): Prom
             return
         }
     } else {
-        // Validación mínima para usuario normal
         if (!descripcion) {
              res.status(400).json({ success: false, message: "La descripción es requerida" })
              return
         }
     }
-
-    if (!descripcion || descripcion.length < 10) {
-      res.status(400).json({ success: false, message: "La descripción debe tener al menos 10 caracteres" })
-      return
-    }
+    // NOTA: Eliminé el bloque if redundante que estaba aquí y rompía la lógica para usuarios normales
 
     let fotoPerfil
     if (req.file) {
       fotoPerfil = `/uploads/${req.file.filename}`
     }
 
-const usuarioActualizado = await prisma.user.update({
+    const usuarioActualizado = await prisma.user.update({
       where: { id: req.usuarioId },
       data: {
         descripcion,
-        // Solo actualizamos el rol si se envía
         rol: rol || undefined, 
         tecnologias: tecnologias ? JSON.stringify(JSON.parse(tecnologias)) : undefined,
         lenguajes: lenguajes ? JSON.stringify(JSON.parse(lenguajes)) : undefined,
-        // Guardamos las redes sociales como string JSON
         redesSociales: redesSociales ? JSON.stringify(JSON.parse(redesSociales)) : undefined,
         informacionExtra,
         fotoPerfil: fotoPerfil || undefined,
@@ -147,7 +135,7 @@ const usuarioActualizado = await prisma.user.update({
         tecnologias: true,
         lenguajes: true,
         informacionExtra: true,
-        redesSociales: true, // Retornamos esto
+        redesSociales: true,
         rol: true
       },
     })
@@ -199,7 +187,7 @@ export const searchUsers = async (req: Request, res: Response): Promise<void> =>
         descripcion: true,
         tecnologias: true,
         rol: true,
-        informacionExtra: true, // Assuming you might add location later or use informacionExtra
+        informacionExtra: true,
       },
       take: 20,
     })
@@ -214,9 +202,9 @@ export const searchUsers = async (req: Request, res: Response): Promise<void> =>
     console.error("Error searching users:", error)
     res.status(500).json({ message: "Error searching users" })
   }
-
 }
 
+// Obtener perfil público (Este es el que fallaba)
 export const obtenerUsuarioPublico = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -233,7 +221,8 @@ export const obtenerUsuarioPublico = async (req: Request, res: Response): Promis
         lenguajes: true,
         informacionExtra: true,
         rol: true,
-        createdAt: true
+        createdAt: true,
+        redesSociales: true // ✅ AGREGADO: Esto faltaba
       },
     });
 
@@ -248,6 +237,7 @@ export const obtenerUsuarioPublico = async (req: Request, res: Response): Promis
         ...usuario,
         tecnologias: usuario.tecnologias ? JSON.parse(usuario.tecnologias) : [],
         lenguajes: usuario.lenguajes ? JSON.parse(usuario.lenguajes) : [],
+        redesSociales: usuario.redesSociales ? JSON.parse(usuario.redesSociales) : {}, // ✅ AGREGADO: Esto también
       },
     });
   } catch (error) {
