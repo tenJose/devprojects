@@ -1,190 +1,158 @@
-/* Estilos del componente Verificación */
-
+/* Contenedor principal centrado */
 .verificacion-container {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #f5f5f5 0%, #e0e7ff 100%);
-  padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f2f5;
+    padding: 20px;
 }
 
-.btn-atras {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  background: white;
-  border: 1px solid var(--color-border);
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s ease;
+/* Tarjeta estilo "Polaroid" moderna */
+.verificacion-card {
+    background: white;
+    width: 100%;
+    max-width: 400px;
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    text-align: center;
+    transition: transform 0.3s ease;
 }
 
-.btn-atras:hover {
-  background-color: #f5f5f5;
+.verificacion-card:hover {
+    transform: translateY(-5px);
 }
 
-.verificacion-contenedor {
-  background: white;
-  border-radius: 16px;
-  padding: 60px 40px;
-  max-width: 500px;
-  width: 100%;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-  text-align: center;
+/* Icono superior */
+.icon-header {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    background: #e6f0ff;
+    width: 80px;
+    height: 80px;
+    line-height: 80px;
+    border-radius: 50%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.icono-verificacion {
-  font-size: 3.5rem;
-  margin-bottom: 20px;
-  display: inline-block;
-  background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.5rem;
-}
-
-.verificacion-contenedor h1 {
-  font-size: 1.75rem;
-  margin-bottom: 10px;
-  color: var(--color-text);
+h1 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
 }
 
 .subtitulo {
-  color: var(--color-text-light);
-  margin-bottom: 40px;
-  font-size: 1rem;
-  line-height: 1.5;
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+    line-height: 1.5;
 }
 
-/* Inputs de código */
-.codigo-inputs {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  margin: 40px 0;
+/* Input del código estilizado */
+.input-codigo {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.5rem; /* Texto grande */
+    text-align: center;
+    letter-spacing: 8px; /* Separación entre números para que se vea bonito */
+    border: 2px solid #e1e1e1;
+    border-radius: 8px;
+    background-color: #fafafa;
+    transition: all 0.3s ease;
+    font-family: monospace; /* Fuente tipo código */
+    font-weight: bold;
+    color: #333;
 }
 
-.input-digito {
-  width: 50px;
-  height: 50px;
-  border: 2px solid var(--color-border);
-  border-radius: 12px;
-  font-size: 1.5rem;
-  font-weight: 700;
-  text-align: center;
-  transition: all 0.3s ease;
-  font-family: 'Courier New', monospace;
+.input-codigo:focus {
+    outline: none;
+    border-color: #007bff;
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
 }
 
-.input-digito:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+.input-codigo::placeholder {
+    letter-spacing: 1px;
+    font-size: 1rem;
+    color: #bbb;
+    font-family: sans-serif;
+    font-weight: normal;
 }
 
-/* Botones */
-.btn-bloque {
-  width: 100%;
-  margin: 30px 0 20px;
-  justify-content: center;
+/* Botón principal */
+.btn-verificar {
+    width: 100%;
+    padding: 14px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 1.5rem;
+    transition: background 0.3s ease;
 }
 
-.texto-reenvio {
-  color: var(--color-text-light);
-  font-size: 0.95rem;
-  margin-top: 30px;
+.btn-verificar:hover:not(:disabled) {
+    background-color: #0056b3;
 }
 
-.btn-reenvio {
-  background: none;
-  border: none;
-  color: var(--color-primary);
-  font-weight: 600;
-  cursor: pointer;
-  padding: 0;
-  margin-left: 5px;
-  transition: color 0.2s ease;
-  text-decoration: underline;
+.btn-verificar:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }
 
-.btn-reenvio:hover {
-  color: var(--color-primary-dark);
-}
-
-@media (max-width: 768px) {
-  .verificacion-contenedor {
-    padding: 40px 20px;
-  }
-
-  .codigo-inputs {
-    gap: 8px;
-  }
-
-  .input-digito {
-    width: 45px;
-    height: 45px;
-    font-size: 1.25rem;
-  }
-
-  .btn-atras {
-    top: 10px;
-    left: 10px;
-    padding: 8px 16px;
-  }
-}
-
-.verificacion-container {
-  display: flex;
-  justify-content: center;
-  padding: 20px;
-}
-
-.verificacion-contenedor {
-  width: 100%;
-  max-width: 400px;
-  text-align: center;
-}
-
-.codigo-container {
-  display: flex;
-  justify-content: space-between;
-  margin: 20px 0;
-}
-
-.input-digito {
-  width: 45px;
-  height: 55px;
-  font-size: 24px;
-  text-align: center;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-}
-
-.input-digito:focus {
-  outline: none;
-  border-color: #007bff;
+/* Alertas */
+.alert {
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
 }
 
 .alert-error {
-  color: white;
-  background: #e63946;
-  padding: 10px;
-  border-radius: 5px;
-  margin-bottom: 10px;
+    background-color: #fee2e2;
+    color: #dc2626;
 }
 
 .alert-success {
-  color: white;
-  background: #2a9d8f;
-  padding: 10px;
-  border-radius: 5px;
-  margin-bottom: 10px;
+    background-color: #dcfce7;
+    color: #166534;
 }
 
+/* Footer (Reenviar) */
+.footer-actions {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+}
+
+.footer-actions p {
+    font-size: 0.9rem;
+    color: #888;
+    margin-bottom: 5px;
+}
+
+.btn-reenviar {
+    background: none;
+    border: none;
+    color: #007bff;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    text-decoration: underline;
+}
+
+.btn-reenviar:hover {
+    color: #0056b3;
+}
+
+.btn-reenviar:disabled {
+    color: #999;
+    cursor: wait;
+    text-decoration: none;
+}

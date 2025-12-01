@@ -1,50 +1,46 @@
 <div class="verificacion-container">
-  <button class="btn-atras" onclick="window.history.back()">&larr; Atrás</button>
-
-  <div class="verificacion-contenedor">
-    <div class="icono-verificacion">&#9993;&#65039;</div>
-
-    <h1>Verifica tu correo electrónico</h1>
-
+  <div class="verificacion-card">
+    <div class="icon-header">
+      🛡️
+    </div>
+    
+    <h1>Verifica tu cuenta</h1>
     <p class="subtitulo">
-      Ingresa el código de 6 dígitos que enviamos a <strong>{{ email }}</strong>
+      Hemos enviado un código de acceso a <strong>{{ email }}</strong>.
+      Ingrésalo abajo para continuar.
     </p>
 
-    <!-- Error -->
     <div *ngIf="error" class="alert alert-error">
       {{ error }}
     </div>
-
-    <!-- Éxito -->
-    <div *ngIf="exito" class="alert alert-success">
-      {{ exito }}
+    <div *ngIf="mensaje" class="alert alert-success">
+      {{ mensaje }}
     </div>
 
-    <div class="codigo-container">
-      <input
-        *ngFor="let digit of codigo; let i = index"
-        [id]="'digit-' + i"
-        type="text"
-        class="input-digito"
-        maxlength="1"
-        [value]="codigo[i]"
-        (keyup)="onKeyUp($event, i)"
-        (keydown)="onKeyDown($event, i)"
-        (paste)="onPaste($event)"
-      />
+    <form (ngSubmit)="verificar()" class="verificacion-form">
+      <div class="form-group">
+        <input 
+          type="text" 
+          name="codigo"
+          [(ngModel)]="codigo" 
+          placeholder="Ej. 123456"
+          maxlength="6"
+          class="input-codigo"
+          autocomplete="off"
+          autofocus
+        />
+      </div>
+
+      <button type="submit" class="btn-verificar" [disabled]="cargando || !codigo">
+        {{ cargando ? 'Verificando...' : 'Confirmar Código' }}
+      </button>
+    </form>
+
+    <div class="footer-actions">
+      <p>¿No recibiste el código?</p>
+      <button (click)="reenviar()" class="btn-reenviar" [disabled]="bloqueoReenvio">
+        {{ bloqueoReenvio ? 'Espera unos segundos...' : 'Reenviar código' }}
+      </button>
     </div>
-
-    <button
-      class="btn btn-primary btn-bloque"
-      (click)="verificar()"
-      [disabled]="cargando"
-    >
-      {{ cargando ? 'Verificando...' : 'Verificar y continuar' }}
-    </button>
-
-    <p class="texto-reenvio">
-      ¿No recibiste el código?
-      <button class="btn-reenvio" (click)="reenviar()">Reenviar</button>
-    </p>
   </div>
 </div>
