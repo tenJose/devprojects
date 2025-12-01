@@ -1,73 +1,131 @@
-<div class="project-details-container" *ngIf="project">
+<div class="container" *ngIf="loading">
+  <div class="spinner">Cargando detalles...</div>
+</div>
+
+<div class="container fade-in" *ngIf="!loading && project">
   <button (click)="goBack()" class="btn-back">
-    ← Volver a Proyectos
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M19 12H5M12 19l-7-7 7-7"/>
+    </svg>
+    Volver
   </button>
 
-  <div class="details-content">
-    <header class="project-header">
-      <h1 class="project-title">{{ project.titulo || project.nombre }}</h1>
-      <div class="project-meta">
-        <span class="status-badge" [class.active]="project.estado === 'activo'">
-          {{ project.estado | titlecase }}
-        </span>
-        <span class="date">Publicado el {{ project.createdAt | date:'mediumDate' }}</span>
+  <header class="project-header">
+    <div class="header-content">
+      <div class="title-row">
+        <h1>{{ project.nombre || project.titulo }}</h1>
+        <span class="badge status-{{ project.estado }}">{{ project.estado | titlecase }}</span>
+        <span *ngIf="project.destacado" class="badge badge-featured">Destacado</span>
       </div>
       
-      <div class="creator-info" *ngIf="project.creador || project.usuarioCreador">
-        <img [src]="(project.creador?.fotoPerfil || project.usuarioCreador?.fotoPerfil) || 'assets/default-user.png'" class="avatar-small">
-        <span>Por <strong>{{ project.creador?.nombre || project.usuarioCreador?.nombre }}</strong></span>
+      <div class="meta-row">
+        <span class="date">Publicado: {{ project.createdAt | date:'mediumDate' }}</span>
+        <span class="separator">•</span>
+        <span class="type">{{ project.tipoProyecto || 'General' }}</span>
       </div>
-    </header>
+    </div>
 
-    <hr class="divider">
-
-    <div class="details-grid">
-      <div class="main-column">
-        <section class="section">
-          <h3>Descripción del Proyecto</h3>
-          <p class="description-text">{{ project.descripcion }}</p>
-        </section>
-
-        <section class="section">
-          <h3>Tecnologías Requeridas</h3>
-          <div class="tech-list">
-            <span class="tech-badge" *ngFor="let tech of project.tecnologias">{{ tech }}</span>
-          </div>
-        </section>
-        
-        <section class="section" *ngIf="project.datosAdicionales">
-           <h3>Detalles Adicionales</h3>
-           <p>{{ project.datosAdicionales }}</p>
-        </section>
+    <div class="creator-card">
+      <img [src]="getFullPhotoUrl(project.usuarioCreador?.fotoPerfil || project.creador?.fotoPerfil)" alt="Avatar">
+      <div class="creator-info">
+        <small>Publicado por</small>
+        <strong>{{ project.usuarioCreador?.nombre || project.creador?.nombre }}</strong>
+        <span class="role">{{ project.usuarioCreador?.rol || 'Project Owner' }}</span>
       </div>
+    </div>
+  </header>
 
-      <aside class="sidebar-info">
-        <div class="info-card">
-          <div class="info-item">
-            <strong>Presupuesto</strong>
-            <span class="highlight">${{ project.presupuesto }} ({{ project.presupuestoTipo }})</span>
-          </div>
-          <div class="info-item">
-            <strong>Duración Estimada</strong>
-            <span>{{ project.duracionEstimada }}</span>
-          </div>
-          <div class="info-item">
-            <strong>Ubicación</strong>
-            <span>{{ project.ubicacion }}</span>
+  <div class="details-grid">
+    
+    <main class="main-content">
+      <section class="card">
+        <h3>Descripción</h3>
+        <p class="description">{{ project.descripcion }}</p>
+      </section>
+
+      <section class="card">
+        <h3>Tecnologías y Lenguajes</h3>
+        <div class="tags-container">
+          <span class="tag tech" *ngFor="let tech of project.tecnologias">
+            {{ tech }}
+          </span>
+          <span class="tag lang" *ngFor="let lang of project.lenguajes">
+            {{ lang }}
+          </span>
+          <span *ngIf="!project.tecnologias?.length && !project.lenguajes?.length" class="text-muted">
+            No especificado
+          </span>
+        </div>
+      </section>
+
+      <section class="card" *ngIf="project.datosAdicionales">
+        <h3>Datos Adicionales</h3>
+        <div class="info-box">
+          {{ project.datosAdicionales }}
+        </div>
+      </section>
+
+      <section class="card" *ngIf="project.adjuntos && project.adjuntos.length > 0">
+        <h3>Archivos Adjuntos</h3>
+        <div class="file-list">
+          <a *ngFor="let file of project.adjuntos" [href]="getFullPhotoUrl(file)" target="_blank" class="file-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            <span>Ver Archivo Adjunto</span>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <aside class="sidebar">
+      <div class="summary-card">
+        <div class="summary-item">
+          <span class="label">Presupuesto</span>
+          <div class="value price">
+            ${{ project.presupuesto | number }}
+            <small *ngIf="project.presupuestoTipo">({{ project.presupuestoTipo }})</small>
           </div>
         </div>
-      </aside>
-    </div>
 
-    <div class="action-footer">
-      <div class="action-card">
-        <h3>¿Te interesa este proyecto?</h3>
-        <p>Envía tu postulación para que el cliente pueda revisar tu perfil.</p>
-        
-        <button class="btn-apply-large" (click)="applyToProject()" [disabled]="isApplied">
-          {{ isApplied ? '¡Ya te has postulado!' : 'Postularme al Proyecto' }}
-        </button>
+        <div class="summary-item">
+          <span class="label">Duración Estimada</span>
+          <span class="value">{{ project.duracionEstimada || 'No definida' }}</span>
+        </div>
+
+        <div class="summary-item">
+          <span class="label">Tamaño del Equipo</span>
+          <span class="value">{{ project.tamanoEquipo || '1 persona' }}</span>
+        </div>
+
+        <div class="summary-item">
+          <span class="label">Ubicación</span>
+          <span class="value">{{ project.ubicacion || 'Remoto' }}</span>
+        </div>
+
+        <div class="summary-item" *ngIf="project.fechaLimite">
+          <span class="label">Fecha Límite</span>
+          <span class="value deadline">{{ project.fechaLimite | date:'longDate' }}</span>
+        </div>
       </div>
-    </div>
+
+      <div class="actions">
+        <button 
+          class="btn-apply" 
+          (click)="applyToProject()" 
+          [disabled]="isApplied || currentUser?.id === project.usuarioCreadorId"
+          [class.disabled]="isApplied">
+          {{ isApplied ? 'Solicitud Enviada' : 'Postularme al Proyecto' }}
+        </button>
+        
+        <p *ngIf="currentUser?.id === project.usuarioCreadorId" class="owner-notice">
+          Eres el propietario de este proyecto.
+        </p>
+      </div>
+    </aside>
   </div>
 </div>

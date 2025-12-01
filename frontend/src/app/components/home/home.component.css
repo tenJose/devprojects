@@ -839,3 +839,161 @@
 .empty-state {
   padding: 20px; text-align: center; color: #999; font-size: 14px;
 }
+
+
+/* Contenedor de la lista (Grid) */
+.results-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Tarjetas responsivas */
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+/* ⭐ DISEÑO DE LA TARJETA (CUADRO) ⭐ */
+.project-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px; /* Bordes redondeados */
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02); /* Sombra sutil inicial */
+}
+
+/* Efecto al pasar el mouse (Hover) */
+.project-card:hover {
+  transform: translateY(-5px); /* Se levanta un poco */
+  box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); /* Sombra más fuerte */
+  border-color: #bfdbfe; /* Borde azul suave */
+}
+
+/* Título */
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0.5rem 0;
+  line-height: 1.4;
+}
+
+/* Badges de precio y fecha */
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.budget-badge {
+  background-color: #ecfdf5;
+  color: #059669;
+  padding: 0.25rem 0.75rem;
+  border-radius: 99px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.date-badge {
+  color: #9ca3af;
+  font-size: 0.8rem;
+}
+
+/* Información del usuario */
+.company-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.avatar-mini {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #f3f4f6;
+}
+
+.company-name {
+  font-size: 0.9rem;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+/* Descripción */
+.card-description {
+  color: #6b7280;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Limita a 3 líneas y pone puntos suspensivos */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex-grow: 1; /* Empuja el footer hacia abajo */
+}
+
+/* Tags de Tecnologías */
+.tech-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.tag {
+  background-color: #eff6ff;
+  color: #2563eb;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.card-divider {
+  border: none;
+  border-top: 1px solid #f3f4f6;
+  margin: 0 -1.5rem 1rem -1.5rem; /* Se extiende a los bordes */
+}
+
+/* Botones */
+.card-footer {
+  margin-top: auto;
+}
+
+.action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.btn-details, .btn-apply, .btn-edit {
+  padding: 0.6rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s;
+  text-align: center;
+}
+
+.btn-details {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+.btn-details:hover { background-color: #e5e7eb; }
+
+.btn-apply {
+  background-color: #2563eb;
+  color: white;
+}
+.btn-apply:hover { background-color: #1d4ed8; }
+
+.btn-edit {
+  width: 100%;
+  background-color: #f59e0b;
+  color: white;
+}
+.btn-edit:hover { background-color: #d97706; }

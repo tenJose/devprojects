@@ -110,38 +110,47 @@
         </div>
 
         <!-- Project List -->
-        <div class="results-list" *ngIf="!loading && activeTab === 'projects'">
-          <ng-container *ngFor="let project of paginatedProjects">
-            <div class="card-header">
-              <h2 class="card-title">{{ project.titulo }}</h2>
-              <span class="budget-badge" *ngIf="project.presupuesto">${{ project.presupuesto }}</span>
-            </div>
+<div class="results-list" *ngIf="!loading && activeTab === 'projects'">
+  
+  <div class="project-card" *ngFor="let project of paginatedProjects">
+    
+    <div class="card-header">
+      <div class="header-top">
+        <span class="budget-badge" *ngIf="project.presupuesto">${{ project.presupuesto }}</span>
+        <span class="date-badge">{{ project.createdAt | date:'shortDate' }}</span>
+      </div>
+      <h2 class="card-title">{{ project.titulo }}</h2>
+    </div>
 
-            <!-- ✅ CORREGIDO: Uso de project.creador || project.usuarioCreador -->
-            <div class="company-info" *ngIf="project.creador || project.usuarioCreador">
-              <img [src]="getFullPhotoUrl(project.creador?.fotoPerfil || project.usuarioCreador?.avatar)" class="avatar-mini" style="margin-right: 8px;">
-              <span class="company-name">{{ project.creador?.nombre || project.usuarioCreador?.nombre }}</span>
-            </div>
+    <div class="company-info" *ngIf="project.creador || project.usuarioCreador">
+      <img [src]="getFullPhotoUrl(project.creador?.fotoPerfil || project.usuarioCreador?.fotoPerfil)" class="avatar-mini">
+      <span class="company-name">{{ project.creador?.nombre || project.usuarioCreador?.nombre }}</span>
+    </div>
 
-            <p class="card-description">{{ project.descripcion }}</p>
+    <p class="card-description">{{ project.descripcion }}</p>
 
-            <div class="tech-tags">
-              <span class="tag" *ngFor="let tech of project.tecnologias">{{ tech }}</span>
-            </div>
+    <div class="tech-tags">
+      <span class="tag" *ngFor="let tech of project.tecnologias">{{ tech }}</span>
+    </div>
 
-            <div class="card-footer">
-              <ng-container *ngIf="currentUser">
-                <!-- ✅ Validar si soy el dueño -->
-                <button *ngIf="project.usuarioCreadorId === currentUser.id" class="btn-primary" (click)="editProject(project.id)">Editar</button>
-                
-                <div *ngIf="project.usuarioCreadorId !== currentUser.id">
-                   <button class="btn-primary" (click)="viewDetails(project.id)">Ver Detalles</button>
-                   <button class="btn-secondary" (click)="applyToProject(project.id)">Postularme</button>
-                </div>
-              </ng-container>
-            </div>
-          </ng-container>
+    <hr class="card-divider">
+
+    <div class="card-footer">
+      <ng-container *ngIf="currentUser">
+        <button *ngIf="project.usuarioCreadorId === currentUser.id" class="btn-edit" (click)="editProject(project.id)">
+          Editar Proyecto
+        </button>
+        
+        <div *ngIf="project.usuarioCreadorId !== currentUser.id" class="action-buttons">
+           <button class="btn-details" (click)="viewDetails(project.id)">Ver Detalles</button>
+           <button class="btn-apply" (click)="applyToProject(project.id)">Postularme</button>
         </div>
+      </ng-container>
+    </div>
+
+  </div> </div>
+
+
         
         <!-- People List -->
         <div class="results-list" *ngIf="!loading && activeTab === 'people'">
@@ -245,10 +254,11 @@
               </div>
               <!-- ✅ AQUI ESTABA EL ERROR: Usar 'post' dentro del loop correcto -->
               <div class="notif-actions">
-                  <button class="btn-view" (click)="viewDetails(post.usuario.id)">Ver Perfil</button>
-                  <button class="btn-accept" (click)="responderPostulacion(post, true)">✓</button>
-                  <button class="btn-reject" (click)="responderPostulacion(post, false)">✕</button>
-              </div>
+    <button class="btn-view" (click)="viewUserProfile(post.usuario.id)">Ver Perfil</button>
+    
+    <button class="btn-accept" (click)="responderPostulacion(post, true)">✓</button>
+    <button class="btn-reject" (click)="responderPostulacion(post, false)">✕</button>
+</div>
             </div>
             <p *ngIf="notificaciones.postulaciones.length === 0" class="empty-state">
               No hay nuevas postulaciones.

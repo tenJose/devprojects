@@ -1,40 +1,37 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
+import { map } from "rxjs/operators";
 import { AuthService } from "./auth.service";
 
-// ✅ Interfaz Actualizada para coincidir con el Backend (Prisma)
 export interface Project {
   id: number;
-  // El backend Prisma usa 'nombre', pero tu frontend usa 'titulo'. 
-  // Mantenemos ambos por compatibilidad o deberías mapearlos.
-  titulo: string; 
-  nombre?: string; // Agregado por si el backend devuelve esto
-  
+  nombre: string;
+  titulo?: string;
   descripcion: string;
-  tecnologias: string[]; // O string si no está parseado, pero el componente espera array
-  
-  // Coincidencia con Backend
-  tipoProyecto?: string; // Backend: tipoProyecto
+  tecnologias: string[];
+  lenguajes: string[];
+  adjuntos: string[];
+  tipoProyecto?: string;
   presupuesto: number;
-  presupuestoTipo?: string; // Backend: presupuestoTipo
-  duracionEstimada?: string; // Backend: duracionEstimada
-  ubicacion: string;
-  estado?: string; // ✅ Faltaba: Backend 'estado'
-  datosAdicionales?: string; // ✅ Faltaba: Backend 'datosAdicionales'
-  createdAt: string; // Backend: createdAt (Tu HTML usaba fecha_creacion)
-  
+  presupuestoTipo?: string;
+  duracionEstimada?: string;
+  ubicacion?: string;
+  fechaLimite?: string | Date;
+  tamanoEquipo?: string;
+  datosAdicionales?: string;
+  estado: string;
+  destacado: boolean;
+  createdAt: string | Date;
+  updatedAt?: string | Date;
   usuarioCreadorId: number;
-  destacado?: boolean;
-  
-  // Objetos relacionados
   usuarioCreador?: {
     id: number;
     nombre: string;
-    avatar?: string;
+    apellido?: string;
     fotoPerfil?: string;
+    rol?: string;
   };
-
   creador?: {
     id: number;
     nombre: string;
@@ -46,13 +43,9 @@ export interface Project {
   providedIn: "root",
 })
 export class ProjectService {
-  // Ajusta esto si tu backend está en otro puerto
   private apiUrl = "http://localhost:3000/api/projects";
 
-  constructor(
-    private http: HttpClient,
-    private authService: AuthService,
-  ) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   private getHeaders(): HttpHeaders {
     const token = this.authService.getToken();
@@ -62,9 +55,45 @@ export class ProjectService {
     });
   }
 
+  // 🔥 MAGIA AQUÍ: Función recursiva para limpiar datos muy anidados
+  private cleanData(input: any): string[] {
+    if (!input) return [];
+
+    // 1. Si es string, intentamos parsearlo como JSON. Si falla, es texto normal.
+    if (typeof input === 'string') {
+      try {
+        const parsed = JSON.parse(input);
+        return this.cleanData(parsed); // Recursividad: intentar limpiar lo que salió
+      } catch {
+        // Si falla el parseo, es un string normal (ej: "React, Node" o "Java")
+        return input.includes(',') ? input.split(',').map(s => s.trim()) : [input];
+      }
+    }
+
+    // 2. Si es array, limpiamos cada elemento y lo aplanamos
+    if (Array.isArray(input)) {
+      return input
+        .map(item => this.cleanData(item)) // Limpiar hijos
+        .flat() // Aplanar arrays (ej: [['React']] se vuelve ['React'])
+        .filter(item => typeof item === 'string' && item.trim().length > 0 && item !== '[' && item !== ']'); 
+    }
+
+    return [];
+  }
+
+  // Transformar el proyecto usando la función de limpieza
+  private transformProject(data: any): Project {
+    return {
+      ...data,
+      // Aplicamos la limpieza profunda a estos campos
+      tecnologias: this.cleanData(data.tecnologias),
+      lenguajes: this.cleanData(data.lenguajes),
+      adjuntos: this.cleanData(data.adjuntos)
+    };
+  }
+
   getProjects(filters?: any): Observable<Project[]> {
     let params = new HttpParams();
-
     if (filters) {
       if (filters.search) params = params.set("search", filters.search);
       if (filters.tecnologias) params = params.set("tecnologias", filters.tecnologias);
@@ -73,14 +102,18 @@ export class ProjectService {
       if (filters.maxBudget) params = params.set("presupuestoMax", filters.maxBudget);
     }
 
-    return this.http.get<Project[]>(this.apiUrl, {
+    return this.http.get<any[]>(this.apiUrl, {
       headers: this.getHeaders(),
       params,
-    });
+    }).pipe(
+      map(projects => projects.map(p => this.transformProject(p)))
+    );
   }
 
   getProjectById(id: number): Observable<Project> {
-    return this.http.get<Project>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+    return this.http.get<any>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() }).pipe(
+      map(p => this.transformProject(p))
+    );
   }
 
   createProject(project: Partial<Project>): Observable<Project> {

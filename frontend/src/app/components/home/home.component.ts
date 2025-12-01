@@ -83,7 +83,7 @@ export class HomeComponent implements OnInit {
           this.loading = false;
           this.calculatePagination(this.projects.length);
         },
-        error: (err) => {
+        error: (err: any) => { // ✅ Corrección: Tipo 'any' explícito
           console.error(err);
           this.error = "Error al cargar los proyectos";
           this.loading = false;
@@ -96,7 +96,7 @@ export class HomeComponent implements OnInit {
           this.loading = false
           this.calculatePagination(this.users.length)
         },
-        error: (err) => {
+        error: (err: any) => { // ✅ Corrección: Tipo 'any' explícito
           this.error = "Error al cargar usuarios"
           this.loading = false
           console.error(err)
@@ -149,6 +149,13 @@ export class HomeComponent implements OnInit {
     })
   }
 
+// ✅ NUEVO MÉTODO: Para navegar a perfil de usuario explícitamente desde notificaciones
+  viewUserProfile(userId: number) {
+    this.showNotificationsModal = false; // Cerramos el modal
+    this.router.navigate(['/user', userId]);
+  }
+
+  // ... (tu método viewDetails original sigue sirviendo para las listas principales)
   viewDetails(id: number) {
     if (this.activeTab === "projects") {
       this.router.navigate(["/project", id]); 
