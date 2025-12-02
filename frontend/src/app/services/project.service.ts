@@ -13,7 +13,7 @@ export interface Project {
   lenguajes: string[];
   adjuntos: string[];
   tipoProyecto?: string;
-  presupuesto: number;
+  presupuesto?: number | null;
   presupuestoTipo?: string;
   duracionEstimada?: string;
   ubicacion?: string;

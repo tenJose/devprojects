@@ -158,6 +158,9 @@ Devuelve este objeto JSON con las claves (obligatorias cuando apliquen):
       }
       normalized.teamSize = parsed.teamSize || parsed.tamanoEquipo || parsed.team_size || '';
 
+      // Datos adicionales: allow AI to provide freeform rationale/notes
+      normalized.datosAdicionales = parsed.datosAdicionales || parsed.datos_adicionales || parsed.rationale || parsed.rationale_text || '';
+
       // If techStack is empty, infer reasonable defaults based on type
       if (!normalized.techStack || normalized.techStack.length === 0) {
         if (String(normalized.type).toLowerCase() === 'mobile') normalized.techStack = ['React Native', 'Firebase'];

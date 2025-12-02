@@ -50,6 +50,7 @@ export class CreateProjectComponent implements OnInit { // 3. Implementar OnInit
     platform: "",
     features: [] as string[],
     adjuntos: [] as string[],
+    datosAdicionales: '' as string,
     budget: null,
     compensationType: "Fixed Price",
     duration: "",
@@ -128,9 +129,11 @@ export class CreateProjectComponent implements OnInit { // 3. Implementar OnInit
         // Store platform and features if provided
         this.project.platform = payload.platform || payload.platform_detected || this.project.platform;
         this.project.features = Array.isArray(payload.features) ? payload.features : (payload.features ? [payload.features] : this.project.features);
-        this.project.duration = payload.duration || this.project.duration;
-        this.project.budget = payload.budget || this.project.budget;
-        this.project.teamSize = payload.teamSize || this.project.teamSize;
+        this.project.duration = payload.duration || payload.duracion || this.project.duration;
+        this.project.budget = payload.budget || payload.presupuesto || this.project.budget;
+        this.project.teamSize = payload.teamSize || payload.tamanoEquipo || payload.tamano_equipo || this.project.teamSize;
+        // datos adicionales (rationale, notas) desde la IA
+        this.project.datosAdicionales = payload.datosAdicionales || payload.datos_adicionales || payload.rationale || this.project.datosAdicionales || '';
 
         this.aiLoading = false;
         this.mode = 'advanced';
@@ -306,12 +309,17 @@ export class CreateProjectComponent implements OnInit { // 3. Implementar OnInit
           platform: detectedPlatform || '',
           features: detectedFeatures,
           adjuntos: Array.isArray(data.adjuntos) ? data.adjuntos : (data.adjuntos ? JSON.parse(data.adjuntos) : []),
-          budget: data.presupuesto,
-          compensationType: data.presupuestoTipo || "Fixed Price",
-          duration: data.duracion || data.duracionEstimada,
-          location: data.ubicacion,
-          teamSize: data.tamanoEquipo || "",
-          deadline: data.fechaLimite ? (typeof data.fechaLimite === 'string' ? data.fechaLimite.split('T')[0] : new Date(data.fechaLimite).toISOString().split('T')[0]) : ""
+          datosAdicionales: (data as any).datos_adicionales || data.datosAdicionales || '',
+          // Budget/presupuesto
+          budget: data.presupuesto || data.presupuesto || null,
+          compensationType: data.presupuestoTipo || data.presupuesto_tipo || "Fixed Price",
+          // Duration: handle snake_case and camelCase variants
+          duration: (data as any).duracion_estimada || data.duracionEstimada || data.duracion || '',
+          location: data.ubicacion || data.location || 'Remote',
+          // Team size: handle snake_case
+          teamSize: (data as any).tamano_equipo || data.tamanoEquipo || data.tamano_equipo || "",
+          // Deadline: normalize to YYYY-MM-DD string for input[type=date]
+          deadline: (data as any).fecha_limite ? (typeof (data as any).fecha_limite === 'string' ? (data as any).fecha_limite.split('T')[0] : new Date((data as any).fecha_limite).toISOString().split('T')[0]) : (data.fechaLimite ? (typeof data.fechaLimite === 'string' ? data.fechaLimite.split('T')[0] : new Date(data.fechaLimite).toISOString().split('T')[0]) : "")
         };
         this.loading = false;
       },

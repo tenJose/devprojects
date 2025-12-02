@@ -46,7 +46,12 @@ export class ProjectDetailsComponent implements OnInit {
           tecnologias: this.safeParseArray(data.tecnologias),
           lenguajes: this.safeParseArray(data.lenguajes),
           adjuntos: this.safeParseArray(data.adjuntos),
-          fechaLimite: (data as any).fecha_limite || data.fechaLimite || null
+          // normalize snake_case fields from backend
+          duracionEstimada: (data as any).duracion_estimada || data.duracionEstimada || (data as any).duracion || null,
+          tamanoEquipo: (data as any).tamano_equipo || data.tamanoEquipo || null,
+          fechaLimite: (data as any).fecha_limite || data.fechaLimite || null,
+          datosAdicionales: (data as any).datos_adicionales || data.datosAdicionales || null,
+          presupuesto: data.presupuesto ? Number(data.presupuesto) : null
         };
         this.loading = false;
       },

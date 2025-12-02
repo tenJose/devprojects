@@ -82,6 +82,7 @@ export const getAllProjects = async (req: Request, res: Response) => {
       fecha_limite: proyecto.fechaLimite || null,
       tamano_equipo: proyecto.tamanoEquipo || null,
       adjuntos: safeParseArrayField(proyecto.adjuntos),
+      datos_adicionales: proyecto.datosAdicionales || null,
       fecha_creacion: proyecto.createdAt,
       destacado: proyecto.destacado,
       // Importante: Estandarizamos a 'creador'
@@ -136,6 +137,7 @@ export const getProjectById = async (req: Request, res: Response) => {
       fecha_limite: proyecto.fechaLimite || null,
       tamano_equipo: proyecto.tamanoEquipo || null,
       adjuntos: safeParseArrayField(proyecto.adjuntos),
+      datos_adicionales: proyecto.datosAdicionales || null,
       fecha_creacion: proyecto.createdAt,
       estado: proyecto.estado,
       destacado: proyecto.destacado,
