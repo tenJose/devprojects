@@ -47,6 +47,13 @@ export class ProjectService {
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
+  uploadProjectFiles(projectId: number, files: FileList): Observable<any> {
+    const form = new FormData();
+    Array.from(files).forEach((f) => form.append('files', f));
+    const headers = this.getHeaders().delete('Content-Type'); // Let browser set multipart boundary
+    return this.http.post(`${this.apiUrl}/${projectId}/upload`, form, { headers });
+  }
+
   private getHeaders(): HttpHeaders {
     const token = this.authService.getToken();
     return new HttpHeaders({

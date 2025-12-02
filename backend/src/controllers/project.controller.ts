@@ -3,6 +3,23 @@ import { PrismaClient } from "@prisma/client"
 
 const prisma = new PrismaClient()
 
+function safeParseArrayField(field: any): any[] {
+  if (!field) return []
+  if (Array.isArray(field)) return field
+  if (typeof field === 'string') {
+    // Try JSON parse first
+    try {
+      const parsed = JSON.parse(field)
+      return Array.isArray(parsed) ? parsed : [parsed]
+    } catch (e) {
+      // Fallback: comma-separated
+      if (field.includes(',')) return field.split(',').map((s: string) => s.trim()).filter((s: string) => s.length > 0)
+      return [field]
+    }
+  }
+  return []
+}
+
 // backend/src/controllers/project.controller.ts
 
 export const getAllProjects = async (req: Request, res: Response) => {
@@ -57,11 +74,14 @@ export const getAllProjects = async (req: Request, res: Response) => {
       titulo: proyecto.nombre,
       descripcion: proyecto.descripcion,
       tipo_proyecto: proyecto.tipoProyecto || "Desarrollo",
-      tecnologias: proyecto.tecnologias ? JSON.parse(proyecto.tecnologias as string) : [],
+      tecnologias: safeParseArrayField(proyecto.tecnologias),
       presupuesto: proyecto.presupuesto ? proyecto.presupuesto.toString() : null,
       presupuesto_tipo: proyecto.presupuestoTipo || "Fixed Price",
       duracion_estimada: proyecto.duracionEstimada || null,
       ubicacion: proyecto.ubicacion || "Remote",
+      fecha_limite: proyecto.fechaLimite || null,
+      tamano_equipo: proyecto.tamanoEquipo || null,
+      adjuntos: safeParseArrayField(proyecto.adjuntos),
       fecha_creacion: proyecto.createdAt,
       destacado: proyecto.destacado,
       // Importante: Estandarizamos a 'creador'
@@ -108,11 +128,14 @@ export const getProjectById = async (req: Request, res: Response) => {
       titulo: proyecto.nombre,
       descripcion: proyecto.descripcion,
       tipo_proyecto: proyecto.tipoProyecto || "Desarrollo",
-      tecnologias: proyecto.tecnologias.split(",").map((t) => t.trim()),
+      tecnologias: safeParseArrayField(proyecto.tecnologias),
       presupuesto: proyecto.presupuesto ? proyecto.presupuesto.toString() : null,
       presupuesto_tipo: proyecto.presupuestoTipo || "Fixed Price",
       duracion_estimada: proyecto.duracionEstimada || null,
       ubicacion: proyecto.ubicacion || "Remote",
+      fecha_limite: proyecto.fechaLimite || null,
+      tamano_equipo: proyecto.tamanoEquipo || null,
+      adjuntos: safeParseArrayField(proyecto.adjuntos),
       fecha_creacion: proyecto.createdAt,
       estado: proyecto.estado,
       destacado: proyecto.destacado,
@@ -145,6 +168,10 @@ export const createProject = async (req: Request, res: Response) => {
       duracionEstimada,
       ubicacion,
       usuarioCreadorId,
+      fechaLimite,
+      tamanoEquipo,
+      adjuntos,
+      datosAdicionales,
     } = req.body
 
     const userId = Number(usuarioCreadorId)
@@ -159,12 +186,16 @@ export const createProject = async (req: Request, res: Response) => {
       data: {
         nombre,
         descripcion,
-        tecnologias: Array.isArray(tecnologias) ? tecnologias.join(", ") : tecnologias,
+        tecnologias: Array.isArray(tecnologias) ? JSON.stringify(tecnologias) : (tecnologias || JSON.stringify([])),
         tipoProyecto: tipoProyecto || "Desarrollo",
         presupuesto: presupuesto ? Number.parseFloat(presupuesto) : null,
         presupuestoTipo: presupuestoTipo || "Fixed Price",
         duracionEstimada: duracionEstimada || null,
         ubicacion: ubicacion || "Remote",
+        fechaLimite: fechaLimite ? new Date(fechaLimite) : null,
+        tamanoEquipo: tamanoEquipo || null,
+        adjuntos: adjuntos ? (Array.isArray(adjuntos) ? JSON.stringify(adjuntos) : adjuntos) : null,
+        datosAdicionales: datosAdicionales || null,
         estado: "activo",
         usuarioCreadorId: userId,
       },
@@ -226,19 +257,27 @@ export const updateProject = async (req: Request, res: Response) => {
       presupuestoTipo,
       duracionEstimada,
       ubicacion,
+      fechaLimite,
+      tamanoEquipo,
+      adjuntos,
+      datosAdicionales,
     } = req.body
 
     const updateData: any = {}
 
     if (titulo) updateData.nombre = titulo
     if (descripcion) updateData.descripcion = descripcion
-    if (tecnologias) updateData.tecnologias = Array.isArray(tecnologias) ? tecnologias.join(", ") : tecnologias
+    if (tecnologias) updateData.tecnologias = Array.isArray(tecnologias) ? JSON.stringify(tecnologias) : tecnologias
     if (estado) updateData.estado = estado
     if (tipoProyecto) updateData.tipoProyecto = tipoProyecto
     if (presupuesto) updateData.presupuesto = Number.parseFloat(presupuesto)
     if (presupuestoTipo) updateData.presupuestoTipo = presupuestoTipo
     if (duracionEstimada) updateData.duracionEstimada = duracionEstimada
     if (ubicacion) updateData.ubicacion = ubicacion
+    if (fechaLimite) updateData.fechaLimite = new Date(fechaLimite)
+    if (tamanoEquipo) updateData.tamanoEquipo = tamanoEquipo
+    if (adjuntos) updateData.adjuntos = Array.isArray(adjuntos) ? JSON.stringify(adjuntos) : adjuntos
+    if (datosAdicionales) updateData.datosAdicionales = datosAdicionales
 
     const proyectoActualizado = await prisma.proyecto.update({
       where: { id: Number.parseInt(id) },
@@ -264,6 +303,33 @@ export const deleteProject = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error al eliminar proyecto:", error)
     res.status(500).json({ error: "Error al eliminar proyecto" })
+  }
+}
+
+export const uploadProjectFiles = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params
+    if (!req.files) return res.status(400).json({ error: 'No files uploaded' })
+
+    const files: any[] = Array.isArray(req.files) ? req.files : Object.values(req.files as any)
+    const storedPaths = files.map(f => `/${(f as any).path.replace(/\\/g, '/').replace(/^uploads\//, 'uploads/')}`)
+
+    // Fetch existing project
+    const proyecto = await prisma.proyecto.findUnique({ where: { id: Number.parseInt(id) } })
+    if (!proyecto) return res.status(404).json({ error: 'Proyecto no encontrado' })
+
+    const existing = proyecto.adjuntos ? (Array.isArray(proyecto.adjuntos) ? proyecto.adjuntos : JSON.parse(proyecto.adjuntos as string)) : []
+    const combined = [...existing, ...storedPaths]
+
+    const updated = await prisma.proyecto.update({
+      where: { id: Number.parseInt(id) },
+      data: { adjuntos: JSON.stringify(combined) }
+    })
+
+    res.json({ success: true, adjuntos: combined })
+  } catch (error) {
+    console.error('Error uploading files:', error)
+    res.status(500).json({ error: 'Error subiendo archivos' })
   }
 }
 

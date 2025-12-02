@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import authRoutes from './routes/auth.routes';
@@ -5,8 +6,12 @@ import userRoutes from './routes/user.routes';
 import projectRoutes from './routes/project.routes';
 import messageRoutes from './routes/message.routes';
 import friendRoutes from './routes/friend.routes'; // 👈 AGREGAR ESTO
+import aiRoutes from './routes/ai.routes';
 import notificationRoutes from './routes/notification.routes'
 import postulacionRoutes from './routes/postulacion.routes';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -41,6 +46,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/friends', friendRoutes); // 👈 AGREGAR ESTO IMPORTANTE
 app.use('/api/notifications', notificationRoutes); // 👈 REGISTRAR
 app.use('/api/postulaciones', postulacionRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Ruta de prueba
 app.get('/', (req, res) => {
@@ -51,6 +57,24 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
   console.log(`📡 API lista en http://localhost:${PORT}/api`);
+  // Periodic cleanup: delete projects where fechaLimite has passed
+  const cleanupExpired = async () => {
+    try {
+      const now = new Date();
+      const expired = await prisma.proyecto.findMany({ where: { fechaLimite: { lt: now }, estado: 'activo' } });
+      if (expired && expired.length) {
+        const ids = expired.map(p => p.id);
+        console.log(`🗑 Eliminando proyectos expirados: ${ids.join(', ')}`);
+        await prisma.proyecto.deleteMany({ where: { id: { in: ids } } });
+      }
+    } catch (err) {
+      console.error('Error cleaning expired projects:', err);
+    }
+  };
+
+  // Run once at startup, then every hour
+  cleanupExpired();
+  setInterval(cleanupExpired, 1000 * 60 * 60);
 });
 
 export default app;

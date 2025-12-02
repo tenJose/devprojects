@@ -7,7 +7,7 @@
 
 /* Sidebar */
 .sidebar {
-  width: 250px;
+  width: 220px;
   background-color: white;
   border-right: 1px solid #e5e7eb;
   display: flex;
@@ -89,9 +89,9 @@
 /* Main Content */
 .main-content {
   flex: 1;
-  margin-left: 250px;
-  padding: 2rem 4rem;
-  max-width: 1000px;
+  margin-left: 220px;
+  padding: 2rem 3rem;
+  max-width: 1100px;
 }
 
 .page-header {
@@ -114,6 +114,58 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
+}
+
+/* Mode selector (AI vs Advanced) */
+.mode-selector {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.mode-btn {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: white;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.mode-btn.mode-assist {
+  color: var(--color-success);
+  background: linear-gradient(90deg, rgba(16,185,129,0.06), rgba(16,185,129,0.02));
+  border-color: rgba(16,185,129,0.12);
+}
+
+.mode-btn.mode-advanced {
+  color: var(--color-primary);
+  background: linear-gradient(90deg, rgba(37,99,235,0.06), rgba(37,99,235,0.02));
+  border-color: rgba(37,99,235,0.12);
+}
+
+.mode-btn.active {
+  box-shadow: 0 8px 24px rgba(2,6,23,0.06);
+  transform: translateY(-2px);
+}
+
+/* Slight visual tweak for the assistant panel */
+.form-section p { color: #374151; }
+
+/* Q&A panel styles */
+.qa-panel h3 { margin: 0 0 8px 0; }
+.qa-panel .hint { color: #6b7280; margin-bottom: 8px; }
+.qa-panel .form-group { margin-bottom: 10px; }
+.qa-panel .form-input { padding: 0.5rem; border-radius: 6px; }
+
+.qa-loading { padding: 16px; color: var(--color-text-light); }
+
+/* Small spinner override for button small size */
+.form-actions .spinner {
+  border-width: 3px;
+  width: 16px;
+  height: 16px;
 }
 
 .form-section {
@@ -297,7 +349,7 @@
 }
 
 .btn-primary {
-  background-color: #2563eb;
+  background-color: var(--color-primary);
   color: white;
   border: none;
   padding: 0.75rem 2rem;
@@ -308,11 +360,11 @@
 }
 
 .btn-primary:hover {
-  background-color: #1d4ed8;
+  background-color: var(--color-primary-dark);
 }
 
 .btn-primary:disabled {
-  background-color: #93c5fd;
+  background-color: rgba(59,130,246,0.45);
   cursor: not-allowed;
 }
 
@@ -321,4 +373,27 @@
   text-align: right;
   margin-top: 0.5rem;
   font-size: 0.875rem;
+}
+
+/* Small header card under page header to explain AI flow */
+.header-card {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.03);
+}
+
+.header-card .hint {
+  color: var(--color-text-light);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 900px) {
+  .main-content { padding: 1.25rem; }
+  .header-card { flex-direction: column; align-items: flex-start; }
 }

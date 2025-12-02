@@ -75,9 +75,69 @@
       <p>Complete los detalles a continuación para publicar su proyecto y encontrar el talento adecuado..</p>
     </header>
 
+    <div class="header-card">
+      <div>
+        <strong>¿Quieres ayuda para armar tu proyecto?</strong>
+        <div class="hint">Usa la opción "Crear proyecto con asistencia" para que una IA genere un borrador a partir de una breve idea.</div>
+      </div>
+      <div class="hint">Ejemplo de prompt: "Quiero algo para una tiendita, inventarios y punto de venta"</div>
+    </div>
+
     <div class="form-container">
+      <!-- Mode selector: AI assist vs Advanced -->
+      <div class="mode-selector">
+        <button [class.active]="mode === 'assist'" (click)="switchMode('assist')" class="mode-btn mode-assist">Crear proyecto con asistencia</button>
+        <button [class.active]="mode === 'advanced'" (click)="switchMode('advanced')" class="mode-btn mode-advanced">Crear proyecto Avanzado</button>
+      </div>
+
+      <!-- AI Assistant Panel -->
+      <section class="form-section" *ngIf="mode === 'assist'">
+        <h2>Asistente de Proyecto (IA)</h2>
+        <p>Describe tu idea y nuestra IA generará automáticamente una especificación completa del proyecto.</p>
+
+        <div class="form-group">
+          <label>Conversación con la IA</label>
+          <div class="chat-box">
+            <div *ngIf="qaHistory.length === 0 && !awaitingUserResponse" class="assistant-hint">La IA analizará tu idea y generará un proyecto completo automáticamente.</div>
+
+            <div *ngFor="let h of qaHistory" class="conversation-history">
+              <div class="chat-pair">
+                <div class="message user"><strong>Tú:</strong> {{ h.answer }}</div>
+                <div class="message assistant"><strong>IA:</strong> {{ h.question }}</div>
+              </div>
+            </div>
+
+            <div *ngIf="currentQuestion" class="message assistant">
+              <strong>IA:</strong> {{ currentQuestion }}
+            </div>
+
+            <input
+              type="text"
+              [(ngModel)]="currentAnswer"
+              class="form-input"
+              [placeholder]="awaitingUserResponse ? 'Describe tu proyecto (ej: aplicación móvil de entregas, app de finanzas)...' : 'Responde aquí...'"
+            />
+          </div>
+        </div>
+
+        <div class="chat-actions">
+          <p class="hint">Cuanto más detallado sea tu descripción, mejor será el resultado.</p>
+          <div class="form-actions">
+            <button class="btn-secondary" (click)="omitAndGenerate()">Omitir y generar</button>
+            <button class="btn-primary" (click)="submitCurrentAnswer()" [disabled]="qaLoading || (!currentAnswer || currentAnswer.trim().length === 0)">
+              <span *ngIf="qaLoading" class="spinner" style="width:16px;height:16px;border-width:3px;margin-right:8px;"></span>
+              {{ awaitingUserResponse ? 'Generar proyecto' : 'Responder' }}
+            </button>
+            <button class="btn-outline" (click)="switchMode('advanced')">Usar formulario avanzado</button>
+          </div>
+        </div>
+
+        <p *ngIf="aiError" class="error-message">{{ aiError }}</p>
+      </section>
+
+      <!-- Advanced form shown when selected (or after AI generates values) -->
       <!-- Project Overview -->
-      <section class="form-section">
+      <section class="form-section" *ngIf="mode === 'advanced'">
         <h2>Descripción general del proyecto.</h2>
         
         <div class="form-group">
@@ -88,6 +148,22 @@
             placeholder="e.g., Plataforma E-commerce "
             class="form-input"
           />
+          <div *ngIf="titleSuggestions && titleSuggestions.length" class="title-suggestions">
+            <small>¿Te gusta alguna de estas opciones? Haz clic para usarla:</small>
+            <div class="suggestion-list">
+              <button *ngFor="let s of titleSuggestions" type="button" class="suggestion-chip" (click)="pickTitleSuggestion(s)">{{ s }}</button>
+            </div>
+          </div>
+          <div *ngIf="project.platform" class="form-group">
+            <label>Plataforma detectada</label>
+            <input type="text" class="form-input" [value]="project.platform" readonly />
+          </div>
+          <div *ngIf="project.features && project.features.length" class="form-group">
+            <label>Funcionalidades detectadas</label>
+            <div class="features-list">
+              <span *ngFor="let f of project.features" class="feature-chip">{{ f }}</span>
+            </div>
+          </div>
         </div>
 
         <div class="form-group">
@@ -100,6 +176,8 @@
           ></textarea>
         </div>
       </section>
+
+      <!-- end advanced section -->
 
       <!-- Technical Specifications -->
       <section class="form-section">
@@ -191,15 +269,33 @@
         <p class="section-subtitle">Opcional: Cargue maquetas, especificaciones u otros documentos relevantes.</p>
         
         <div class="upload-area">
-          <div class="upload-content">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="17 8 12 3 7 8"></polyline>
-              <line x1="12" y1="3" x2="12" y2="15"></line>
-            </svg>
-            <h3></h3>
-            <p><strong>Click para subir</strong> o arrastra el archivo</p>
-            <span class="file-hint">PDF, DOCX, PNG, JPG (MAX. 10MB)</span>
+          <label class="upload-label">
+            <input type="file" (change)="selectedFiles = $any($event.target).files" multiple accept="image/*,.pdf,.docx" />
+            <div class="upload-content">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <h3>Seleccionar archivos</h3>
+              <p><strong>Click para subir</strong> o arrastra el archivo</p>
+              <span class="file-hint">PNG, JPG, PDF, DOCX (MAX. 10MB)</span>
+            </div>
+          </label>
+
+          <div *ngIf="selectedFiles && selectedFiles.length > 0" class="selected-list">
+            <div *ngFor="let f of selectedFilesArray" class="selected-item">
+              {{ f.name }}
+            </div>
+          </div>
+          <div *ngIf="project.adjuntos && project.adjuntos.length > 0" class="existing-list">
+            <small>Archivos existentes:</small>
+            <div class="existing-items">
+              <div *ngFor="let url of project.adjuntos" class="existing-item">
+                <img *ngIf="isImage(url)" [src]="getFullPhotoUrl(url)" alt="Adjunto" class="thumb-img" (click)="openFile(url)" />
+                <a *ngIf="!isImage(url)" (click)="openFile(url)">{{ url }}</a>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -210,6 +306,19 @@
         <button class="btn-primary" (click)="createProject()" [disabled]="loading">
           {{ loading ? 'Publicando...' : 'Publicar proyecto' }}
         </button>
+        <button *ngIf="isEditMode" class="btn-danger" (click)="showDeleteConfirm = true">Eliminar proyecto</button>
+      </div>
+
+      <!-- Delete confirmation modal -->
+      <div class="modal-backdrop" *ngIf="showDeleteConfirm">
+        <div class="modal">
+          <h3>Confirmar eliminación</h3>
+          <p>¿Estás seguro que deseas eliminar este proyecto? Esta acción no se puede deshacer.</p>
+          <div class="modal-actions">
+            <button class="btn-secondary" (click)="showDeleteConfirm = false">Cancelar</button>
+            <button class="btn-danger" (click)="confirmDelete()">Eliminar</button>
+          </div>
+        </div>
       </div>
       
       <p *ngIf="error" class="error-message">{{ error }}</p>

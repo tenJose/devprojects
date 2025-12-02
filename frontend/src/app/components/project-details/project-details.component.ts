@@ -45,7 +45,8 @@ export class ProjectDetailsComponent implements OnInit {
           ...data,
           tecnologias: this.safeParseArray(data.tecnologias),
           lenguajes: this.safeParseArray(data.lenguajes),
-          adjuntos: this.safeParseArray(data.adjuntos)
+          adjuntos: this.safeParseArray(data.adjuntos),
+          fechaLimite: (data as any).fecha_limite || data.fechaLimite || null
         };
         this.loading = false;
       },
@@ -55,6 +56,11 @@ export class ProjectDetailsComponent implements OnInit {
         console.error(err);
       }
     });
+  }
+
+  isImage(file: string | undefined): boolean {
+    if (!file) return false;
+    return /\.(png|jpg|jpeg|gif)$/i.test(file);
   }
 
   // Función auxiliar para limpiar arrays que vienen como strings
@@ -74,6 +80,11 @@ export class ProjectDetailsComponent implements OnInit {
   getFullPhotoUrl(url: string | undefined): string {
     if (!url) return 'assets/default-avatar.png';
     return url.startsWith('http') ? url : `http://localhost:3000${url}`;
+  }
+
+  openFile(url: string) {
+    const full = this.getFullPhotoUrl(url);
+    window.open(full, '_blank');
   }
 
   applyToProject() {
