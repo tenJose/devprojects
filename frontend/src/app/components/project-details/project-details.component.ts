@@ -93,11 +93,30 @@ export class ProjectDetailsComponent implements OnInit {
   }
 
   applyToProject() {
-    if (!this.project || !this.currentUser) return;
-    
-    // Aquí iría la llamada real al servicio de postulación
-    alert("Funcionalidad de postulación lista para conectar con backend.");
-    this.isApplied = true;
+    if (!this.project) return;
+    if (!this.currentUser) { alert('Debes iniciar sesión para postularte.'); return; }
+    if (this.isApplied) { alert('Ya enviaste una solicitud para este proyecto.'); return; }
+    if (this.currentUser.id === (this.project as any).usuarioCreadorId) { alert('No puedes postularte a tu propio proyecto.'); return; }
+
+    const payload = {
+      usuarioId: this.currentUser.id,
+      proyectoId: this.project.id,
+      mensaje: '¡Hola! Me interesa postularme a este proyecto.',
+      propuesta: '',
+      presupuestoPropuesto: null,
+    };
+
+    this.postulacionService.createPostulacion(payload).subscribe({
+      next: () => {
+        this.isApplied = true;
+        alert('Solicitud enviada exitosamente.');
+      },
+      error: (err) => {
+        console.error(err);
+        const msg = err?.error?.error || err?.error?.message || 'Hubo un error al enviar tu solicitud.';
+        alert(msg);
+      }
+    });
   }
 
   goBack() {

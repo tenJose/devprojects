@@ -11,11 +11,40 @@
     </div>
     
     <nav class="sidebar-nav">
-      <a href="javascript:void(0)" class="nav-item active">Home</a>
-      <a href="javascript:void(0)" class="nav-item" (click)="switchTab('projects')">Projectos</a>
-      <a href="javascript:void(0)" class="nav-item" (click)="switchTab('people')">Personas</a>
-      <a href="javascript:void(0)" class="nav-item" (click)="navigateToMessages()">Mensajes</a>
-      <a href="javascript:void(0)" class="nav-item" (click)="navigateToProfile()">Mi Perfil</a>
+      <a href="javascript:void(0)" class="nav-item active">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        </svg>
+        Home
+      </a>
+      <a href="javascript:void(0)" class="nav-item" (click)="switchTab('projects')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        Proyectos
+      </a>
+      <a href="javascript:void(0)" class="nav-item" (click)="switchTab('people')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        Personas
+      </a>
+      <a href="javascript:void(0)" class="nav-item" (click)="navigateToMessages()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        Mensajes
+      </a>
+      <a href="javascript:void(0)" class="nav-item" (click)="navigateToProfile()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 8v8M8 12h8"></path>
+        </svg>
+        Mi Perfil
+      </a>
     </nav>
 
     <div class="sidebar-footer">
@@ -212,57 +241,65 @@
       </div>
   
       <div class="notification-tabs">
-        <button [class.active]="notificationTab === 'amistades'" 
-                (click)="notificationTab = 'amistades'">
-          Solicitudes ({{notificaciones.amistades.length}})
+        <button [class.active]="notificationTab === 'todas'" 
+                (click)="notificationTab = 'todas'">
+          Todas ({{todasNotificaciones.length}})
         </button>
-        <button [class.active]="notificationTab === 'postulaciones'" 
-                (click)="notificationTab = 'postulaciones'">
-          Postulaciones ({{notificaciones.postulaciones.length}})
+        <button [class.active]="notificationTab === 'mensajes'" 
+                (click)="notificationTab = 'mensajes'">
+          Mensajes
         </button>
       </div>
   
       <div class="modal-body">
         
-        <div *ngIf="notificationTab === 'amistades'">
+        <div *ngIf="notificationTab === 'todas'">
           <div class="notification-list">
-            <div *ngFor="let req of notificaciones.amistades" class="notification-item">
+            <!-- Solicitudes de amistad -->
+            <div *ngFor="let req of notificaciones.amistades" class="notification-item amistad">
               <img [src]="getFullPhotoUrl(req.solicitante.fotoPerfil)" class="avatar-small">
               <div class="notif-info">
                 <strong>{{req.solicitante.nombre}} {{req.solicitante.apellido}}</strong>
                 <span>quiere conectar contigo.</span>
+                <span class="notif-time">Solicitud de amistad</span>
               </div>
               <div class="notif-actions">
-                <button class="btn-accept" (click)="responderAmistad(req, true)">✓</button>
-                <button class="btn-reject" (click)="responderAmistad(req, false)">✕</button>
+                <button class="btn-accept" (click)="responderAmistad(req, true)" title="Aceptar">✓</button>
+                <button class="btn-reject" (click)="responderAmistad(req, false)" title="Rechazar">✕</button>
               </div>
             </div>
-            <p *ngIf="notificaciones.amistades.length === 0" class="empty-state">
-              No tienes solicitudes de amistad pendientes.
-            </p>
-          </div>
-        </div>
-  
-        <!-- ✅ CORREGIDO: Estructura del loop para 'post' -->
-        <div *ngIf="notificationTab === 'postulaciones'">
-          <div class="notification-list">
-            <div *ngFor="let post of notificaciones.postulaciones" class="notification-item">
+
+            <!-- Postulaciones a proyectos -->
+            <div *ngFor="let post of notificaciones.postulaciones" 
+                 class="notification-item postulacion"
+                 [class.disabled]="post.estado !== 'pendiente'">
               <img [src]="getFullPhotoUrl(post.usuario.fotoPerfil)" class="avatar-small">
               <div class="notif-info">
                 <strong>{{post.usuario.nombre}} {{post.usuario.apellido}}</strong>
                 <span>se postuló a: <strong>{{post.proyecto.titulo}}</strong></span>
+                <span class="notif-time" *ngIf="post.estado === 'pendiente'">Postulación a proyecto</span>
+                <span class="notif-time notif-accepted" *ngIf="post.estado === 'aceptado'">✓ Aceptada</span>
+                <span class="notif-time notif-rejected" *ngIf="post.estado === 'rechazado'">✕ Rechazada</span>
               </div>
-              <!-- ✅ AQUI ESTABA EL ERROR: Usar 'post' dentro del loop correcto -->
-              <div class="notif-actions">
-    <button class="btn-view" (click)="viewUserProfile(post.usuario.id)">Ver Perfil</button>
-    
-    <button class="btn-accept" (click)="responderPostulacion(post, true)">✓</button>
-    <button class="btn-reject" (click)="responderPostulacion(post, false)">✕</button>
-</div>
+              <div class="notif-actions" *ngIf="post.estado === 'pendiente'">
+                <button class="btn-view" (click)="viewUserProfile(post.usuario.id)" title="Ver Perfil">👤</button>
+                <button class="btn-accept" (click)="responderPostulacion(post, true)" title="Aceptar">✓</button>
+                <button class="btn-reject" (click)="responderPostulacion(post, false)" title="Rechazar">✕</button>
+              </div>
+              <div class="notif-status" *ngIf="post.estado !== 'pendiente'">
+                <span class="status-badge">{{post.estado | titlecase}}</span>
+              </div>
             </div>
-            <p *ngIf="notificaciones.postulaciones.length === 0" class="empty-state">
-              No hay nuevas postulaciones.
+
+            <p *ngIf="todasNotificaciones.length === 0" class="empty-state">
+              No tienes notificaciones pendientes.
             </p>
+          </div>
+        </div>
+  
+        <div *ngIf="notificationTab === 'mensajes'">
+          <div class="notification-list">
+            <p class="empty-state">Ve a la sección de Mensajes para ver tus conversaciones.</p>
           </div>
         </div>
   

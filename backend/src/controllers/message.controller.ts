@@ -50,16 +50,19 @@ export const getConversations = async (req: UsuarioRequest, res: Response) => {
     messages.forEach((msg) => {
       const otherUserId =
         msg.remitente === userId ? msg.destinatario : msg.remitente;
-      const conversationId = [userId, otherUserId].sort().join("-");
+      // Include proyectoId in the conversation key to separate project-based conversations
+      const conversationKey = msg.proyectoId 
+        ? `${[userId, otherUserId].sort().join("-")}-proyecto-${msg.proyectoId}`
+        : [userId, otherUserId].sort().join("-");
 
-      if (!conversationsMap.has(conversationId)) {
+      if (!conversationsMap.has(conversationKey)) {
         const otherUser =
           msg.remitente === userId
             ? msg.usuarioDestinatario
             : msg.usuarioRemitente;
 
-        conversationsMap.set(conversationId, {
-          conversacionId: conversationId,
+        conversationsMap.set(conversationKey, {
+          conversacionId: conversationKey,
           otherUser: {
             id: otherUser.id,
             nombre: otherUser.nombre,
@@ -75,7 +78,7 @@ export const getConversations = async (req: UsuarioRequest, res: Response) => {
       }
 
       if (msg.destinatario === userId && !msg.leido) {
-        const conv = conversationsMap.get(conversationId);
+        const conv = conversationsMap.get(conversationKey);
         conv.mensajesNoLeidos++;
       }
     });
@@ -93,18 +96,26 @@ export const getMessages = async (req: UsuarioRequest, res: Response) => {
   try {
     const userId = req.usuarioId;
     const { otherUserId } = req.params;
+    const { proyectoId } = req.query; // Optional: filter by project
 
     if (!userId) {
       return res.status(401).json({ mensaje: "No autorizado" });
     }
 
+    const whereClause: any = {
+      OR: [
+        { remitente: userId, destinatario: Number(otherUserId) },
+        { remitente: Number(otherUserId), destinatario: userId },
+      ],
+    };
+
+    // If proyectoId is provided, filter messages for that specific project conversation
+    if (proyectoId) {
+      whereClause.proyectoId = Number(proyectoId);
+    }
+
     const messages = await prisma.mensaje.findMany({
-      where: {
-        OR: [
-          { remitente: userId, destinatario: Number(otherUserId) },
-          { remitente: Number(otherUserId), destinatario: userId },
-        ],
-      },
+      where: whereClause,
       orderBy: { createdAt: "asc" },
       include: {
         usuarioRemitente: {
@@ -118,12 +129,18 @@ export const getMessages = async (req: UsuarioRequest, res: Response) => {
       },
     });
 
+    const markReadClause: any = {
+      remitente: Number(otherUserId),
+      destinatario: userId,
+      leido: false,
+    };
+    
+    if (proyectoId) {
+      markReadClause.proyectoId = Number(proyectoId);
+    }
+
     await prisma.mensaje.updateMany({
-      where: {
-        remitente: Number(otherUserId),
-        destinatario: userId,
-        leido: false,
-      },
+      where: markReadClause,
       data: { leido: true },
     });
 

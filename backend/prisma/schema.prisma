@@ -92,7 +92,7 @@ model Postulacion {
   usuario           User      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   proyecto          Proyecto  @relation(fields: [proyectoId], references: [id], onDelete: Cascade)
 
-  @@unique([usuarioId, proyectoId])
+  // Se permite múltiples postulaciones al mismo proyecto por el mismo usuario
   @@map("postulaciones")
   @@index([estado]) // ✅ NUEVO: Índice para filtrar por estado
 }

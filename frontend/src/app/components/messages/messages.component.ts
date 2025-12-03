@@ -58,6 +58,28 @@ export class MessagesComponent implements OnInit, AfterViewChecked {
       }
       this.loadConversations();
     });
+
+    // 4. Verificar si hay una conversación nueva desde notificaciones
+    this.checkNewConversation();
+  }
+
+  checkNewConversation() {
+    const newConvData = localStorage.getItem('newConversation');
+    if (newConvData) {
+      const { userId, projectId, initialMessage } = JSON.parse(newConvData);
+      
+      // Enviar el mensaje inicial automáticamente
+      this.messageService.sendMessage(userId, initialMessage, projectId).subscribe({
+        next: () => {
+          // Limpiar localStorage
+          localStorage.removeItem('newConversation');
+          
+          // Recargar conversaciones
+          this.loadConversations();
+        },
+        error: (err) => console.error('Error al crear conversación:', err)
+      });
+    }
   }
 
   loadUserProfile() {
@@ -154,7 +176,9 @@ export class MessagesComponent implements OnInit, AfterViewChecked {
   selectConversation(conversation: Conversation) {
     this.currentConversation = conversation
     if (conversation.conversacionId !== 'new') {
-        this.loadMessages(conversation.otherUser.id)
+        // Extract proyectoId from conversacionId if it exists
+        const proyectoId = this.extractProyectoId(conversation.conversacionId);
+        this.loadMessages(conversation.otherUser.id, proyectoId)
     } else {
         this.messages = [];
     }
@@ -165,8 +189,14 @@ export class MessagesComponent implements OnInit, AfterViewChecked {
     }
   }
 
-  loadMessages(otherUserId: number) {
-    this.messageService.getMessages(otherUserId).subscribe({
+  extractProyectoId(conversacionId: string): number | undefined {
+    // Format: "userId1-userId2-proyecto-123"
+    const match = conversacionId.match(/-proyecto-(\d+)$/);
+    return match ? parseInt(match[1], 10) : undefined;
+  }
+
+  loadMessages(otherUserId: number, proyectoId?: number) {
+    this.messageService.getMessages(otherUserId, proyectoId).subscribe({
       next: (data) => {
         this.messages = data
         setTimeout(() => this.scrollToBottom(), 100);
@@ -180,6 +210,10 @@ export class MessagesComponent implements OnInit, AfterViewChecked {
 
     const content = this.newMessage
     const recipientId = this.currentConversation.otherUser.id
+    
+    // Extract proyectoId from current conversation if it's project-based
+    const proyectoId = this.currentConversation.proyecto?.id || 
+                       this.extractProyectoId(this.currentConversation.conversacionId);
 
     // Optimistic Update
     const tempMessage: Message = {
@@ -195,7 +229,7 @@ export class MessagesComponent implements OnInit, AfterViewChecked {
     this.newMessage = ""
     setTimeout(() => this.scrollToBottom(), 50);
 
-    this.messageService.sendMessage(recipientId, content).subscribe({
+    this.messageService.sendMessage(recipientId, content, proyectoId).subscribe({
       next: (sentMessage) => {
         const index = this.messages.findIndex((m) => m.id === tempMessage.id)
         if (index !== -1) {
@@ -244,5 +278,9 @@ export class MessagesComponent implements OnInit, AfterViewChecked {
         return `${this.API_BASE_URL}${fileName}`;
     }
     return `${this.API_BASE_URL}/uploads/${fileName}`;
+  }
+
+  navigateToProject(projectId: number) {
+    this.router.navigate(['/project', projectId]);
   }
 }

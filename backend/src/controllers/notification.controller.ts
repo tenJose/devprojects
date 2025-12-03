@@ -25,7 +25,7 @@ export const obtenerNotificaciones = async (req: UsuarioRequest, res: Response):
       }
     });
 
-    // 2. Buscar postulaciones a mis proyectos
+    // 2. Buscar postulaciones a mis proyectos (mostrar todas, marcar estado)
     const postulacionesRecibidas = await prisma.postulacion.findMany({
       where: {
         proyecto: {
@@ -33,11 +33,9 @@ export const obtenerNotificaciones = async (req: UsuarioRequest, res: Response):
         }
       },
       include: {
-        // ✅ CORRECCIÓN 1: 'nombre' en lugar de 'titulo'
         proyecto: { select: { id: true, nombre: true } },
         usuario: { select: { id: true, nombre: true, apellido: true, fotoPerfil: true } }
       },
-      // ✅ CORRECCIÓN 2: 'fechaPostulacion' en lugar de 'createdAt'
       orderBy: { fechaPostulacion: 'desc' }
     });
 

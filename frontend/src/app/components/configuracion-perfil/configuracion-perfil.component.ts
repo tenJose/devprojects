@@ -49,7 +49,7 @@ export class ConfiguracionPerfilComponent implements OnInit {
       // Cargamos datos existentes por si el usuario está editando su perfil
       this.usuarioService.obtenerPerfil().subscribe((res: any) => {
         if (res.success) {
-          this.previewFoto = res.data.fotoPerfil || '';
+          this.previewFoto = this.getFullPhotoUrl(res.data.fotoPerfil);
           this.descripcion = res.data.descripcion || '';
           
           // Si ya tiene un rol definido distinto a usuario (ej. admin o ingeniero previo), lo seteamos
@@ -172,5 +172,14 @@ export class ConfiguracionPerfilComponent implements OnInit {
     if (!lenguajesActuales.includes(lang)) {
       this.lenguajes = this.lenguajes ? this.lenguajes + ', ' + lang : lang;
     }
+  }
+
+  getFullPhotoUrl(fileName: string | null | undefined): string {
+    if (!fileName) return 'assets/default-avatar.png';
+    if (fileName.startsWith('http')) return fileName;
+    if (fileName.startsWith('/uploads')) {
+      return `http://localhost:3000${fileName}`;
+    }
+    return `http://localhost:3000/uploads/${fileName}`;
   }
 }

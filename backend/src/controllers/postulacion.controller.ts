@@ -14,13 +14,20 @@ export const createPostulacion = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "No puedes postularte a tu propio proyecto" });
     }
 
-    
-
-    // Evitar postulaciones duplicadas
-    const existing = await prisma.postulacion.findUnique({
-      where: { usuarioId_proyectoId: { usuarioId, proyectoId } },
+    // Verificar si el usuario ya se postuló a este proyecto
+    const postulacionExistente = await prisma.postulacion.findFirst({
+      where: {
+        usuarioId: usuarioId,
+        proyectoId: proyectoId
+      }
     });
-    if (existing) return res.status(400).json({ error: "Ya te has postulado a este proyecto" });
+
+    if (postulacionExistente) {
+      return res.status(400).json({ 
+        success: false,
+        error: "Ya te has postulado a este proyecto anteriormente" 
+      });
+    }
 
     const nuevaPostulacion = await prisma.postulacion.create({
       data: {

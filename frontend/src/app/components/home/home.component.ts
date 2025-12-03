@@ -45,9 +45,13 @@ export class HomeComponent implements OnInit {
   showLogoutModal = false
 
   showNotificationsModal = false;
-  notificationTab: 'amistades' | 'postulaciones' = 'amistades';
+  notificationTab: 'todas' | 'mensajes' = 'todas';
   notificaciones: { amistades: any[], postulaciones: any[] } = { amistades: [], postulaciones: [] };
   hasNewNotifications = false;
+
+  get todasNotificaciones() {
+    return [...this.notificaciones.amistades, ...this.notificaciones.postulaciones];
+  }
 
   constructor(
     private projectService: ProjectService,
@@ -179,7 +183,7 @@ export class HomeComponent implements OnInit {
   }
 
   navigateToProfile() {
-    this.router.navigate(["/configurar-perfil"])
+    this.router.navigate(["/configuracion-perfil"])
   }
 
   confirmLogout() {
@@ -224,7 +228,8 @@ applyToProject(projectId: number) {
     },
     error: (err) => {
       console.error(err);
-      alert("Hubo un error al postularte.");
+      const errorMsg = err?.error?.error || err?.error?.message || "Hubo un error al postularte.";
+      alert(errorMsg);
     },
   });
 }
@@ -285,13 +290,43 @@ loadNotifications() {
   // ✅ CORREGIDO: Tipo explícito para 'postulacion'
   responderPostulacion(postulacion: any, aceptar: boolean) {
     const estado = aceptar ? 'aceptado' : 'rechazado';
+    const mensaje = aceptar ? 'aceptada' : 'rechazada';
+    
     this.postulacionService.responderPostulacion(postulacion.id, estado).subscribe({
         next: () => {
-            alert(`Postulación ${estado}`);
+            // Mostrar mensaje de confirmación
+            alert(`¡Postulación ${mensaje}!`);
+            
+            // Si se aceptó, crear conversación automáticamente
+            if (aceptar) {
+              this.crearConversacionAutomatica(postulacion);
+            }
+            
+            // Recargar notificaciones (esto eliminará la notificación procesada)
             this.loadNotifications(); 
         },
-        // ✅ CORREGIDO: Tipo explícito 'any'
         error: (err: any) => alert("Error al actualizar postulación")
+    });
+  }
+
+  crearConversacionAutomatica(postulacion: any) {
+    // Redirigir a mensajes con el usuario y proyecto
+    const mensaje = `¡Hola! He aceptado tu postulación para el proyecto "${postulacion.proyecto.titulo}". Hablemos sobre los detalles.`;
+    
+    // Guardar en localStorage el mensaje inicial y proyecto
+    localStorage.setItem('newConversation', JSON.stringify({
+      userId: postulacion.usuario.id,
+      projectId: postulacion.proyecto.id,
+      initialMessage: mensaje
+    }));
+    
+    // Cerrar modal y navegar
+    this.showNotificationsModal = false;
+    this.router.navigate(['/messages'], { 
+      queryParams: { 
+        userId: postulacion.usuario.id,
+        projectId: postulacion.proyecto.id
+      } 
     });
   }
 }

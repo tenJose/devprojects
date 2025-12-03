@@ -59,8 +59,12 @@ export class MessageService {
     return this.http.get<Conversation[]>(`${this.apiUrl}/conversations`, { headers: this.getHeaders() })
   }
 
-  getMessages(otherUserId: number): Observable<Message[]> {
-    return this.http.get<Message[]>(`${this.apiUrl}/${otherUserId}`, { headers: this.getHeaders() })
+  getMessages(otherUserId: number, proyectoId?: number): Observable<Message[]> {
+    let url = `${this.apiUrl}/${otherUserId}`;
+    if (proyectoId) {
+      url += `?proyectoId=${proyectoId}`;
+    }
+    return this.http.get<Message[]>(url, { headers: this.getHeaders() })
   }
 
   sendMessage(destinatario: number, contenido: string, proyectoId?: number): Observable<Message> {

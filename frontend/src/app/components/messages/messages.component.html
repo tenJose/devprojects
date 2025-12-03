@@ -1,4 +1,5 @@
 <div class="messages-container">
+  <!-- Sidebar igual al de Home -->
   <aside class="sidebar">
     <div class="sidebar-header">
       <div class="logo">
@@ -10,15 +11,35 @@
     </div>
     
     <nav class="sidebar-nav">
-      <a routerLink="/home" class="nav-item">Home</a>
-      <a routerLink="/home" class="nav-item">Proyectos</a>
-      <a routerLink="/home" class="nav-item">Personas</a>
-      <a routerLink="/messages" class="nav-item active">Mensajes</a>
-      <a routerLink="/configuracion-perfil" class="nav-item">Mi Perfil</a>
+      <a routerLink="/home" class="nav-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        </svg>
+        Home
+      </a>
+      <a routerLink="/messages" class="nav-item active">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        Mensajes
+      </a>
+      <a routerLink="/configuracion-perfil" class="nav-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 8v8M8 12h8"></path>
+        </svg>
+        Mi Perfil
+      </a>
     </nav>
 
     <div class="sidebar-footer">
-      <button class="create-project-btn" (click)="navigateToCreateProject()">Crear Proyecto</button>
+      <button class="create-project-btn" (click)="navigateToCreateProject()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Crear Proyecto
+      </button>
       
       <div class="user-profile-mini" *ngIf="currentUser">
         <img [src]="getFullPhotoUrl(currentUser.fotoPerfil)" alt="User" class="avatar-mini">
@@ -79,7 +100,13 @@
       <header class="chat-header">
         <div class="user-details">
           <img [src]="getFullPhotoUrl(currentConversation.otherUser.fotoPerfil)" class="avatar-header">
-          <h3>{{currentConversation.otherUser.nombre}} {{currentConversation.otherUser.apellido}}</h3>
+          <div class="header-info">
+            <h3>{{currentConversation.otherUser.nombre}} {{currentConversation.otherUser.apellido}}</h3>
+            <span class="project-link" *ngIf="currentConversation.proyecto" 
+                  (click)="navigateToProject(currentConversation.proyecto.id)">
+              📁 {{currentConversation.proyecto.nombre}}
+            </span>
+          </div>
         </div>
       </header>
 
@@ -97,14 +124,21 @@
         <input type="text" placeholder="Escribe un mensaje..." 
                [(ngModel)]="newMessage" (keyup.enter)="sendMessage()">
         <button class="btn-send" (click)="sendMessage()" [disabled]="!newMessage.trim()">
-          Enviar
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
         </button>
       </div>
     </div>
 
     <ng-template #noSelection>
       <div class="no-selection-state">
-        <p>Selecciona una conversación para comenzar a chatear.</p>
+        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <h3>Selecciona una conversación</h3>
+        <p>Elige un contacto para comenzar a chatear</p>
       </div>
     </ng-template>
   </main>

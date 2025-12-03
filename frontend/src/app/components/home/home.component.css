@@ -813,27 +813,81 @@
   gap: 12px;
   padding: 12px 15px;
   border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s;
 }
 
 .notification-item:hover { background-color: #fafafa; }
+
+.notification-item.amistad {
+  border-left: 3px solid #228be6;
+}
+
+.notification-item.postulacion {
+  border-left: 3px solid #82c91e;
+}
 
 .avatar-small {
   width: 40px; height: 40px; border-radius: 50%; object-fit: cover;
 }
 
-.notif-info { flex: 1; font-size: 14px; line-height: 1.4; }
-.notif-actions { display: flex; gap: 8px; }
+.notif-info { 
+  flex: 1; 
+  font-size: 14px; 
+  line-height: 1.4;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 
-.btn-accept, .btn-reject {
+.notif-time {
+  font-size: 11px;
+  color: #868e96;
+  font-weight: 500;
+}
+
+.notif-actions { display: flex; gap: 6px; }
+
+.btn-accept, .btn-reject, .btn-view {
   width: 30px; height: 30px; border-radius: 50%; border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center; font-weight: bold;
+  font-size: 14px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-accept:hover, .btn-reject:hover, .btn-view:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
 .btn-accept { background: #e6fcf5; color: #0ca678; }
 .btn-reject { background: #fff5f5; color: #fa5252; }
+.btn-view { background: #e7f5ff; color: #228be6; }
 
-.btn-view {
-  font-size: 12px; padding: 4px 10px; background: #e9ecef; border: none; border-radius: 4px; cursor: pointer;
+.notification-item.disabled {
+  opacity: 0.6;
+  background-color: #f8f9fa;
+}
+
+.notif-accepted {
+  color: #0ca678 !important;
+}
+
+.notif-rejected {
+  color: #fa5252 !important;
+}
+
+.notif-status {
+  display: flex;
+  align-items: center;
+}
+
+.status-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 12px;
+  background-color: #e9ecef;
+  color: #495057;
 }
 
 .empty-state {

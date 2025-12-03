@@ -10,6 +10,7 @@ CREATE TABLE `usuarios` (
     `descripcion` TEXT NULL,
     `tecnologias` TEXT NULL,
     `lenguajes` TEXT NULL,
+    `redesSociales` TEXT NULL,
     `informacionExtra` TEXT NULL,
     `codigoVerificacion` VARCHAR(191) NULL,
     `verificado` BOOLEAN NOT NULL DEFAULT false,
@@ -62,7 +63,6 @@ CREATE TABLE `postulaciones` (
     `fechaRespuesta` DATETIME(3) NULL,
 
     INDEX `postulaciones_estado_idx`(`estado`),
-    UNIQUE INDEX `postulaciones_usuarioId_proyectoId_key`(`usuarioId`, `proyectoId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
