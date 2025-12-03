@@ -11,8 +11,10 @@ export const enviarSolicitud = async (req: UsuarioRequest, res: Response): Promi
     const solicitanteId = req.usuarioId; // Ahora TS reconoce esto
     const { friendId } = req.body;
 
+    console.log('[Friend Request] solicitanteId:', solicitanteId, 'friendId:', friendId, 'body:', req.body);
+
     if (!solicitanteId || !friendId) {
-      res.status(400).json({ error: "Faltan datos" });
+      res.status(400).json({ error: "Faltan datos", details: { solicitanteId, friendId } });
       return; // ✅ Usamos return vacío para cumplir con Promise<void>
     }
 
@@ -21,20 +23,38 @@ export const enviarSolicitud = async (req: UsuarioRequest, res: Response): Promi
       return;
     }
 
-    // Verificar si ya existe relación
+    // Verificar si ya existe relación activa (pendiente o aceptada)
     const existe = await prisma.amistad.findFirst({
       where: {
         OR: [
           { solicitanteId, receptorId: friendId },
           { solicitanteId: friendId, receptorId: solicitanteId }
-        ]
+        ],
+        estado: {
+          in: ['pendiente', 'aceptado']
+        }
       }
     });
 
     if (existe) {
-      res.status(400).json({ error: "Ya existe una solicitud o amistad" });
+      if (existe.estado === 'aceptado') {
+        res.status(400).json({ error: "Ya son amigos" });
+      } else {
+        res.status(400).json({ error: "Ya existe una solicitud pendiente" });
+      }
       return;
     }
+
+    // Si hubo una solicitud rechazada anterior, eliminarla para permitir nueva solicitud
+    await prisma.amistad.deleteMany({
+      where: {
+        OR: [
+          { solicitanteId, receptorId: friendId },
+          { solicitanteId: friendId, receptorId: solicitanteId }
+        ],
+        estado: 'rechazado'
+      }
+    });
 
     const nuevaAmistad = await prisma.amistad.create({
       data: {

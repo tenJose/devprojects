@@ -66,11 +66,24 @@ export const responderPostulacion = async (req: Request, res: Response) => {
         data: { 
             estado: estado,
             fechaRespuesta: new Date()
+        },
+        include: {
+            proyecto: true
         }
     });
 
-    // Opcional: Aquí podrías crear una notificación para el usuario que se postuló
-    // await prisma.notificacion.create(...)
+    // Crear notificación para el usuario que se postuló
+    if (estado === 'aceptado') {
+        await prisma.notificacion.create({
+            data: {
+                usuarioId: postulacion.usuarioId,
+                tipo: 'postulacion_aceptada',
+                mensaje: `Tu postulación al proyecto "${postulacion.proyecto.nombre}" ha sido aceptada`,
+                referenciaId: postulacion.proyectoId,
+                leido: false
+            }
+        });
+    }
 
     res.json({ message: `Postulación ${estado} correctamente`, postulacion });
   } catch (error) {

@@ -55,6 +55,9 @@ export class UserProfileComponent implements OnInit {
     this.loading = true;
     this.error = '';
 
+    // Verificar si es mi propio perfil
+    this.esMiPerfil = (this.currentUserId === id);
+
     // ✅ Ahora sí existe este método en el servicio
     this.usuarioService.obtenerUsuarioPublico(id).subscribe({
       next: (res: any) => {
@@ -99,14 +102,21 @@ export class UserProfileComponent implements OnInit {
         alert("Debes iniciar sesión");
         return;
     }
+
+    if (this.currentUserId === friendId) {
+        alert("No puedes enviarte una solicitud a ti mismo");
+        return;
+    }
     
     this.friendService.sendRequest(friendId).subscribe({
       next: () => {
         this.solicitudEnviada = true;
+        alert('Solicitud de amistad enviada correctamente');
       },
-      error: (err: any) => { // ✅ CORRECCIÓN: Tipo 'any' explícito
+      error: (err: any) => {
         console.error('Error al enviar solicitud', err);
-        alert('Error al enviar la solicitud');
+        const errorMsg = err?.error?.error || err?.error?.message || 'Error al enviar la solicitud';
+        alert(errorMsg);
       }
     });
   }

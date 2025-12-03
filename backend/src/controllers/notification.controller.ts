@@ -4,6 +4,28 @@ import { UsuarioRequest } from '../middleware/auth.middleware';
 
 const prisma = new PrismaClient();
 
+export const marcarNotificacionLeida = async (req: UsuarioRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.usuarioId;
+    const { id } = req.params;
+
+    if (!userId) {
+      res.status(401).json({ message: "No autorizado" });
+      return;
+    }
+
+    await prisma.notificacion.update({
+      where: { id: Number(id), usuarioId: userId },
+      data: { leido: true }
+    });
+
+    res.json({ success: true, message: "Notificación marcada como leída" });
+  } catch (error) {
+    console.error("Error marcando notificación:", error);
+    res.status(500).json({ message: "Error al marcar notificación" });
+  }
+};
+
 export const obtenerNotificaciones = async (req: UsuarioRequest, res: Response): Promise<void> => {
   try {
     const userId = req.usuarioId;
@@ -48,11 +70,26 @@ export const obtenerNotificaciones = async (req: UsuarioRequest, res: Response):
       }
     }));
 
+    // 3. Buscar notificaciones del sistema (postulaciones aceptadas, etc.)
+    const notificacionesSistema = await prisma.notificacion.findMany({
+      where: {
+        usuarioId: userId,
+        leido: false
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    console.log('[Notifications] userId:', userId);
+    console.log('[Notifications] Solicitudes amistad:', solicitudesAmistad.length);
+    console.log('[Notifications] Postulaciones:', postulacionesFormateadas.length);
+    console.log('[Notifications] Sistema:', notificacionesSistema.length);
+
     res.json({
       success: true,
       data: {
         amistades: solicitudesAmistad,
-        postulaciones: postulacionesFormateadas
+        postulaciones: postulacionesFormateadas,
+        sistema: notificacionesSistema
       }
     });
 

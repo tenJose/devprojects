@@ -171,7 +171,24 @@
 }
 
 /* Responsive */
+/* ==================== RESPONSIVE DESIGN ==================== */
+
+@media (max-width: 1024px) {
+    .perfil-container {
+        padding: 24px;
+    }
+
+    .perfil-body {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
 @media (max-width: 768px) {
+    .perfil-container {
+        padding: 16px;
+    }
+
     .perfil-header {
         flex-direction: column;
         text-align: center;
@@ -179,6 +196,71 @@
     
     .perfil-body {
         grid-template-columns: 1fr;
+    }
+
+    .profile-header-card {
+        padding: 50px 20px 20px 20px;
+    }
+
+    .btn-volver {
+        top: 15px;
+        left: 15px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 640px) {
+    .perfil-container {
+        padding: 12px;
+        margin-bottom: 70px;
+    }
+
+    .profile-header-card {
+        padding: 45px 16px 16px 16px;
+        border-radius: 12px;
+    }
+
+    .perfil-avatar {
+        width: 100px;
+        height: 100px;
+    }
+
+    .perfil-nombre {
+        font-size: 22px;
+    }
+
+    .perfil-correo {
+        font-size: 14px;
+    }
+
+    .btn-editar,
+    .btn-primary,
+    .btn-secondary,
+    .btn-mensaje {
+        font-size: 14px;
+        padding: 10px 16px;
+    }
+
+    .seccion-perfil {
+        padding: 16px;
+    }
+
+    .seccion-perfil h3 {
+        font-size: 16px;
+    }
+
+    .info-item label {
+        font-size: 13px;
+    }
+
+    .info-item p {
+        font-size: 14px;
+    }
+
+    .tech-tag,
+    .language-tag {
+        font-size: 12px;
+        padding: 6px 12px;
     }
 }
 

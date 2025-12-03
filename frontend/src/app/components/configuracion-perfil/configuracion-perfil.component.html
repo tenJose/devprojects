@@ -1,5 +1,13 @@
 <div class="configuracion-container">
   
+  <button (click)="goBack()" class="btn-volver-mobile">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="19" y1="12" x2="5" y2="12"></line>
+      <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+    Volver
+  </button>
+
   <div *ngIf="!rolSeleccionado" class="seleccion-rol-container">
     <h1>¡Bienvenido a DevProjects!</h1>
     <p class="subtitulo">¿Cómo deseas usar la plataforma?</p>

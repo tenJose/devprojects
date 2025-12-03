@@ -57,24 +57,34 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
   console.log(`📡 API lista en http://localhost:${PORT}/api`);
-  // Periodic cleanup: delete projects where fechaLimite has passed
-  const cleanupExpired = async () => {
+  
+  // Marcar proyectos como expirados cuando pase la fechaLimite
+  const markExpiredProjects = async () => {
     try {
       const now = new Date();
-      const expired = await prisma.proyecto.findMany({ where: { fechaLimite: { lt: now }, estado: 'activo' } });
+      const expired = await prisma.proyecto.findMany({ 
+        where: { 
+          fechaLimite: { lt: now }, 
+          estado: 'activo' 
+        } 
+      });
+      
       if (expired && expired.length) {
         const ids = expired.map(p => p.id);
-        console.log(`🗑 Eliminando proyectos expirados: ${ids.join(', ')}`);
-        await prisma.proyecto.deleteMany({ where: { id: { in: ids } } });
+        console.log(`⏰ Marcando proyectos como expirados: ${ids.join(', ')}`);
+        await prisma.proyecto.updateMany({ 
+          where: { id: { in: ids } },
+          data: { estado: 'expirado' }
+        });
       }
     } catch (err) {
-      console.error('Error cleaning expired projects:', err);
+      console.error('Error marcando proyectos expirados:', err);
     }
   };
 
-  // Run once at startup, then every hour
-  cleanupExpired();
-  setInterval(cleanupExpired, 1000 * 60 * 60);
+  // Ejecutar al iniciar y luego cada hora
+  markExpiredProjects();
+  setInterval(markExpiredProjects, 1000 * 60 * 60);
 });
 
 export default app;

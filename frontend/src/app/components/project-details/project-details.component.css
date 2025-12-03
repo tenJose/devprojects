@@ -128,9 +128,109 @@
   gap: 2rem;
 }
 
+/* ==================== RESPONSIVE DESIGN ==================== */
+
+@media (max-width: 1024px) {
+  .details-container {
+    padding: 24px;
+  }
+
+  .details-grid {
+    gap: 20px;
+  }
+}
+
 @media (max-width: 768px) {
+  .details-container {
+    padding: 16px;
+  }
+
   .details-grid {
     grid-template-columns: 1fr;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .project-title {
+    font-size: 24px;
+  }
+
+  .budget-display {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 640px) {
+  .details-container {
+    padding: 12px;
+    margin-bottom: 70px;
+  }
+
+  .back-button {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  .project-title {
+    font-size: 20px;
+  }
+
+  .project-description {
+    font-size: 14px;
+  }
+
+  .card {
+    padding: 14px;
+  }
+
+  .card h3 {
+    font-size: 16px;
+  }
+
+  .info-item {
+    font-size: 14px;
+  }
+
+  .tech-tag {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .budget-display {
+    font-size: 24px;
+  }
+
+  .btn-apply,
+  .btn-back {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .project-title {
+    font-size: 18px;
+  }
+
+  .budget-display {
+    font-size: 22px;
+  }
+
+  .info-item {
+    font-size: 13px;
+  }
+
+  .tech-tag {
+    font-size: 11px;
+    padding: 5px 8px;
   }
 }
 

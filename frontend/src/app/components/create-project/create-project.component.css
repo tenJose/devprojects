@@ -393,7 +393,168 @@
   font-size: 0.95rem;
 }
 
+/* ==================== RESPONSIVE DESIGN ==================== */
+
+@media (max-width: 1024px) {
+  .main-content {
+    padding: 1.5rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
 @media (max-width: 900px) {
-  .main-content { padding: 1.25rem; }
-  .header-card { flex-direction: column; align-items: flex-start; }
+  .main-content { 
+    padding: 1.25rem; 
+  }
+  
+  .header-card { 
+    flex-direction: column; 
+    align-items: flex-start; 
+  }
+
+  .tech-pills {
+    gap: 8px;
+  }
+
+  .tech-pill {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 0;
+  }
+
+  .main-content {
+    padding: 1rem;
+    margin-bottom: 70px;
+  }
+
+  .header-card,
+  .card {
+    padding: 16px;
+  }
+
+  .header-card h1 {
+    font-size: 20px;
+  }
+
+  .header-card .hint {
+    font-size: 13px;
+  }
+
+  .mode-switch {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mode-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .form-group label {
+    font-size: 14px;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  select,
+  textarea {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+
+  .checkbox-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tech-input-group {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .tech-input-group button {
+    width: 100%;
+  }
+
+  .tech-pills {
+    gap: 6px;
+  }
+
+  .tech-pill {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .btn,
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .chat-container {
+    height: calc(100vh - 180px);
+  }
+
+  .chat-messages {
+    padding: 12px;
+  }
+
+  .message {
+    max-width: 90%;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .chat-input-container {
+    padding: 12px;
+  }
+
+  .chat-input {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 12px;
+  }
+
+  .header-card h1 {
+    font-size: 18px;
+  }
+
+  .form-group label {
+    font-size: 13px;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 13px;
+  }
+
+  .btn,
+  .btn-primary,
+  .btn-secondary {
+    font-size: 13px;
+    padding: 10px;
+  }
 }

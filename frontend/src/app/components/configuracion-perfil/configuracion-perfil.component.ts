@@ -41,6 +41,10 @@ export class ConfiguracionPerfilComponent implements OnInit {
     private router: Router
   ) {}
 
+  goBack() {
+    this.router.navigate(['/home']);
+  }
+
   ngOnInit(): void {
     const token = this.authService.obtenerToken();
     if (!token) {
