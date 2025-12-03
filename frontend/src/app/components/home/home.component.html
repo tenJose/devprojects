@@ -75,12 +75,12 @@
         <button class="tab-btn" [class.active]="activeTab === 'people'" (click)="switchTab('people')">Personas</button>
       </div>
       <div class="header-actions">
-        <button class="icon-btn notification-btn" (click)="toggleNotifications()" [class.has-notifications]="unreadNotificationsCount > 0">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#228be6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button class="icon-btn notification-btn" (click)="toggleNotifications()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
             <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
           </svg>
-          <span class="notification-badge" *ngIf="unreadNotificationsCount > 0">{{unreadNotificationsCount}}</span>
+          <span class="badge-dot" *ngIf="hasNewNotifications"></span>
         </button>
       </div>
     </header>
@@ -99,14 +99,6 @@
 
           <!-- Filters -->
           <div class="filter-group">
-            <h3>Tipo de Proyecto</h3>
-            <select class="filter-select" [(ngModel)]="selectedProjectType" (change)="performSearch()">
-              <option value="">Todos los tipos</option>
-              <option *ngFor="let type of projectTypes" [value]="type">{{type}}</option>
-            </select>
-          </div>
-
-          <div class="filter-group">
             <h3>Tecnologías</h3>
             <div class="checkbox-list">
               <label class="checkbox-item" *ngFor="let tech of techStacks">
@@ -117,21 +109,18 @@
           </div>
 
           <div class="filter-group">
-            <h3>Presupuesto Máximo</h3>
+            <h3>Tarifa por hora</h3>
             <div class="range-slider">
               <div class="range-labels">
                 <span>${{minBudget}}</span>
-                <span>${{maxBudget > 0 ? maxBudget : '∞'}}</span>
+                <span>${{maxBudget}}</span>
               </div>
-              <input type="range" min="0" max="10000" step="100" [(ngModel)]="maxBudget" (input)="performSearch()">
-              <div class="range-input">
-                <input type="number" min="0" max="100000" [(ngModel)]="maxBudget" (input)="performSearch()" placeholder="Máximo">
-              </div>
+              <input type="range" min="0" max="200" [(ngModel)]="maxBudget" (change)="performSearch()">
             </div>
           </div>
 
           <div class="filter-actions">
-            <button class="btn-clear" (click)="selectedStack={}; selectedProjectType=''; maxBudget=0; searchQuery=''; performSearch()">Limpiar</button>
+            <button class="btn-clear" (click)="selectedStack={}; searchQuery=''; performSearch()">Limpiar</button>
             <button class="btn-apply" (click)="performSearch()">Aplicar</button>
           </div>
         </div>
@@ -280,20 +269,6 @@
               </div>
             </div>
 
-            <!-- Notificaciones del sistema (postulaciones aceptadas, etc.) -->
-            <div *ngFor="let notif of notificaciones.sistema" class="notification-item sistema">
-              <div class="notif-icon success">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-              </div>
-              <div class="notif-info">
-                <span>{{notif.mensaje}}</span>
-                <span class="notif-time">{{notif.createdAt | date:'short'}}</span>
-              </div>
-              <button class="btn-dismiss" (click)="marcarNotificacionLeida(notif.id)" title="Marcar como leída">✕</button>
-            </div>
-
             <!-- Postulaciones a proyectos -->
             <div *ngFor="let post of notificaciones.postulaciones" 
                  class="notification-item postulacion"
@@ -316,7 +291,7 @@
               </div>
             </div>
 
-            <p *ngIf="todasNotificaciones.length === 0 && (!notificaciones.sistema || notificaciones.sistema.length === 0)" class="empty-state">
+            <p *ngIf="todasNotificaciones.length === 0" class="empty-state">
               No tienes notificaciones pendientes.
             </p>
           </div>

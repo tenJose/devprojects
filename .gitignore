@@ -4,3 +4,4 @@ devprojects/
 /frontend/node_modules
 backend/.env
 GOOGLE_AI_SETUP.md
+/backend/dev-back

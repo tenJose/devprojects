@@ -57,7 +57,7 @@ model Proyecto {
   duracionEstimada  String?   @db.VarChar(50) // "3 Months", "6 Weeks", etc.
   ubicacion         String?   @db.VarChar(100) // Remote, On-site, Hybrid
   fechaLimite       DateTime? // Application deadline
-  tamanoEquipo      String?   @db.VarChar(255) // e.g., "3-5 engineers"
+  tamanoEquipo      String?   @db.VarChar(100) // e.g., "3-5 engineers"
   adjuntos          String?   @db.Text // JSON array of file URLs
   datosAdicionales  String?   @db.Text
   estado            String    @default("activo") // activo, completado, cancelado, pausado

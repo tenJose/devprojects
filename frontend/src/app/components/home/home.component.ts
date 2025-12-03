@@ -1,4 +1,4 @@
-import { Component, type OnInit, OnDestroy } from "@angular/core"
+import { Component, type OnInit } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 import { Router } from "@angular/router"
@@ -16,7 +16,7 @@ import { FriendService } from '../../services/friend.service';
   templateUrl: "./home.component.html",
   styleUrls: ["./home.component.css"],
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit {
   activeTab: "projects" | "people" = "projects"
   projects: Project[] = []
   users: UserSearchResult[] = [] 
@@ -30,7 +30,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   selectedType = ""
   
   minBudget = 0
-  maxBudget = 10000 // Valor inicial: 10000 (sin límite efectivo)
+  maxBudget = 0
 
   currentPage = 1
   totalPages = 1
@@ -38,32 +38,19 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   techStacks = [
     "React", "Angular", "Vue", "Next.js", "Node.js", "Python",
-    "Java", "TypeScript", "JavaScript", "Docker", "AWS", "Figma",
-    "PostgreSQL", "MongoDB", "MySQL", "GraphQL", "REST API",
-    "Flutter", "React Native", "Swift", "Kotlin", "Firebase"
+    "Java", "Spring Boot", "Docker", "AWS", "TypeScript", "PostgreSQL", "MongoDB",
   ]
-
-  projectTypes = ["Frontend", "Backend", "Full Stack", "Mobile", "DevOps", "UI/UX", "Data Science"]
-  selectedProjectType = ""
 
   currentUser: any = null
   showLogoutModal = false
 
   showNotificationsModal = false;
   notificationTab: 'todas' | 'mensajes' = 'todas';
-  notificaciones: { amistades: any[], postulaciones: any[], sistema: any[] } = { amistades: [], postulaciones: [], sistema: [] };
+  notificaciones: { amistades: any[], postulaciones: any[] } = { amistades: [], postulaciones: [] };
   hasNewNotifications = false;
-  private notificationInterval: any;
 
   get todasNotificaciones() {
-    return [...this.notificaciones.amistades, ...this.notificaciones.postulaciones, ...this.notificaciones.sistema];
-  }
-
-  get unreadNotificationsCount(): number {
-    const amistadesNoLeidas = this.notificaciones.amistades.filter((a: any) => a.estado === 'pendiente').length;
-    const postulacionesNoLeidas = this.notificaciones.postulaciones.filter((p: any) => p.estado === 'pendiente').length;
-    const sistemaNoLeidas = this.notificaciones.sistema.length;
-    return amistadesNoLeidas + postulacionesNoLeidas + sistemaNoLeidas;
+    return [...this.notificaciones.amistades, ...this.notificaciones.postulaciones];
   }
 
   constructor(
@@ -80,17 +67,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loadUserProfile()
     this.performSearch()
     this.loadNotifications()
-    
-    // Actualizar notificaciones cada 10 segundos
-    this.notificationInterval = setInterval(() => {
-      this.loadNotifications();
-    }, 10000);
-  }
-
-  ngOnDestroy() {
-    if (this.notificationInterval) {
-      clearInterval(this.notificationInterval);
-    }
   }
 
   performSearch() {
@@ -100,9 +76,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       tecnologias: Object.keys(this.selectedStack)
         .filter((k) => this.selectedStack[k])
         .join(","),
-      tipoProyecto: this.selectedProjectType,
-      presupuestoMin: this.minBudget,
-      presupuestoMax: this.maxBudget > 0 ? this.maxBudget : undefined,
+      minBudget: this.minBudget,
+      maxBudget: this.maxBudget,
     }
 
     if (this.activeTab === "projects") {
@@ -267,35 +242,13 @@ editProject(projectId: number) {
 loadNotifications() {
     this.notificationService.getNotifications().subscribe({
       next: (res) => {
-        console.log('[Frontend] Notificaciones recibidas:', res);
-        if (res.success && res.data) {
-          // Asegurar que todos los arrays existan
-          this.notificaciones = {
-            amistades: res.data.amistades || [],
-            postulaciones: res.data.postulaciones || [],
-            sistema: res.data.sistema || []
-          };
-          console.log('[Frontend] Amistades:', this.notificaciones.amistades);
-          console.log('[Frontend] Postulaciones:', this.notificaciones.postulaciones);
-          console.log('[Frontend] Sistema:', this.notificaciones.sistema);
+        if (res.success) {
+          this.notificaciones = res.data;
           this.hasNewNotifications = 
             this.notificaciones.amistades.length > 0 || 
-            this.notificaciones.postulaciones.length > 0 ||
-            this.notificaciones.sistema.length > 0;
+            this.notificaciones.postulaciones.length > 0;
         }
-      },
-      error: (err) => {
-        console.error('[Frontend] Error cargando notificaciones:', err);
       }
-    });
-  }
-
-  marcarNotificacionLeida(notifId: number) {
-    this.notificationService.markAsRead(notifId).subscribe({
-      next: () => {
-        this.notificaciones.sistema = this.notificaciones.sistema.filter((n: any) => n.id !== notifId);
-      },
-      error: (err) => console.error('Error al marcar notificación:', err)
     });
   }
 

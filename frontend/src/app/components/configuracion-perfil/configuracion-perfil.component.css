@@ -4,42 +4,6 @@
   min-height: 100vh;
   background-color: #f5f5f5;
   padding: 40px 20px;
-  position: relative;
-}
-
-.btn-volver-mobile {
-  display: none;
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  background: #ffffff;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 10px 16px;
-  color: #228be6;
-  font-weight: 600;
-  cursor: pointer;
-  z-index: 100;
-  gap: 8px;
-  align-items: center;
-  transition: all 0.2s;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.btn-volver-mobile:hover {
-  background: #e7f5ff;
-  border-color: #228be6;
-}
-
-@media (max-width: 640px) {
-  .btn-volver-mobile {
-    display: flex;
-  }
-  
-  .configuracion-container {
-    padding-top: 80px;
-    padding-bottom: 100px;
-  }
 }
 
 .configuracion-header {
@@ -201,23 +165,6 @@
   justify-content: center;
 }
 
-/* ==================== RESPONSIVE DESIGN ==================== */
-
-@media (max-width: 1024px) {
-  .configuracion-contenedor {
-    max-width: 100%;
-    padding: 30px;
-  }
-
-  .tarjetas-rol {
-    gap: 1.5rem;
-  }
-
-  .tarjeta-rol {
-    width: 240px;
-  }
-}
-
 @media (max-width: 768px) {
   .configuracion-container {
     padding: 20px 0;
@@ -242,128 +189,6 @@
     width: 100px;
     height: 100px;
     font-size: 2.5rem;
-  }
-
-  .tarjetas-rol {
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-  }
-
-  .tarjeta-rol {
-    width: 100%;
-    max-width: 320px;
-  }
-}
-
-@media (max-width: 640px) {
-  .configuracion-container {
-    padding: 0;
-    margin-bottom: 70px;
-  }
-
-  .configuracion-contenedor {
-    padding: 16px;
-  }
-
-  .configuracion-header {
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-
-  .configuracion-header h1 {
-    font-size: 1.5rem;
-  }
-
-  .btn-volver {
-    align-self: flex-start;
-    font-size: 14px;
-  }
-
-  .seccion-foto {
-    padding: 16px;
-  }
-
-  .foto-preview,
-  .foto-default {
-    width: 90px;
-    height: 90px;
-  }
-
-  .seccion-formulario {
-    padding: 16px;
-  }
-
-  .form-group label {
-    font-size: 14px;
-  }
-
-  .form-input,
-  .form-textarea,
-  .form-select {
-    font-size: 14px;
-    padding: 10px 12px;
-  }
-
-  .tech-input {
-    font-size: 14px;
-  }
-
-  .tech-tags {
-    gap: 6px;
-  }
-
-  .tech-tag {
-    font-size: 12px;
-    padding: 6px 10px;
-  }
-
-  .configuracion-acciones {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .btn-guardar,
-  .btn-cancelar {
-    width: 100%;
-    padding: 12px;
-    font-size: 14px;
-  }
-
-  .seleccion-rol-container {
-    padding: 1.5rem 1rem;
-  }
-
-  .tarjeta-rol {
-    padding: 1.5rem;
-  }
-
-  .tarjeta-rol .icono {
-    font-size: 2.5rem;
-  }
-
-  .input-icon-group {
-    padding: 0 8px;
-  }
-}
-
-@media (max-width: 480px) {
-  .configuracion-header h1 {
-    font-size: 1.3rem;
-  }
-
-  .form-input,
-  .form-textarea,
-  .form-select,
-  .btn-guardar,
-  .btn-cancelar {
-    font-size: 13px;
-  }
-
-  .tech-tag {
-    font-size: 11px;
-    padding: 5px 8px;
   }
 }
 

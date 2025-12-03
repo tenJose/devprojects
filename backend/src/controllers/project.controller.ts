@@ -195,7 +195,7 @@ export const createProject = async (req: Request, res: Response) => {
         duracionEstimada: duracionEstimada || null,
         ubicacion: ubicacion || "Remote",
         fechaLimite: fechaLimite ? new Date(fechaLimite) : null,
-        tamanoEquipo: tamanoEquipo ? String(tamanoEquipo).substring(0, 255) : null,
+        tamanoEquipo: tamanoEquipo || null,
         adjuntos: adjuntos ? (Array.isArray(adjuntos) ? JSON.stringify(adjuntos) : adjuntos) : null,
         datosAdicionales: datosAdicionales || null,
         estado: "activo",

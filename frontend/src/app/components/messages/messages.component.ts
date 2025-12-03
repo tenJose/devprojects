@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from "@angular/core"
+import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 import { RouterLink, ActivatedRoute, Router } from "@angular/router"
@@ -13,7 +13,7 @@ import { UsuarioService } from "../../services/usuario.service"
   templateUrl: "./messages.component.html",
   styleUrls: ["./messages.component.css"],
 })
-export class MessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class MessagesComponent implements OnInit, AfterViewChecked {
   @ViewChild("scrollContainer") private scrollContainer!: ElementRef
 
   conversations: Conversation[] = []
@@ -25,7 +25,6 @@ export class MessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
   currentUserId: number | null = null
   loading = true
   targetUserId: number | null = null;
-  showConversations = window.innerWidth <= 640; // Mostrar lista en móvil, chat en desktop
   
   // Variables para la Sidebar
   currentUser: any = null;
@@ -33,10 +32,6 @@ export class MessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
   
   // Cambia esto si tu puerto de backend es diferente
   API_BASE_URL = 'http://localhost:3000';
-
-  // Polling para mensajes en tiempo real
-  private messagePollingInterval: any;
-  private conversationPollingInterval: any;
 
   constructor(
     private messageService: MessageService,
@@ -66,37 +61,6 @@ export class MessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     // 4. Verificar si hay una conversación nueva desde notificaciones
     this.checkNewConversation();
-
-    // 5. Iniciar polling para actualizaciones en tiempo real
-    this.startPolling();
-  }
-
-  ngOnDestroy() {
-    this.stopPolling();
-  }
-
-  startPolling() {
-    // Actualizar conversaciones cada 5 segundos
-    this.conversationPollingInterval = setInterval(() => {
-      this.loadConversations();
-    }, 5000);
-
-    // Actualizar mensajes de la conversación actual cada 3 segundos
-    this.messagePollingInterval = setInterval(() => {
-      if (this.currentConversation && this.currentConversation.conversacionId !== 'new') {
-        const proyectoId = this.extractProyectoId(this.currentConversation.conversacionId);
-        this.loadMessages(this.currentConversation.otherUser.id, proyectoId);
-      }
-    }, 3000);
-  }
-
-  stopPolling() {
-    if (this.conversationPollingInterval) {
-      clearInterval(this.conversationPollingInterval);
-    }
-    if (this.messagePollingInterval) {
-      clearInterval(this.messagePollingInterval);
-    }
   }
 
   checkNewConversation() {
@@ -175,14 +139,7 @@ export class MessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
             this.startNewConversation(this.targetUserId);
           }
         } else if (this.conversations.length > 0 && !this.currentConversation) {
-          // En desktop, seleccionar la primera conversación automáticamente
-          // En móvil, dejar que el usuario elija para mantener la lista visible
-          if (window.innerWidth > 640) {
-            this.selectConversation(this.conversations[0])
-          } else {
-            // En móvil, mantener la lista visible sin seleccionar nada
-            this.showConversations = true;
-          }
+          this.selectConversation(this.conversations[0])
         }
       },
       error: (err) => {
@@ -218,9 +175,6 @@ export class MessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   selectConversation(conversation: Conversation) {
     this.currentConversation = conversation
-      // En móvil, ocultar lista de conversaciones al seleccionar una
-      this.showConversations = false;
-    
     if (conversation.conversacionId !== 'new') {
         // Extract proyectoId from conversacionId if it exists
         const proyectoId = this.extractProyectoId(conversation.conversacionId);
@@ -326,12 +280,7 @@ export class MessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
     return `${this.API_BASE_URL}/uploads/${fileName}`;
   }
 
-  backToConversations() {
-    // Mostrar la lista de conversaciones
-    this.showConversations = true;
-    // No seleccionar ninguna conversación para que el usuario elija
-    // Esto evita que se vuelva a ocultar la lista automáticamente
-  }  navigateToProject(projectId: number) {
+  navigateToProject(projectId: number) {
     this.router.navigate(['/project', projectId]);
   }
 }

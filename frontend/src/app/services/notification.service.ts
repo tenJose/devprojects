@@ -29,9 +29,4 @@ export class NotificationService {
     // o usar update genérico. Asumiremos una ruta simple de update aquí.
     return this.http.put(`${this.apiUrl}/friends/respond`, { friendshipId, estado }, { headers: this.getHeaders() });
   }
-
-  // Marcar notificación del sistema como leída
-  markAsRead(notificationId: number): Observable<any> {
-    return this.http.put(`${this.apiUrl}/notifications/${notificationId}/read`, {}, { headers: this.getHeaders() });
-  }
 }

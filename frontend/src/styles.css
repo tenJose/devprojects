@@ -169,103 +169,13 @@ p { font-size: 1rem; line-height: 1.6; color: var(--color-text); }
   to { transform: rotate(360deg); }
 }
 
-/* ==================== RESPONSIVE GLOBAL ==================== */
-
-/* Tablets grandes (max-width: 1024px) */
-@media (max-width: 1024px) {
-  h1 { font-size: 2.2rem; }
-  h2 { font-size: 1.8rem; }
-  
-  .container {
-    padding: 0 20px;
-  }
-
-  .btn {
-    padding: 10px 20px;
-    font-size: 0.95rem;
-  }
-}
-
-/* Tablets (max-width: 768px) */
+/* Responsive */
 @media (max-width: 768px) {
   h1 { font-size: 2rem; }
   h2 { font-size: 1.5rem; }
   h3 { font-size: 1.25rem; }
-  h4 { font-size: 1.125rem; }
-  
-  p { font-size: 0.95rem; }
   
   .container {
     padding: 0 16px;
-  }
-
-  .btn {
-    padding: 10px 18px;
-    font-size: 0.9rem;
-  }
-}
-
-/* Móviles (max-width: 640px) */
-@media (max-width: 640px) {
-  html {
-    font-size: 14px;
-  }
-
-  h1 { font-size: 1.75rem; }
-  h2 { font-size: 1.35rem; }
-  h3 { font-size: 1.15rem; }
-  h4 { font-size: 1rem; }
-  
-  p { font-size: 0.9rem; line-height: 1.5; }
-  
-  .container {
-    padding: 0 12px;
-  }
-
-  .btn {
-    padding: 10px 16px;
-    font-size: 0.875rem;
-  }
-
-  /* Ajustes de espaciado para móvil */
-  body {
-    padding-bottom: 70px; /* Espacio para navegación inferior */
-  }
-}
-
-/* Móviles pequeños (max-width: 480px) */
-@media (max-width: 480px) {
-  html {
-    font-size: 13px;
-  }
-
-  h1 { font-size: 1.5rem; }
-  h2 { font-size: 1.25rem; }
-  h3 { font-size: 1.1rem; }
-  
-  .container {
-    padding: 0 10px;
-  }
-
-  .btn {
-    padding: 8px 14px;
-    font-size: 0.8rem;
-  }
-}
-
-/* Orientación landscape en móviles */
-@media (max-width: 900px) and (orientation: landscape) {
-  body {
-    padding-bottom: 60px;
-  }
-}
-
-/* Touch devices - Mejorar áreas táctiles */
-@media (hover: none) and (pointer: coarse) {
-  .btn,
-  button,
-  a {
-    min-height: 44px; /* Tamaño mínimo recomendado para elementos táctiles */
-    min-width: 44px;
   }
 }

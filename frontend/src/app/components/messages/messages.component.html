@@ -58,7 +58,7 @@
     </div>
   </aside>
 
-  <aside class="conversations-sidebar" [class.hide-chat]="!showConversations">
+  <aside class="conversations-sidebar">
     <div class="sidebar-header-chat">
       <h2>Mensajes</h2>
       <div class="search-box">
@@ -95,14 +95,9 @@
     </div>
   </aside>
 
-  <main class="chat-area" [class.hide-chat]="showConversations">
+  <main class="chat-area">
     <div *ngIf="currentConversation; else noSelection" class="chat-wrapper">
       <header class="chat-header">
-        <button class="back-button" (click)="backToConversations()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
-          </svg>
-        </button>
         <div class="user-details">
           <img [src]="getFullPhotoUrl(currentConversation.otherUser.fotoPerfil)" class="avatar-header">
           <div class="header-info">
