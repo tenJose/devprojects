@@ -30,7 +30,8 @@ model User {
   updatedAt         DateTime  @updatedAt
 
   // Relaciones
-  proyectos         Proyecto[]
+  proyectosCreados  Proyecto[] @relation(name: "proyectosCreados")
+  proyectosAsignados Proyecto[] @relation(name: "proyectosAsignados")
   postulaciones     Postulacion[]
   mensajesEnviados   Mensaje[] @relation(name: "mensajesEnviados")
   mensajesRecibidos  Mensaje[] @relation(name: "mensajesRecibidos")
@@ -39,6 +40,8 @@ model User {
   notificaciones Notificacion[]
   amistadesIniciadas Amistad[] @relation("solicitante")
   amistadesRecibidas Amistad[] @relation("receptor")
+  calificacionesRecibidas ProyectoCalificacion[] @relation("calificado")
+  calificacionesHechas ProyectoCalificacion[] @relation("calificador")
 
 
   @@map("usuarios")
@@ -57,19 +60,24 @@ model Proyecto {
   duracionEstimada  String?   @db.VarChar(50) // "3 Months", "6 Weeks", etc.
   ubicacion         String?   @db.VarChar(100) // Remote, On-site, Hybrid
   fechaLimite       DateTime? // Application deadline
-  tamanoEquipo      String?   @db.VarChar(100) // e.g., "3-5 engineers"
+  tamanoEquipo      String?   @db.VarChar(255) // e.g., "3-5 engineers"
   adjuntos          String?   @db.Text // JSON array of file URLs
   datosAdicionales  String?   @db.Text
   estado            String    @default("activo") // activo, completado, cancelado, pausado
   destacado         Boolean   @default(false) // ✅ NUEVO: Para proyectos destacados
   usuarioCreadorId  Int
+  usuarioAsignadoId Int?      // ✅ NUEVO: Ingeniero que realiza el proyecto
+  estadoFinalizacion String?  @default("pendiente") // pendiente, finalizado_por_creador, finalizado_por_asignado, finalizado, rechazado
+  fechaFinalizacion DateTime? // ✅ NUEVO: Fecha de finalización
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
   // Relaciones
-  usuarioCreador    User      @relation(fields: [usuarioCreadorId], references: [id], onDelete: Cascade)
+  usuarioCreador    User      @relation(fields: [usuarioCreadorId], references: [id], onDelete: Cascade, name: "proyectosCreados")
+  usuarioAsignado   User?     @relation(fields: [usuarioAsignadoId], references: [id], onDelete: SetNull, name: "proyectosAsignados")
   postulaciones     Postulacion[]
   mensajes          Mensaje[]
+  calificaciones    ProyectoCalificacion[]
 
   @@map("proyectos")
   @@index([estado, destacado]) // ✅ NUEVO: Índice para búsquedas optimizadas
@@ -149,4 +157,23 @@ model Notificacion {
   usuario     User     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
   @@map("notificaciones")
+}
+
+// ✅ NUEVO: Modelo de Calificación de Proyectos
+model ProyectoCalificacion {
+  id              Int      @id @default(autoincrement())
+  proyectoId      Int
+  calificadorId   Int      // Usuario que califica (creador del proyecto)
+  calificadoId    Int      // Usuario calificado (ingeniero)
+  puntuacion      Int      // 1-5 estrellas
+  comentario      String?  @db.Text
+  createdAt       DateTime @default(now())
+
+  // Relaciones
+  proyecto        Proyecto @relation(fields: [proyectoId], references: [id], onDelete: Cascade)
+  calificador     User     @relation("calificador", fields: [calificadorId], references: [id], onDelete: Cascade)
+  calificado      User     @relation("calificado", fields: [calificadoId], references: [id], onDelete: Cascade)
+
+  @@unique([proyectoId, calificadorId]) // Un usuario solo puede calificar una vez por proyecto
+  @@map("proyecto_calificaciones")
 }

@@ -23,7 +23,9 @@ export class HomeComponent implements OnInit {
   loading = true
   error = ""
   
-  private readonly API_BASE_URL = 'http://localhost:3000';
+  private readonly API_BASE_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3000' 
+    : 'https://devback.mnz.dom.my.id';
   
   searchQuery = ""
   selectedStack: { [key: string]: boolean } = {}
@@ -46,11 +48,11 @@ export class HomeComponent implements OnInit {
 
   showNotificationsModal = false;
   notificationTab: 'todas' | 'mensajes' = 'todas';
-  notificaciones: { amistades: any[], postulaciones: any[] } = { amistades: [], postulaciones: [] };
+  notificaciones: { amistades: any[], postulaciones: any[], finalizaciones: any[] } = { amistades: [], postulaciones: [], finalizaciones: [] };
   hasNewNotifications = false;
 
   get todasNotificaciones() {
-    return [...this.notificaciones.amistades, ...this.notificaciones.postulaciones];
+    return [...this.notificaciones.amistades, ...this.notificaciones.postulaciones, ...this.notificaciones.finalizaciones];
   }
 
   constructor(
@@ -244,9 +246,14 @@ loadNotifications() {
       next: (res) => {
         if (res.success) {
           this.notificaciones = res.data;
+          // Asegurar que finalizaciones exista
+          if (!this.notificaciones.finalizaciones) {
+            this.notificaciones.finalizaciones = [];
+          }
           this.hasNewNotifications = 
             this.notificaciones.amistades.length > 0 || 
-            this.notificaciones.postulaciones.length > 0;
+            this.notificaciones.postulaciones.length > 0 ||
+            this.notificaciones.finalizaciones.length > 0;
         }
       }
     });

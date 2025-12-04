@@ -14,14 +14,18 @@
     <div class="header-content">
       <div class="title-row">
         <h1>{{ project.nombre || project.titulo }}</h1>
-        <span class="badge status-{{ project.estado }}">{{ project.estado | titlecase }}</span>
-        <span *ngIf="project.destacado" class="badge badge-featured">Destacado</span>
+        <span class="badge" [ngClass]="getStatusBadgeClass()">{{ getStatusText() }}</span>
+        <span *ngIf="project.destacado" class="badge badge-featured">⭐ Destacado</span>
       </div>
       
       <div class="meta-row">
         <span class="date">Publicado: {{ project.createdAt | date:'mediumDate' }}</span>
         <span class="separator">•</span>
         <span class="type">{{ project.tipoProyecto || 'General' }}</span>
+        <span *ngIf="isFinalized() && completionStatus?.fechaFinalizacion" class="separator">•</span>
+        <span *ngIf="isFinalized() && completionStatus?.fechaFinalizacion" class="finalized-date">
+          Finalizado: {{ completionStatus.fechaFinalizacion | date:'mediumDate' }}
+        </span>
       </div>
     </div>
 
@@ -41,6 +45,18 @@
       <section class="card">
         <h3>Descripción</h3>
         <p class="description">{{ project.descripcion }}</p>
+      </section>
+
+      <!-- ✅ NUEVO: Sección de ingeniero asignado -->
+      <section class="card assigned-engineer" *ngIf="isFinalized() && assignedUser">
+        <h3>✅ Proyecto Realizado Por</h3>
+        <div class="engineer-info" (click)="navigateToProfile(assignedUser.id)" style="cursor: pointer;">
+          <img [src]="getFullPhotoUrl(assignedUser.fotoPerfil)" alt="Ingeniero" class="engineer-avatar">
+          <div class="engineer-details">
+            <h4>{{ assignedUser.nombre }} {{ assignedUser.apellido }}</h4>
+            <p class="engineer-role">Ingeniero Asignado</p>
+          </div>
+        </div>
       </section>
 
       <section class="card">

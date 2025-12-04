@@ -9,6 +9,7 @@ import friendRoutes from './routes/friend.routes'; // 👈 AGREGAR ESTO
 import aiRoutes from './routes/ai.routes';
 import notificationRoutes from './routes/notification.routes'
 import postulacionRoutes from './routes/postulacion.routes';
+import ratingRoutes from './routes/rating.routes'; // ✅ NUEVO
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -16,19 +17,41 @@ const prisma = new PrismaClient();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// Lista de orígenes permitidos (añade tu dominio de producción)
+const allowedOrigins = [
+  'http://localhost:4200',
+  'http://localhost:62884',
+  'https://devproject.mnz.dom.my.id',
+  process.env.FRONTEND_URL // Permitir URL desde .env
+].filter(Boolean); // Eliminar valores undefined
+
+// Middleware CORS dinámico
 app.use(cors({
-  origin: 'http://localhost:4200',
+  origin: (origin, callback) => {
+    // Permitir requests sin origin (como Postman, curl, mobile apps)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`⚠️ CORS bloqueó origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
+// Servir archivos estáticos con CORS
 app.use('/uploads', express.static('uploads', {
-  setHeaders: (res) => {
-    res.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+  setHeaders: (res, path, stat) => {
+    const origin = res.req.headers.origin;
+    if (origin && allowedOrigins.includes(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+    }
   }
 }));
 
@@ -46,6 +69,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/friends', friendRoutes); // 👈 AGREGAR ESTO IMPORTANTE
 app.use('/api/notifications', notificationRoutes); // 👈 REGISTRAR
 app.use('/api/postulaciones', postulacionRoutes);
+app.use('/api/ratings', ratingRoutes); // ✅ NUEVO
 app.use('/api/ai', aiRoutes);
 
 // Ruta de prueba

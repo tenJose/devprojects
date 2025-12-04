@@ -69,6 +69,10 @@ export class CreateProjectComponent implements OnInit { // 3. Implementar OnInit
   availableTechs = ["React", "Angular", "Vue", "Node.js", "Python", "Java", "AWS", "Docker", "Figma", "TypeScript"];
   projectTypes = ["Frontend", "Backend", "Full Stack", "Mobile", "DevOps", "UI/UX", "Data Science"];
 
+  private readonly API_BASE_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3000' 
+    : 'https://devback.mnz.dom.my.id';
+
   constructor(
     private projectService: ProjectService,
     private router: Router,
@@ -454,8 +458,8 @@ export class CreateProjectComponent implements OnInit { // 3. Implementar OnInit
 
   getFullPhotoUrl(fileName: string | null | undefined): string {
     if (!fileName) return 'assets/default-avatar.png';
-    if (fileName.startsWith('/uploads')) return `http://localhost:3000${fileName}`;
-    return `http://localhost:3000/uploads/${fileName}`;
+    if (fileName.startsWith('/uploads')) return `${this.API_BASE_URL}${fileName}`;
+    return `${this.API_BASE_URL}/uploads/${fileName}`;
   }
 
   isImage(file: string | undefined): boolean {

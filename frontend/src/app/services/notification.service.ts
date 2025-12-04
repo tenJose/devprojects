@@ -7,7 +7,9 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class NotificationService {
-  private apiUrl = 'http://localhost:3000/api';
+  private apiUrl = (typeof window !== 'undefined' && window.location.hostname === 'localhost') 
+    ? 'http://localhost:3000/api'
+    : 'https://devback.mnz.dom.my.id/api';
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 

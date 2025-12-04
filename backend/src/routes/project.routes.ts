@@ -4,9 +4,12 @@ import {
   getProjectById, 
   createProject, 
   updateProject, 
-  deleteProject 
+  deleteProject,
+  uploadProjectFiles,
+  requestProjectCompletion,
+  confirmProjectCompletion,
+  getCompletionStatus
 } from '../controllers/project.controller';
-import { uploadProjectFiles } from '../controllers/project.controller';
 import { upload } from '../middleware/upload.middleware';
 import { autenticar } from '../middleware/auth.middleware';
 
@@ -24,5 +27,10 @@ router.delete('/:id', autenticar, deleteProject);
 
 // Upload attachments for a project (multiple images)
 router.post('/:id/upload', autenticar, upload.array('files', 10), uploadProjectFiles);
+
+// ✅ NUEVAS RUTAS: Finalización de proyectos
+router.post('/:id/request-completion', autenticar, requestProjectCompletion);
+router.post('/:id/confirm-completion', autenticar, confirmProjectCompletion);
+router.get('/:id/completion-status', autenticar, getCompletionStatus);
 
 export default router;

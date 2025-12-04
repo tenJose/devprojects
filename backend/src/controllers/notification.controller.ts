@@ -48,11 +48,22 @@ export const obtenerNotificaciones = async (req: UsuarioRequest, res: Response):
       }
     }));
 
+    // 3. Buscar notificaciones de finalización de proyectos
+    const notificacionesFinalizacion = await prisma.notificacion.findMany({
+      where: {
+        usuarioId: userId,
+        tipo: { in: ['solicitud_finalizacion', 'respuesta_finalizacion', 'solicitud_calificacion'] },
+        leido: false
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
     res.json({
       success: true,
       data: {
         amistades: solicitudesAmistad,
-        postulaciones: postulacionesFormateadas
+        postulaciones: postulacionesFormateadas,
+        finalizaciones: notificacionesFinalizacion
       }
     });
 

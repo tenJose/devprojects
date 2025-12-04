@@ -40,6 +40,9 @@ export const getConversations = async (req: UsuarioRequest, res: Response) => {
           select: {
             id: true,
             nombre: true,
+            usuarioCreadorId: true,
+            usuarioAsignadoId: true,
+            estadoFinalizacion: true,
           },
         },
       },

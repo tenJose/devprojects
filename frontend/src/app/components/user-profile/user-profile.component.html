@@ -33,6 +33,10 @@
         <button *ngIf="areFriends" (click)="enviarMensaje(user.id)" class="btn-mensaje">
           💬 Enviar mensaje
         </button>
+        <!-- ✅ NUEVO: Botón para calificar si hay proyectos finalizados sin calificar -->
+        <button *ngIf="puedeCalificar" (click)="abrirModalCalificar()" class="btn-calificar">
+          ⭐ Calificar Trabajo
+        </button>
       </div>
     </div>
   </div>
@@ -86,7 +90,104 @@
     </div>
   </div>
 
+  <!-- ✅ NUEVA SECCIÓN: Proyectos en curso -->
+  <div class="perfil-section">
+    <h2 class="section-title">⚙️ Proyectos en Curso</h2>
+    <div class="projects-grid" *ngIf="!loadingProjects && proyectosActivos.length > 0">
+      <div class="project-card-mini" *ngFor="let proyecto of proyectosActivos" [routerLink]="['/project-details', proyecto.id]">
+        <h4>{{ proyecto.nombre }}</h4>
+        <p class="project-desc">{{ proyecto.descripcion }}</p>
+        <div class="project-footer">
+          <span class="badge badge-active">En Progreso</span>
+          <span class="project-client">Cliente: {{ proyecto.usuarioCreador?.nombre }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="!loadingProjects && proyectosActivos.length === 0">
+      <p>📂 No hay proyectos en curso actualmente</p>
+    </div>
+    <div class="loading-state" *ngIf="loadingProjects">
+      <p>⏳ Cargando proyectos...</p>
+    </div>
+  </div>
+
+  <!-- ✅ NUEVA SECCIÓN: Proyectos completados -->
+  <div class="perfil-section">
+    <h2 class="section-title">✅ Proyectos Completados</h2>
+    <div class="projects-grid" *ngIf="!loadingProjects && proyectosCompletados.length > 0">
+      <div class="project-card-mini" *ngFor="let proyecto of proyectosCompletados" [routerLink]="['/project-details', proyecto.id]">
+        <h4>{{ proyecto.nombre }}</h4>
+        <p class="project-desc">{{ proyecto.descripcion }}</p>
+        <div class="project-footer">
+          <span class="badge badge-finalized">✓ Finalizado</span>
+          <span class="project-date" *ngIf="proyecto.fechaFinalizacion">
+            📅 {{ proyecto.fechaFinalizacion | date:'shortDate' }}
+          </span>
+        </div>
+        <span class="project-client">Cliente: {{ proyecto.usuarioCreador?.nombre }}</span>
+        <div class="project-rating" *ngIf="proyecto.calificaciones && proyecto.calificaciones.length > 0">
+          <span class="rating-stars">★ {{ proyecto.calificaciones[0].puntuacion }}/5</span>
+        </div>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="!loadingProjects && proyectosCompletados.length === 0">
+      <p>📋 No hay proyectos completados aún</p>
+    </div>
+    <div class="loading-state" *ngIf="loadingProjects">
+      <p>⏳ Cargando proyectos...</p>
+    </div>
+  </div>
+
+  <!-- ✅ NUEVA SECCIÓN: Calificaciones recibidas -->
+  <div class="perfil-section">
+    <h2 class="section-title">⭐ Calificaciones Recibidas</h2>
+    <div *ngIf="!loadingRatings && calificaciones.length > 0">
+      <div class="rating-summary">
+        <div class="promedio-container">
+          <span class="promedio-number">{{ promedioCalificaciones.toFixed(1) }}</span>
+          <div class="stars-large">
+            <span *ngFor="let filled of getStarArray(promedioCalificaciones)" 
+                  [class.filled]="filled">★</span>
+          </div>
+          <span class="total-ratings">({{ totalCalificaciones }} calificaciones)</span>
+        </div>
+      </div>
+
+      <div class="ratings-list">
+        <div class="rating-card" *ngFor="let rating of calificaciones">
+          <div class="rating-header">
+            <div class="rating-user">
+              <img [src]="getFullPhotoUrl(rating.calificador.fotoPerfil || '')" class="avatar-small">
+              <span class="username">{{ rating.calificador.nombre }}</span>
+            </div>
+            <div class="stars-small">
+              <span *ngFor="let filled of getStarArray(rating.puntuacion)" 
+                    [class.filled]="filled">★</span>
+            </div>
+          </div>
+          <p class="rating-comment" *ngIf="rating.comentario">{{ rating.comentario }}</p>
+          <span class="rating-date">{{ rating.createdAt | date:'shortDate' }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="!loadingRatings && calificaciones.length === 0">
+      <p>⭐ No hay calificaciones aún</p>
+    </div>
+    <div class="loading-state" *ngIf="loadingRatings">
+      <p>⏳ Cargando calificaciones...</p>
+    </div>
+  </div>
+
 </div>
+
+<!-- ✅ NUEVO: Modal de calificación -->
+<app-rating-modal
+  *ngIf="showRatingModal && proyectoACalificar"
+  [engineerName]="user?.nombre"
+  [loading]="ratingLoading"
+  (submit)="enviarCalificacion($event)"
+  (cancel)="cancelarCalificacion()">
+</app-rating-modal>
 
 <ng-template #loading>
   <div class="loading-container">

@@ -7,7 +7,9 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class PostulacionService {
-  private API_BASE_URL = 'http://localhost:3000/api'; // Ajustado para incluir /api si es necesario
+  private API_BASE_URL = (typeof window !== 'undefined' && window.location.hostname === 'localhost') 
+    ? 'http://localhost:3000/api'
+    : 'https://devback.mnz.dom.my.id/api';
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 

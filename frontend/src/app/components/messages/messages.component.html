@@ -108,6 +108,15 @@
             </span>
           </div>
         </div>
+        <!-- ✅ NUEVO: Botón dinámico para finalizar proyecto -->
+        <button 
+          *ngIf="canFinishProject()" 
+          class="btn-finish-project"
+          [disabled]="getFinishButtonState().disabled"
+          [style]="getFinishButtonState().style"
+          (click)="openCompletionModal()">
+          {{ getFinishButtonState().text }}
+        </button>
       </header>
 
       <div class="messages-list" #scrollContainer>
@@ -154,3 +163,22 @@
     </div>
   </div>
 </div>
+
+<!-- ✅ NUEVO: Modales de finalización y calificación -->
+<app-project-completion-modal
+  *ngIf="showCompletionModal"
+  [isConfirming]="isConfirmingCompletion"
+  [requesterName]="requesterName"
+  [loading]="completionLoading"
+  (confirm)="handleCompletionConfirm()"
+  (reject)="handleCompletionReject()"
+  (cancel)="handleCompletionCancel()">
+</app-project-completion-modal>
+
+<app-rating-modal
+  *ngIf="showRatingModal && currentConversation"
+  [engineerName]="currentConversation.otherUser.nombre"
+  [loading]="completionLoading"
+  (submit)="handleRatingSubmit($event)"
+  (cancel)="handleRatingCancel()">
+</app-rating-modal>

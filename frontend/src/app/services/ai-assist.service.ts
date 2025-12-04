@@ -6,7 +6,9 @@ import { catchError, map } from 'rxjs/operators';
 @Injectable({ providedIn: 'root' })
 export class AiAssistService {
   // Use explicit backend URL in development to avoid depending on angular proxy configuration
-  private baseUrl = 'http://localhost:3000/api/ai';
+  private baseUrl = (typeof window !== 'undefined' && window.location.hostname === 'localhost') 
+    ? 'http://localhost:3000/api/ai'
+    : 'https://devback.mnz.dom.my.id/api/ai';
   private apiUrl = `${this.baseUrl}/generate`;
 
   constructor(private http: HttpClient) {}

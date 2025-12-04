@@ -25,6 +25,9 @@ export interface Project {
   createdAt: string | Date;
   updatedAt?: string | Date;
   usuarioCreadorId: number;
+  usuarioAsignadoId?: number | null;
+  estadoFinalizacion?: string | null;
+  fechaFinalizacion?: string | Date | null;
   usuarioCreador?: {
     id: number;
     nombre: string;
@@ -43,7 +46,9 @@ export interface Project {
   providedIn: "root",
 })
 export class ProjectService {
-  private apiUrl = "http://localhost:3000/api/projects";
+  private apiUrl = (typeof window !== 'undefined' && window.location.hostname === 'localhost') 
+    ? 'http://localhost:3000/api/projects'
+    : 'https://devback.mnz.dom.my.id/api/projects';
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 

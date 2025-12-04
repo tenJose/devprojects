@@ -4,11 +4,13 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router'; // ✅ Rou
 import { UsuarioService } from '../../services/usuario.service';
 import { AuthService } from '../../services/auth.service';
 import { FriendService } from '../../services/friend.service';
+import { RatingService, Rating } from '../../services/rating.service';
+import { RatingModalComponent } from '../rating-modal/rating-modal.component';
 
 @Component({
   selector: 'app-user-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink], // ✅ Agregado RouterLink
+  imports: [CommonModule, RouterLink, RatingModalComponent], // ✅ Agregado RatingModalComponent
   templateUrl: './user-profile.component.html',
   styleUrls: ['./user-profile.component.css']
 })
@@ -26,11 +28,28 @@ export class UserProfileComponent implements OnInit {
   areFriends: boolean = false;
   solicitudEnviada: boolean = false;
 
+  // ✅ NUEVO: Proyectos y calificaciones
+  proyectosActivos: any[] = [];
+  proyectosCompletados: any[] = [];
+  calificaciones: Rating[] = [];
+  promedioCalificaciones: number = 0;
+  totalCalificaciones: number = 0;
+  loadingProjects: boolean = false;
+  loadingRatings: boolean = false;
+
+  // ✅ NUEVO: Proyectos para calificar
+  proyectosParaCalificar: any[] = [];
+  puedeCalificar: boolean = false;
+  showRatingModal: boolean = false;
+  proyectoACalificar: any = null;
+  ratingLoading: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private usuarioService: UsuarioService,
     private authService: AuthService,
     private friendService: FriendService,
+    private ratingService: RatingService,
     private router: Router
   ) {}
 
@@ -47,6 +66,13 @@ export class UserProfileComponent implements OnInit {
       const id = +params['id'];
       if (id) {
         this.cargarUsuario(id);
+        this.cargarProyectos(id);
+        this.cargarCalificaciones(id);
+        
+        // Verificar si puedo calificar a este usuario
+        if (this.currentUserId && this.currentUserId !== id) {
+          this.verificarProyectosParaCalificar(id);
+        }
       }
     });
   }
@@ -137,6 +163,107 @@ getFullPhotoUrl(fileName: string): string {
     this.router.navigate(['/home']);
   }
 
+  // ✅ NUEVO: Cargar proyectos activos y completados
+  cargarProyectos(userId: number) {
+    this.loadingProjects = true;
+    
+    this.ratingService.getActiveProjects(userId).subscribe({
+      next: (res) => {
+        this.proyectosActivos = res.data || [];
+      },
+      error: (err) => console.error('Error cargando proyectos activos', err)
+    });
 
-  
+    this.ratingService.getCompletedProjects(userId).subscribe({
+      next: (res) => {
+        this.proyectosCompletados = res.data || [];
+        this.loadingProjects = false;
+      },
+      error: (err) => {
+        console.error('Error cargando proyectos completados', err);
+        this.loadingProjects = false;
+      }
+    });
+  }
+
+  // ✅ NUEVO: Cargar calificaciones recibidas
+  cargarCalificaciones(userId: number) {
+    this.loadingRatings = true;
+    this.ratingService.getUserRatings(userId).subscribe({
+      next: (res) => {
+        this.calificaciones = res.data.calificaciones || [];
+        this.promedioCalificaciones = res.data.promedio || 0;
+        this.totalCalificaciones = res.data.totalCalificaciones || 0;
+        this.loadingRatings = false;
+      },
+      error: (err) => {
+        console.error('Error cargando calificaciones', err);
+        this.loadingRatings = false;
+      }
+    });
+  }
+
+  // ✅ NUEVO: Generar array de estrellas (1-5)
+  getStarArray(rating: number): boolean[] {
+    return Array(5).fill(false).map((_, i) => i < Math.round(rating));
+  }
+
+  // ✅ NUEVO: Verificar si tengo proyectos finalizados con este usuario para calificar
+  verificarProyectosParaCalificar(engineerId: number) {
+    if (!this.currentUserId) return;
+
+    this.ratingService.getProjectsToRate(this.currentUserId, engineerId).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.proyectosParaCalificar = res.data.proyectos.filter((p: any) => !p.yaCalificado);
+          this.puedeCalificar = this.proyectosParaCalificar.length > 0;
+        }
+      },
+      error: (err) => console.error('Error verificando proyectos para calificar', err)
+    });
+  }
+
+  // ✅ NUEVO: Abrir modal de calificación con el primer proyecto sin calificar
+  abrirModalCalificar() {
+    if (this.proyectosParaCalificar.length > 0) {
+      this.proyectoACalificar = this.proyectosParaCalificar[0];
+      this.showRatingModal = true;
+    }
+  }
+
+  // ✅ NUEVO: Enviar calificación
+  enviarCalificacion(data: { rating: number; comentario: string }) {
+    if (!this.proyectoACalificar || !this.currentUserId) return;
+
+    this.ratingLoading = true;
+    this.ratingService.rateProject(
+      this.proyectoACalificar.id,
+      this.currentUserId,
+      data.rating,
+      data.comentario
+    ).subscribe({
+      next: () => {
+        this.ratingLoading = false;
+        this.showRatingModal = false;
+        alert('Calificación enviada exitosamente');
+        
+        // Recargar datos
+        if (this.user) {
+          this.cargarCalificaciones(this.user.id);
+          this.verificarProyectosParaCalificar(this.user.id);
+        }
+      },
+      error: (err) => {
+        this.ratingLoading = false;
+        console.error('Error enviando calificación', err);
+        alert(err.error?.error || 'Error al enviar calificación');
+      }
+    });
+  }
+
+  // ✅ NUEVO: Cancelar modal de calificación
+  cancelarCalificacion() {
+    this.showRatingModal = false;
+    this.proyectoACalificar = null;
+  }
 }

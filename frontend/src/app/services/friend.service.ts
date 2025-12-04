@@ -7,7 +7,9 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class FriendService {
-  private apiUrl = 'http://localhost:3000/api/friends';
+  private apiUrl = (typeof window !== 'undefined' && window.location.hostname === 'localhost') 
+    ? 'http://localhost:3000/api/friends'
+    : 'https://devback.mnz.dom.my.id/api/friends';
 
   constructor(
     private http: HttpClient,

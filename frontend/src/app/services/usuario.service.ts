@@ -36,7 +36,9 @@ export interface UserSearchResult {
   providedIn: "root",
 })
 export class UsuarioService {
-  private API_URL = "http://localhost:3000/api/users"
+  private API_URL = (typeof window !== 'undefined' && window.location.hostname === 'localhost') 
+    ? 'http://localhost:3000/api/users'
+    : 'https://devback.mnz.dom.my.id/api/users';
 
   constructor(
     private http: HttpClient,

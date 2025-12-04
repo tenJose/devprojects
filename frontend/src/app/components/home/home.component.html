@@ -75,12 +75,14 @@
         <button class="tab-btn" [class.active]="activeTab === 'people'" (click)="switchTab('people')">Personas</button>
       </div>
       <div class="header-actions">
-        <button class="icon-btn notification-btn" (click)="toggleNotifications()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button class="icon-btn notification-btn" (click)="toggleNotifications()" [class.has-notifications]="hasNewNotifications">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
             <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
           </svg>
-          <span class="badge-dot" *ngIf="hasNewNotifications"></span>
+          <span class="badge-count" *ngIf="hasNewNotifications && todasNotificaciones.length > 0">
+            {{todasNotificaciones.length}}
+          </span>
         </button>
       </div>
     </header>
@@ -147,6 +149,9 @@
       <div class="header-top">
         <span class="budget-badge" *ngIf="project.presupuesto">${{ project.presupuesto }}</span>
         <span class="date-badge">{{ project.createdAt | date:'shortDate' }}</span>
+        <span class="status-badge badge-finalized" *ngIf="project.estadoFinalizacion === 'finalizado'">
+          ✅ Finalizado
+        </span>
       </div>
       <h2 class="card-title">{{ project.titulo }}</h2>
     </div>
@@ -257,11 +262,19 @@
           <div class="notification-list">
             <!-- Solicitudes de amistad -->
             <div *ngFor="let req of notificaciones.amistades" class="notification-item amistad">
+              <div class="notif-icon amistad-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="8.5" cy="7" r="4"></circle>
+                  <line x1="18" y1="8" x2="23" y2="13"></line>
+                  <line x1="23" y1="8" x2="18" y2="13"></line>
+                </svg>
+              </div>
               <img [src]="getFullPhotoUrl(req.solicitante.fotoPerfil)" class="avatar-small">
               <div class="notif-info">
                 <strong>{{req.solicitante.nombre}} {{req.solicitante.apellido}}</strong>
                 <span>quiere conectar contigo.</span>
-                <span class="notif-time">Solicitud de amistad</span>
+                <span class="notif-time">👥 Solicitud de amistad</span>
               </div>
               <div class="notif-actions">
                 <button class="btn-accept" (click)="responderAmistad(req, true)" title="Aceptar">✓</button>
@@ -273,11 +286,18 @@
             <div *ngFor="let post of notificaciones.postulaciones" 
                  class="notification-item postulacion"
                  [class.disabled]="post.estado !== 'pendiente'">
+              <div class="notif-icon postulacion-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="8.5" cy="7" r="4"></circle>
+                  <polyline points="17 11 19 13 23 9"></polyline>
+                </svg>
+              </div>
               <img [src]="getFullPhotoUrl(post.usuario.fotoPerfil)" class="avatar-small">
               <div class="notif-info">
                 <strong>{{post.usuario.nombre}} {{post.usuario.apellido}}</strong>
                 <span>se postuló a: <strong>{{post.proyecto.titulo}}</strong></span>
-                <span class="notif-time" *ngIf="post.estado === 'pendiente'">Postulación a proyecto</span>
+                <span class="notif-time" *ngIf="post.estado === 'pendiente'">📝 Postulación a proyecto</span>
                 <span class="notif-time notif-accepted" *ngIf="post.estado === 'aceptado'">✓ Aceptada</span>
                 <span class="notif-time notif-rejected" *ngIf="post.estado === 'rechazado'">✕ Rechazada</span>
               </div>
@@ -291,9 +311,34 @@
               </div>
             </div>
 
-            <p *ngIf="todasNotificaciones.length === 0" class="empty-state">
-              No tienes notificaciones pendientes.
-            </p>
+            <!-- Notificaciones de finalización de proyectos -->
+            <div *ngFor="let fin of notificaciones.finalizaciones" 
+                 class="notification-item finalizacion">
+              <div class="notif-icon finalizacion-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+              </div>
+              <div class="notif-info">
+                <strong>Solicitud de Finalización</strong>
+                <span>{{fin.mensaje}}</span>
+                <span class="notif-time">🎯 Finalización de proyecto</span>
+              </div>
+              <div class="notif-actions">
+                <button class="btn-view" (click)="navigateToMessages()" title="Ver en Mensajes">
+                  💬 Ver
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="todasNotificaciones.length === 0" class="empty-state">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
+              <p>No tienes notificaciones pendientes</p>
+            </div>
           </div>
         </div>
   

@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectService, Project } from '../../services/project.service';
 import { AuthService } from '../../services/auth.service';
 import { PostulacionService } from '../../services/postulacion.service';
+import { RatingService } from '../../services/rating.service';
 
 @Component({
   selector: 'app-project-details',
@@ -19,13 +20,16 @@ export class ProjectDetailsComponent implements OnInit {
   error = '';
   isApplied = false;
   currentUser: any = null;
+  completionStatus: any = null;
+  assignedUser: any = null;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private projectService: ProjectService,
     private authService: AuthService,
-    private postulacionService: PostulacionService
+    private postulacionService: PostulacionService,
+    private ratingService: RatingService
   ) {}
 
   ngOnInit() {
@@ -53,6 +57,10 @@ export class ProjectDetailsComponent implements OnInit {
           datosAdicionales: (data as any).datos_adicionales || data.datosAdicionales || null,
           presupuesto: data.presupuesto ? Number(data.presupuesto) : null
         };
+        
+        // ✅ SIEMPRE cargar estado de finalización
+        this.loadCompletionStatus(id);
+        
         this.loading = false;
       },
       error: (err) => {
@@ -121,5 +129,58 @@ export class ProjectDetailsComponent implements OnInit {
 
   goBack() {
     this.router.navigate(['/home']);
+  }
+
+  // ✅ NUEVO: Cargar información de finalización
+  loadCompletionStatus(projectId: number) {
+    this.ratingService.getCompletionStatus(projectId).subscribe({
+      next: (status) => {
+        this.completionStatus = status;
+        if (status.usuarioAsignado) {
+          this.assignedUser = status.usuarioAsignado;
+        }
+      },
+      error: (err) => {
+        console.error('Error loading completion status:', err);
+      }
+    });
+  }
+
+  isFinalized(): boolean {
+    return this.completionStatus?.estadoFinalizacion === 'finalizado';
+  }
+
+  getStatusBadgeClass(): string {
+    if (!this.project) return '';
+    const estado = (this.project as any).estado || 'activo';
+    
+    if (this.isFinalized()) return 'badge-finalized';
+    
+    switch(estado) {
+      case 'activo': return 'badge-active';
+      case 'en_progreso': return 'badge-in-progress';
+      case 'pausado': return 'badge-paused';
+      case 'cancelado': return 'badge-cancelled';
+      default: return 'badge-active';
+    }
+  }
+
+  getStatusText(): string {
+    if (!this.project) return 'Activo';
+    
+    if (this.isFinalized()) return 'Finalizado';
+    
+    const estado = (this.project as any).estado || 'activo';
+    switch(estado) {
+      case 'activo': return 'Activo';
+      case 'en_progreso': return 'En Progreso';
+      case 'pausado': return 'Pausado';
+      case 'cancelado': return 'Cancelado';
+      default: return 'Activo';
+    }
+  }
+
+  navigateToProfile(userId: number) {
+    this.router.navigate(['/profile', userId]);
   }
 }

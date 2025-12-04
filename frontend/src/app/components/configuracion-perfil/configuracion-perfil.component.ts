@@ -174,12 +174,16 @@ export class ConfiguracionPerfilComponent implements OnInit {
     }
   }
 
+  private readonly API_BASE_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3000' 
+    : 'https://devback.mnz.dom.my.id';
+
   getFullPhotoUrl(fileName: string | null | undefined): string {
     if (!fileName) return 'assets/default-avatar.png';
     if (fileName.startsWith('http')) return fileName;
     if (fileName.startsWith('/uploads')) {
-      return `http://localhost:3000${fileName}`;
+      return `${this.API_BASE_URL}${fileName}`;
     }
-    return `http://localhost:3000/uploads/${fileName}`;
+    return `${this.API_BASE_URL}/uploads/${fileName}`;
   }
 }

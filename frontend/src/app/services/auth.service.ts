@@ -8,7 +8,9 @@ import { tap } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000/api/auth';
+  private apiUrl = (typeof window !== 'undefined' && window.location.hostname === 'localhost') 
+    ? 'http://localhost:3000/api/auth'
+    : 'https://devback.mnz.dom.my.id/api/auth';
   private tokenKey = 'auth_token';
   private userSubject = new BehaviorSubject<any>(null);
   public user$ = this.userSubject.asObservable();

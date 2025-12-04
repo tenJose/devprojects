@@ -335,4 +335,191 @@ export const uploadProjectFiles = async (req: Request, res: Response) => {
   }
 }
 
+// ✅ NUEVO: Solicitar finalización de proyecto
+export const requestProjectCompletion = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { usuarioId } = req.body; // Quien solicita (creador o asignado)
+
+    const proyecto = await prisma.proyecto.findUnique({
+      where: { id: Number(id) },
+      include: {
+        usuarioCreador: true,
+        usuarioAsignado: true
+      }
+    });
+
+    if (!proyecto) {
+      return res.status(404).json({ error: 'Proyecto no encontrado' });
+    }
+
+    // Verificar que quien solicita sea creador o asignado
+    if (proyecto.usuarioCreadorId !== usuarioId && proyecto.usuarioAsignadoId !== usuarioId) {
+      return res.status(403).json({ error: 'No tienes permiso para finalizar este proyecto' });
+    }
+
+    // Determinar el nuevo estado
+    const esCreador = proyecto.usuarioCreadorId === usuarioId;
+    const nuevoEstado = esCreador ? 'finalizado_por_creador' : 'finalizado_por_asignado';
+
+    // Actualizar proyecto
+    const proyectoActualizado = await prisma.proyecto.update({
+      where: { id: Number(id) },
+      data: { estadoFinalizacion: nuevoEstado }
+    });
+
+    // Crear notificación para la otra parte
+    const destinatarioId = esCreador ? proyecto.usuarioAsignadoId : proyecto.usuarioCreadorId;
+    const solicitanteNombre = esCreador 
+      ? `${proyecto.usuarioCreador.nombre} ${proyecto.usuarioCreador.apellido || ''}`.trim()
+      : `${proyecto.usuarioAsignado?.nombre || ''} ${proyecto.usuarioAsignado?.apellido || ''}`.trim();
+    
+    if (destinatarioId) {
+      await prisma.notificacion.create({
+        data: {
+          usuarioId: destinatarioId,
+          tipo: 'solicitud_finalizacion',
+          mensaje: `${solicitanteNombre} ha solicitado finalizar el proyecto "${proyecto.nombre}"`,
+          referenciaId: proyecto.id
+        }
+      });
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'Solicitud de finalización enviada',
+      estadoFinalizacion: nuevoEstado
+    });
+  } catch (error) {
+    console.error('Error requesting completion:', error);
+    res.status(500).json({ error: 'Error al solicitar finalización' });
+  }
+};
+
+// ✅ NUEVO: Confirmar o rechazar finalización
+export const confirmProjectCompletion = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { usuarioId, confirmar } = req.body; // confirmar: true/false
+
+    const proyecto = await prisma.proyecto.findUnique({
+      where: { id: Number(id) },
+      include: {
+        usuarioCreador: true,
+        usuarioAsignado: true
+      }
+    });
+
+    if (!proyecto) {
+      return res.status(404).json({ error: 'Proyecto no encontrado' });
+    }
+
+    // Verificar que quien responde sea la otra parte
+    const esCreador = proyecto.usuarioCreadorId === usuarioId;
+    const estadoEsperado = esCreador ? 'finalizado_por_asignado' : 'finalizado_por_creador';
+
+    if (proyecto.estadoFinalizacion !== estadoEsperado) {
+      return res.status(400).json({ 
+        error: 'No hay solicitud de finalización pendiente para este proyecto' 
+      });
+    }
+
+    let nuevoEstado: string;
+    let mensajeNotificacion: string;
+
+    if (confirmar) {
+      nuevoEstado = 'finalizado';
+      mensajeNotificacion = `El proyecto "${proyecto.nombre}" ha sido marcado como finalizado`;
+      
+      // Actualizar proyecto
+      await prisma.proyecto.update({
+        where: { id: Number(id) },
+        data: {
+          estadoFinalizacion: nuevoEstado,
+          estado: 'completado',
+          fechaFinalizacion: new Date()
+        }
+      });
+
+      // ✅ NUEVO: Enviar notificación al creador para que califique al ingeniero
+      if (proyecto.usuarioCreadorId && proyecto.usuarioAsignadoId) {
+        const ingenieroNombre = `${proyecto.usuarioAsignado?.nombre || ''} ${proyecto.usuarioAsignado?.apellido || ''}`.trim();
+        await prisma.notificacion.create({
+          data: {
+            usuarioId: proyecto.usuarioCreadorId,
+            tipo: 'solicitud_calificacion',
+            mensaje: `El proyecto "${proyecto.nombre}" ha finalizado. ¡Califica el trabajo de ${ingenieroNombre}!`,
+            referenciaId: proyecto.id
+          }
+        });
+      }
+    } else {
+      nuevoEstado = 'rechazado';
+      mensajeNotificacion = `La solicitud de finalización del proyecto "${proyecto.nombre}" ha sido rechazada`;
+      
+      // Volver a pendiente
+      await prisma.proyecto.update({
+        where: { id: Number(id) },
+        data: { estadoFinalizacion: 'pendiente' }
+      });
+    }
+
+    // Notificar al que solicitó
+    const solicitanteId = esCreador ? proyecto.usuarioAsignadoId : proyecto.usuarioCreadorId;
+    if (solicitanteId) {
+      await prisma.notificacion.create({
+        data: {
+          usuarioId: solicitanteId,
+          tipo: 'respuesta_finalizacion',
+          mensaje: mensajeNotificacion,
+          referenciaId: proyecto.id
+        }
+      });
+    }
+
+    res.json({ 
+      success: true, 
+      message: confirmar ? 'Proyecto finalizado correctamente' : 'Solicitud rechazada',
+      estadoFinalizacion: nuevoEstado
+    });
+  } catch (error) {
+    console.error('Error confirming completion:', error);
+    res.status(500).json({ error: 'Error al confirmar finalización' });
+  }
+};
+
+// ✅ NUEVO: Obtener estado de finalización
+export const getCompletionStatus = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const proyecto = await prisma.proyecto.findUnique({
+      where: { id: Number(id) },
+      select: {
+        estadoFinalizacion: true,
+        fechaFinalizacion: true,
+        usuarioAsignadoId: true,
+        usuarioAsignado: {
+          select: {
+            id: true,
+            nombre: true,
+            apellido: true,
+            fotoPerfil: true
+          }
+        }
+      }
+    });
+
+    if (!proyecto) {
+      return res.status(404).json({ error: 'Proyecto no encontrado' });
+    }
+
+    res.json(proyecto);
+  } catch (error) {
+    console.error('Error getting completion status:', error);
+    res.status(500).json({ error: 'Error al obtener estado' });
+  }
+};
+
+
 
